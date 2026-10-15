@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Meeting Requests — Double H Studio admin</title>
+<link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="admin">
+  <div class="scrim" data-scrim></div>
+  <aside class="sidebar" data-side aria-label="Admin navigation">
+    <div class="brandmini"><svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#e6ecec"/><text x="32" y="43" text-anchor="middle" font-family="Poppins,sans-serif" font-weight="700" font-size="30" fill="#12393a">H</text></svg><span>Double H<br><small>STUDIO · ADMIN</small></span></div>
+    <a class="navlink" data-nav="overview" href="/admin">Overview</a>
+    <a class="navlink" data-nav="requests" href="/admin/requests">Meeting Requests <span class="badge" data-unread hidden></span></a>
+    <a class="navlink" data-nav="videos" href="/admin/videos">Videos</a>
+    <a class="navlink" data-nav="settings" href="/admin/settings">Settings</a>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <button class="menubtn" data-menu aria-label="Open menu">☰</button>
+      <span class="who">Signed in as <strong data-admin-name>…</strong></span>
+      <button class="btn ghost small" data-logout>Logout</button>
+    </div>
+    <main class="content" id="main">
+      <div class="pagehead">
+        <div><h1>Meeting Requests</h1><p id="count">Loading…</p></div>
+        <div class="spacer"><button class="btn ghost small" id="export">Export CSV</button></div>
+      </div>
+      <div class="filters" id="filters">
+        <input type="search" id="q" placeholder="Search name, email, company…" aria-label="Search">
+        <select id="f-status" aria-label="Status filter"><option value="">All statuses</option></select>
+        <select id="f-service" aria-label="Service filter"><option value="">All services</option></select>
+        <select id="f-type" aria-label="Meeting type filter"><option value="">Online + In-person</option><option value="online">Online</option><option value="in_person">In-person</option></select>
+        <input type="date" id="f-from" aria-label="From date">
+        <input type="date" id="f-to" aria-label="To date">
+        <select id="f-sort" aria-label="Sort by"><option value="created_at-desc">Newest first</option><option value="created_at-asc">Oldest first</option><option value="preferred_date-asc">Meeting date ↑</option><option value="preferred_date-desc">Meeting date ↓</option><option value="full_name-asc">Name A–Z</option></select>
+      </div>
+      <div class="tablewrap"><table class="data" id="tbl">
+        <thead><tr><th>Status</th><th>Name</th><th>Service</th><th>Preferred</th><th>Type</th><th>Received</th></tr></thead>
+        <tbody id="rows"><tr><td colspan="6"><div class="skel"></div><div class="skel"></div><div class="skel"></div></td></tr></tbody>
+      </table></div>
+      <div class="pager"><button class="btn ghost small" id="prev">← Prev</button><span id="pageinfo"></span><button class="btn ghost small" id="next">Next →</button></div>
+    </main>
+  </div>
+</div>
+<div id="toasts"></div>
+<script src="/admin/assets/admin.js"></script>
+<script src="/admin/assets/requests.js"></script>
+</body>
+</html>

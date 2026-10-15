@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Videos — Double H Studio admin</title>
+<link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="admin">
+  <div class="scrim" data-scrim></div>
+  <aside class="sidebar" data-side aria-label="Admin navigation">
+    <div class="brandmini"><svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#e6ecec"/><text x="32" y="43" text-anchor="middle" font-family="Poppins,sans-serif" font-weight="700" font-size="30" fill="#12393a">H</text></svg><span>Double H<br><small>STUDIO · ADMIN</small></span></div>
+    <a class="navlink" data-nav="overview" href="/admin">Overview</a>
+    <a class="navlink" data-nav="requests" href="/admin/requests">Meeting Requests <span class="badge" data-unread hidden></span></a>
+    <a class="navlink" data-nav="videos" href="/admin/videos">Videos</a>
+    <a class="navlink" data-nav="settings" href="/admin/settings">Settings</a>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <button class="menubtn" data-menu aria-label="Open menu">☰</button>
+      <span class="who">Signed in as <strong data-admin-name>…</strong></span>
+      <button class="btn ghost small" data-logout>Logout</button>
+    </div>
+    <main class="content" id="main">
+      <div class="pagehead">
+        <div><h1>Videos</h1><p id="sub">Portfolio manager. Published videos appear in the public feed.</p></div>
+        <div class="spacer"><button class="btn small" id="upload-btn">Upload video</button></div>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Video categories">
+        <button class="tab" role="tab" data-tab="production" aria-selected="true">article <span class="badge" data-count="production">0</span></button>
+        <button class="tab" role="tab" data-tab="social" aria-selected="false">Social Media <span class="badge" data-count="social">0</span></button>
+      </div>
+      <div class="filters" id="tabfilters" style="margin-top:16px">
+        <input type="search" id="v-q" placeholder="Search title or client…" aria-label="Search videos">
+        <select id="v-status" aria-label="Status filter"><option value="">Draft + Published</option><option value="published">Published</option><option value="draft">Draft</option></select>
+      </div>
+      <p style="color:var(--muted);font-size:13px" id="dnd-hint">Tip: drag cards to reorder within this tab.</p>
+      <div class="vgrid" id="grid"><div class="card"><div class="skel"></div><div class="skel"></div></div><div class="card"><div class="skel"></div><div class="skel"></div></div></div>
+    </main>
+  </div>
+</div>
+<div id="toasts"></div>
+<script src="/admin/assets/admin.js"></script>
+<script src="/admin/assets/videos.js"></script>
+</body>
+</html>

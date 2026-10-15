@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Work — Production films &amp; Social videos | Double H Studio</title>
+<meta name="description" content="Double H Studio portfolio: cinematic Production films (showreels, commercials, short films) and vertical Social Media videos for Reels, TikTok and Shorts.">
+<meta property="og:title" content="Work — Production films & Social videos | Double H Studio">
+<meta property="og:description" content="Cinematic 16:9 productions and vertical 9:16 social cuts. Pick a view and press play.">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script type="application/ld+json" id="video-ld">{"@context":"https://schema.org","@type":"ItemList","name":"Double H Studio portfolio","itemListElement":[]}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><div class="nav">
+<a class="brand" href="/"><svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#e6ecec"/><text x="32" y="43" text-anchor="middle" font-family="Poppins,sans-serif" font-weight="700" font-size="30" fill="#12393a">H</text></svg><span>Double H<small>— STUDIO —</small></span></a>
+<button class="menu-btn" data-menu aria-expanded="false">Menu</button>
+<nav class="nav-links" data-links aria-label="Primary"><a href="/work" aria-current="page">Work</a><a href="/about">About</a><a href="/book" class="btn">Book a Meeting</a></nav>
+</div></header>
+<main id="main"><section class="section"><div class="wrap">
+<p class="kicker">Portfolio</p>
+<h1>Work that moves.</h1>
+<p class="lede">Cinematic productions and vertical social cuts — two formats, one studio. Videos load only when scrolled into view.</p>
+<nav class="seg" aria-label="Portfolio views">
+  <a href="/work?type=production" data-view="production" aria-current="true">Production</a>
+  <a href="/work?type=social" data-view="social" aria-current="false">Social Media</a>
+</nav>
+<div id="view-production" role="tabpanel" aria-label="Production films">
+  <div class="work-grid" id="grid-production"></div>
+  <div class="empty" id="empty-production" hidden>No production films published yet — check back soon.</div>
+</div>
+<div id="view-social" role="tabpanel" aria-label="Social media videos" hidden>
+  <div class="social-grid" id="grid-social"></div>
+  <div class="empty" id="empty-social" hidden>No social videos published yet — check back soon.</div>
+</div>
+<div class="cta-row"><a class="btn" href="/book">Book a Meeting</a><a class="btn btn-ghost" href="/">Back to Home</a></div>
+</div></section></main>
+<div class="player" id="player" hidden>
+  <div class="player-back" data-close></div>
+  <div class="player-box" role="dialog" aria-modal="true" aria-label="Video player">
+    <button class="player-x" data-close aria-label="Close player">✕</button>
+    <video id="player-video" controls playsinline></video>
+    <div class="player-meta"><h2 id="player-title"></h2><p id="player-desc"></p></div>
+  </div>
+</div>
+<footer><div class="wrap foot"><div><strong>Double H Studio</strong><br><span>studio@doubleh.example</span></div><nav aria-label="Footer"><a href="/">Home</a><a href="/about">About</a><a href="/book">Book a Meeting</a><a href="/privacy">Privacy</a></nav></div></footer>
+<script src="/app.js" defer></script>
+<script src="/work.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Overview — Double H Studio admin</title>
+<link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="admin">
+  <div class="scrim" data-scrim></div>
+  <aside class="sidebar" data-side aria-label="Admin navigation">
+    <div class="brandmini"><svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#e6ecec"/><text x="32" y="43" text-anchor="middle" font-family="Poppins,sans-serif" font-weight="700" font-size="30" fill="#12393a">H</text></svg><span>Double H<br><small>STUDIO · ADMIN</small></span></div>
+    <a class="navlink" data-nav="overview" href="/admin">Overview</a>
+    <a class="navlink" data-nav="requests" href="/admin/requests">Meeting Requests <span class="badge" data-unread hidden></span></a>
+    <a class="navlink" data-nav="videos" href="/admin/videos">Videos</a>
+    <a class="navlink" data-nav="settings" href="/admin/settings">Settings</a>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <button class="menubtn" data-menu aria-label="Open menu">☰</button>
+      <span class="who">Signed in as <strong data-admin-name>…</strong></span>
+      <button class="btn ghost small" data-logout>Logout</button>
+    </div>
+    <main class="content" id="main">
+      <div class="pagehead"><div><h1>Overview</h1><p>Studio at a glance.</p></div></div>
+      <div class="grid stats" id="stats">
+        <div class="card stat"><div class="skel" style="height:40px"></div></div>
+        <div class="card stat"><div class="skel" style="height:40px"></div></div>
+        <div class="card stat"><div class="skel" style="height:40px"></div></div>
+        <div class="card stat"><div class="skel" style="height:40px"></div></div>
+        <div class="card stat"><div class="skel" style="height:40px"></div></div>
+        <div class="card stat"><div class="skel" style="height:40px"></div></div>
+        <div class="card stat"><div class="skel" style="height:40px"></div></div>
+      </div>
+      <div class="grid two" style="margin-top:16px">
+        <div class="card"><h2>Latest requests</h2><div id="latest"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
+        <div class="card"><h2>Recent uploads</h2><div id="recent"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
+      </div>
+    </main>
+  </div>
+</div>
+<div id="toasts"></div>
+<script src="/admin/assets/admin.js"></script>
+<script src="/admin/assets/overview.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Book a Meeting — Double H Studio</title>
+<meta name="description" content="Request a meeting with Double H Studio: contact details, project information and preferred time. We reply by email.">
+<meta property="og:title" content="Book a Meeting — Double H Studio">
+<link rel="stylesheet" href="/styles.css?v=2">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><div class="nav">
+<a class="brand" href="/"><svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#e6ecec"/><text x="32" y="43" text-anchor="middle" font-family="Poppins,sans-serif" font-weight="700" font-size="30" fill="#12393a">H</text></svg><span>Double H<small>— STUDIO —</small></span></a>
+<button class="menu-btn" data-menu aria-expanded="false">Menu</button>
+<nav class="nav-links" data-links aria-label="Primary"><a href="/work">Work</a><a href="/about">About</a><a href="/book" class="btn" aria-current="page">Book a Meeting</a></nav>
+</div></header>
+<main id="main"><section class="section light"><div class="wrap">
+<p class="kicker">Book a Meeting</p>
+<h1>Request a meeting.</h1>
+<p class="lede">We collect only what we need to reply: your contact, project and preferred time. Data goes to the studio inbox and is handled per the <a href="/privacy">privacy notice</a>.</p>
+<div class="notice" role="note">A submitted form is a <strong>request, not a confirmed appointment</strong>. The studio confirms manually by email, usually within 2 working days.</div>
+<form class="booking" data-booking-form novalidate aria-describedby="formStatus">
+  <div class="field" data-field="full_name"><label for="f-name">Full name *</label><input id="f-name" name="full_name" type="text" autocomplete="name" required maxlength="100"><span class="error" aria-live="polite"></span></div>
+  <div class="two">
+    <div class="field" data-field="email"><label for="f-email">Email address *</label><input id="f-email" name="email" type="email" autocomplete="email" required maxlength="254"><span class="error" aria-live="polite"></span></div>
+    <div class="field" data-field="phone"><label for="f-phone">Phone number</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" maxlength="32" placeholder="Optional"><span class="error" aria-live="polite"></span></div>
+  </div>
+  <div class="two">
+    <div class="field" data-field="company"><label for="f-company">Company / Brand name</label><input id="f-company" name="company" type="text" autocomplete="organization" maxlength="120" placeholder="Optional"><span class="error" aria-live="polite"></span></div>
+    <div class="field" data-field="service"><label for="f-service">Service required *</label><select id="f-service" name="service" required>
+      <option value="">Choose a service…</option>
+      <option>Brand Identity &amp; Logo</option>
+      <option>Architectural Visualization</option>
+      <option>Interior &amp; Spatial Design</option>
+      <option>Cinematic Video &amp; Showreel</option>
+      <option>Web &amp; Digital Presence</option>
+    </select><span class="error" aria-live="polite"></span></div>
+  </div>
+  <div class="field" data-field="description"><label for="f-desc">Project description *</label><textarea id="f-desc" name="description" required maxlength="5000" placeholder="Goals, scope, timeline, references…"></textarea><span class="error" aria-live="polite"></span></div>
+  <div class="two">
+    <div class="field" data-field="preferred_date"><label for="f-date">Preferred meeting date *</label><input id="f-date" name="preferred_date" type="date" required><span class="error" aria-live="polite"></span></div>
+    <div class="field" data-field="preferred_time"><label for="f-time">Preferred meeting time *</label><input id="f-time" name="preferred_time" type="time" required><span class="error" aria-live="polite"></span></div>
+  </div>
+  <fieldset class="field meeting-type" data-field="meeting_type"><legend>Meeting type *</legend>
+    <div class="radio-cards">
+      <label class="radio-card"><input type="radio" name="meeting_type" value="online" checked><span>Online</span></label>
+      <label class="radio-card"><input type="radio" name="meeting_type" value="in_person"><span>In-person</span></label>
+    </div>
+    <span class="error" aria-live="polite"></span>
+  </fieldset>
+  <div class="consent field" data-field="consent"><label class="consent-label"><input type="checkbox" id="f-consent" name="consent" required><span>I agree that my details are used to process this meeting request as described in the <a href="/privacy">privacy notice</a> *</span></label><span class="error" aria-live="polite"></span></div>
+  <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" value="">
+  <input type="hidden" name="submissionKey" value="">
+  <p class="form-status" id="formStatus" data-status role="status" aria-live="polite"></p>
+  <div><button class="btn" type="submit">Submit request</button></div>
+</form>
+</div></section></main>
+<footer><div class="wrap foot"><div><strong>Double H Studio</strong><br><span>studio@doubleh.example</span></div><nav aria-label="Footer"><a href="/">Home</a><a href="/work">Work</a><a href="/about">About</a><a href="/privacy">Privacy</a></nav></div></footer>
+<script src="/app.js" defer></script>
+</body>
+</html>

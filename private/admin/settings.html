@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Settings — Double H Studio admin</title>
+<link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="admin">
+  <div class="scrim" data-scrim></div>
+  <aside class="sidebar" data-side aria-label="Admin navigation">
+    <div class="brandmini"><svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#e6ecec"/><text x="32" y="43" text-anchor="middle" font-family="Poppins,sans-serif" font-weight="700" font-size="30" fill="#12393a">H</text></svg><span>Double H<br><small>STUDIO · ADMIN</small></span></div>
+    <a class="navlink" data-nav="overview" href="/admin">Overview</a>
+    <a class="navlink" data-nav="requests" href="/admin/requests">Meeting Requests <span class="badge" data-unread hidden></span></a>
+    <a class="navlink" data-nav="videos" href="/admin/videos">Videos</a>
+    <a class="navlink" data-nav="settings" href="/admin/settings">Settings</a>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <button class="menubtn" data-menu aria-label="Open menu">☰</button>
+      <span class="who">Signed in as <strong data-admin-name>…</strong></span>
+      <button class="btn ghost small" data-logout>Logout</button>
+    </div>
+    <main class="content" id="main">
+      <div class="pagehead"><div><h1>Settings</h1><p>Studio preferences. Changes apply immediately.</p></div></div>
+      <div class="grid two">
+        <div class="card">
+          <h2>Studio profile</h2>
+          <div class="f"><label for="s-tz">Studio time zone</label><input type="text" id="s-tz" placeholder="Asia/Amman"><span class="err" data-e="timezone"></span></div>
+          <div class="f"><label for="s-sla">Response promise (shown to clients)</label><input type="text" id="s-sla" maxlength="120" placeholder="within 2 working days"><span class="err" data-e="sla"></span></div>
+          <div class="f"><label for="s-services">Services (one per line — booking dropdown)</label><textarea id="s-services" rows="5"></textarea><span class="err" data-e="services"></span></div>
+          <p style="color:var(--muted);font-size:14px">Booking inbox: <strong id="s-inbox">…</strong> (set via STUDIO_EMAIL)</p>
+          <button class="btn small" id="save-profile">Save profile</button>
+        </div>
+        <div>
+          <div class="card">
+            <h2>Uploads &amp; storage</h2>
+            <div class="f"><label for="s-max-prod">Max Production video size (MB, 1–4000)</label><input type="number" id="s-max-prod" min="1" max="4000" step="1"><span class="err" data-e="maxUploadMbProduction"></span></div>
+            <div class="f"><label for="s-max-social">Max Social video size (MB, 1–4000)</label><input type="number" id="s-max-social" min="1" max="4000" step="1"><span class="err" data-e="maxUploadMbSocial"></span></div>
+            <div class="f"><label for="s-max-sec">Max Social duration (seconds, 15–600)</label><input type="number" id="s-max-sec" min="15" max="600" step="1"><span class="err" data-e="maxSocialSec"></span></div>
+            <div class="f"><label for="s-driver">Storage driver</label>
+              <select id="s-driver"><option value="local">Local disk (dev)</option><option value="s3">Object storage — signed URLs (S3 / R2)</option></select>
+              <span class="err" data-e="storageDriver"></span></div>
+            <p style="color:var(--muted);font-size:14px" id="s3state">…</p>
+            <button class="btn small" id="save-uploads">Save uploads</button>
+          </div>
+          <div class="card" style="margin-top:16px">
+            <h2>Change password</h2>
+            <div class="f"><label for="p-cur">Current password</label><input type="password" id="p-cur" autocomplete="current-password"></div>
+            <div class="f"><label for="p-next">New password (min 10 characters)</label><input type="password" id="p-next" autocomplete="new-password"><span class="err" data-e="next"></span></div>
+            <button class="btn small" id="save-pass">Change password</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<div id="toasts"></div>
+<script src="/admin/assets/admin.js"></script>
+<script src="/admin/assets/settings.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /book/thank-you
+Disallow: /api/
+Disallow: /admin
+Sitemap: http://localhost:3100/sitemap.xml

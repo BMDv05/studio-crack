@@ -1,0 +1,10 @@
+node_modules/
+data/*.sqlite*
+data/*.sqlite*-journal
+data/*.bak
+emails/*.json
+emails/*.eml
+.env
+uploads/
+test-uploads*/
+Double-H-Studio/

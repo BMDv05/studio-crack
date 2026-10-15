@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Sign in — Double H Studio admin</title>
+<link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+<body>
+<div class="loginwrap">
+  <div class="logincard">
+    <div style="display:flex;align-items:center;gap:12px;font-weight:700"><svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#e6ecec"/><text x="32" y="43" text-anchor="middle" font-family="Poppins,sans-serif" font-weight="700" font-size="30" fill="#12393a">H</text></svg><span>Double H<br><small style="letter-spacing:.32em;color:var(--muted);font-size:10px">STUDIO · ADMIN</small></span></div>
+    <h1>Sign in</h1>
+    <p>Studio team only. Attempts are rate-limited.</p>
+    <p id="expired" hidden style="color:var(--gold)">Your session expired. Please sign in again.</p>
+    <form id="login" novalidate>
+      <div class="f"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="username" required><span class="err" data-err></span></div>
+      <div class="f"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required><span class="err" data-err></span></div>
+      <p class="err" id="formerr" role="alert" style="min-height:1.2em"></p>
+      <button class="btn" type="submit" style="width:100%">Sign in</button>
+    </form>
+  </div>
+</div>
+<div id="toasts"></div>
+<script src="/admin/assets/admin.js"></script>
+<script src="/admin/assets/login.js"></script>
+</body>
+</html>

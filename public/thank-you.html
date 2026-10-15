@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Booking sent — Double H Studio</title>
+<meta name="description" content="Your meeting request was received.">
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><div class="nav">
+<a class="brand" href="/"><svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#e6ecec"/><text x="32" y="43" text-anchor="middle" font-family="Poppins,sans-serif" font-weight="700" font-size="30" fill="#12393a">H</text></svg><span>Double H<small>— STUDIO —</small></span></a>
+<nav class="nav-links" data-links aria-label="Primary"><a href="/work">Work</a><a href="/about">About</a><a href="/book" class="btn">Book a Meeting</a></nav>
+</div></header>
+<main id="main"><section class="section"><div class="wrap">
+<p class="kicker">Booking sent</p>
+<h1>Thank you — request received.</h1>
+<p class="lede">Your meeting request was saved. The studio will reply by email, usually within 2 working days. <strong>The meeting is not yet confirmed</strong> until you receive that reply.</p>
+<p>Reference: <code id="ref">—</code></p>
+<div class="cta-row"><a class="btn" href="/">Back to Home</a><a class="btn btn-ghost" href="/work">Explore Our Work</a></div>
+</div></section></main>
+<footer><div class="wrap foot"><div><strong>Double H Studio</strong></div><nav aria-label="Footer"><a href="/">Home</a><a href="/privacy">Privacy</a></nav></div></footer>
+<script>
+try {
+  const ref = new URLSearchParams(location.search).get('reference');
+  if (ref) document.getElementById('ref').textContent = ref;
+} catch {}
+</script>
+</body>
+</html>

@@ -25,3 +25,6 @@ server/uploads/
 Thumbs.db
 .vscode/
 .idea/
+uploads/
+test-uploads*/
+Double-H-Studio/

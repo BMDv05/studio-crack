@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MeetingType {
+  online
+  in_person
+}
+
+enum BookingStatus {
+  new
+  confirmed
+  declined
+  closed
+}
+
+enum VideoCategory {
+  production
+  social
+}
+
+enum VideoStatus {
+  draft
+  published
+}
+
+enum VideoProcessing {
+  uploading
+  processing
+  ready
+  failed
+}
+
+enum EventKind {
+  status
+  note
+}
+
+model Admin {
+  id           String         @id @default(uuid()) @db.Uuid
+  email        String         @unique
+  name         String         @default("")
+  passwordHash String
+  createdAt    DateTime       @default(now())
+  sessions     AdminSession[]
+
+  @@map("admins")
+}
+
+model AdminSession {
+  tokenHash  String   @id
+  adminId    String   @db.Uuid
+  admin      Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  csrf       String
+  createdAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+
+  @@index([adminId])
+  @@map("admin_sessions")
+}
+
+model Setting {
+  key       String   @id
+  value     String   @default("")
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
+
+model Booking {
+  id               String        @id @default(uuid()) @db.Uuid
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime?     @updatedAt
+  fullName         String
+  email            String
+  phone            String        @default("")
+  company          String        @default("")
+  service          String
+  description      String        @db.Text
+  preferredDate    String        // YYYY-MM-DD wall date in the studio time zone
+  preferredTime    String        // HH:MM wall time in the studio time zone
+  meetingType      MeetingType
+  status           BookingStatus @default(new)
+  statusChangedAt  DateTime?
+  studioEmailSent  Boolean       @default(false)
+  clientEmailSent  Boolean       @default(false)
+  confirmEmailSent Boolean       @default(false)
+  consentAt        DateTime?
+  readAt           DateTime?
+  submissionKey    String?       @unique
+  events           BookingEvent[]
+
+  @@index([status, createdAt(sort: Desc)])
+  @@map("booking_requests")
+}
+
+model BookingEvent {
+  id        Int       @id @default(autoincrement())
+  bookingId String    @db.Uuid
+  booking   Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  at        DateTime  @default(now())
+  author    String    @default("")
+  kind      EventKind
+  detail    String    @default("") @db.Text
+
+  @@index([bookingId, id])
+  @@map("request_events")
+}
+
+model Video {
+  id           String          @id
+  title        String
+  description  String          @default("")
+  category     VideoCategory   @default(production)
+  videoUrl     String          @default("")
+  thumbnailUrl String          @default("")
+  durationSec  Float?
+  sizeBytes    BigInt          @default(0)
+  mime         String          @default("")
+  storage      String          @default("local")
+  originalName String          @default("")
+  sortOrder    Int             @default(0)
+  platforms    Json            @default("[]")
+  clientName   String          @default("")
+  status       VideoStatus     @default(draft)
+  processing   VideoProcessing @default(uploading)
+  uploadedBy   String          @default("")
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime?       @updatedAt
+
+  @@index([category, status, sortOrder])
+  @@map("videos")
+}

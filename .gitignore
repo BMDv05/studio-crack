@@ -1,10 +1,27 @@
+# Dependencies
 node_modules/
-data/*.sqlite*
-data/*.sqlite*-journal
-data/*.bak
-emails/*.json
-emails/*.eml
+
+# Environment (never commit secrets)
 .env
-uploads/
-test-uploads*/
-Double-H-Studio/
+*.local
+
+# Build output
+dist/
+build/
+
+# Legacy runtime data (frozen old site; lives under /legacy)
+legacy/data/
+legacy/uploads/
+legacy/emails/
+legacy/node_modules/
+legacy/test-uploads*/
+
+# Uploads & local runtime data
+server/uploads/
+*.sqlite*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

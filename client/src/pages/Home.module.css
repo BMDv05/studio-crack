@@ -45,3 +45,18 @@
 .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 22px; }
 .step { border: 1px solid var(--dh-field-border); border-radius: 12px; padding: 16px; background: var(--dh-mist); }
 .step b { display: block; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dh-sage); }
+.waCard {
+  display: grid; grid-template-columns: 1.4fr 1fr; gap: 28px; align-items: center;
+  background: rgba(230, 236, 236, 0.06); border: 1px solid rgba(230, 236, 236, 0.14);
+  border-radius: var(--dh-radius-card); padding: 34px;
+}
+.waLede { max-width: 520px; font-weight: 300; }
+.waActions { display: grid; gap: 12px; justify-items: start; }
+.waNumber {
+  color: var(--dh-mist); font-size: clamp(20px, 3vw, 26px); font-weight: 600;
+  letter-spacing: 0.02em; text-decoration: none; transition: color 300ms ease-out;
+}
+.waNumber:hover { color: var(--dh-white); text-decoration: underline; }
+@media (max-width: 760px) {
+  .waCard { grid-template-columns: 1fr; padding: 24px; }
+}

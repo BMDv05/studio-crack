@@ -1,12 +1,25 @@
-import { useState } from 'react';
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import styles from './Layout.module.css';
 import { Wordmark } from './Wordmark.jsx';
+import PageLoader from './PageLoader.jsx';
 
 export default function Layout() {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { pathname } = useLocation();
+  const first = useRef(true);
+
+  /* Branded 1s transition on every in-app navigation (skips first paint). */
+  useEffect(() => {
+    if (first.current) { first.current = false; return; }
+    setLoading(true);
+    const t = setTimeout(() => setLoading(false), 1000);
+    return () => clearTimeout(t);
+  }, [pathname]);
   return (
     <>
+      {loading && <PageLoader />}
       <a className="skip" href="#main">Skip to content</a>
       <header className={styles.header}>
         <div className={styles.nav}>

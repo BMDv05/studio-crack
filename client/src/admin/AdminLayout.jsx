@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from './AdminApp.jsx';
 import { get } from '../api/client.js';
+import { HMark } from '../components/Wordmark.jsx';
 
 export default function AdminLayout() {
   const { me, logout } = useAuth();
@@ -26,7 +27,7 @@ export default function AdminLayout() {
     <div className="a-shell">
       <aside className={`a-side ${open ? 'open' : ''}`} aria-label="Admin navigation">
         <Link to="/admin" className="a-brand">
-          <span className="a-brand-badge">H</span>
+          <span className="a-brand-badge"><HMark size={19} /></span>
           <span>Double H<br /><small>STUDIO · ADMIN</small></span>
         </Link>
         <nav className="a-nav">

@@ -10,9 +10,8 @@
 }
 .nav a { text-decoration: none; color: var(--dh-mist); }
 .nav a:global(.btn) { color: var(--dh-ink); } /* keep button text above the link color rule */
-.brand { display: flex; align-items: center; gap: 12px; font-weight: 700; }
-.brand svg { display: block; }
-.brand small { display: block; font-weight: 500; letter-spacing: 0.42em; font-size: 10px; opacity: 0.85; }
+.brandLink { display: block; line-height: 0; color: var(--dh-mist); }
+.brandLink svg { display: block; }
 .links { display: flex; gap: 18px; margin-inline-start: auto; align-items: center; }
 .links a:not(.btn) { opacity: 0.9; }
 .links a:not(.btn):hover, .links a:not(.btn)[aria-current="page"] { opacity: 1; text-decoration: underline; }
@@ -22,6 +21,8 @@
   padding: 8px 12px; font-size: 16px; margin-inline-start: auto;
 }
 .footer { border-top: 1px solid rgba(230, 236, 236, 0.14); padding: 34px 0 46px; background: var(--dh-ink); color: var(--dh-mist); }
+.footBrand { display: grid; gap: 10px; color: var(--dh-mist); }
+.footBrand svg { display: block; }
 .foot { display: flex; gap: 24px; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; }
 .foot nav { display: flex; gap: 16px; flex-wrap: wrap; }
 .foot a { text-decoration: none; opacity: 0.9; }

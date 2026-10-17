@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import PageMeta from '../../components/PageMeta.jsx';
+import { Wordmark } from '../../components/Wordmark.jsx';
 import { post, ApiError } from '../../api/client.js';
 import { useAuth } from '../AdminApp.jsx';
 
@@ -32,8 +33,11 @@ export default function Login() {
     <>
       <PageMeta title="Admin sign in — Double H Studio" description="" noindex />
       <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: 'var(--dh-ink)', padding: 20 }}>
-        <form onSubmit={submit} style={{ width: 'min(400px, 100%)', background: 'var(--dh-white)', borderRadius: 'var(--dh-radius-card)', padding: 30 }}>
-          <h1 style={{ marginTop: 0, fontSize: 22, color: 'var(--dh-ink)' }}>Double H Studio · Admin</h1>
+        <form onSubmit={submit} style={{ width: 'min(400px, 100%)', background: 'var(--dh-white)', borderRadius: 'var(--dh-radius-card)', padding: 30, color: 'var(--dh-ink)' }}>
+          <div style={{ display: 'grid', justifyItems: 'center', gap: 6, marginBottom: 20 }}>
+            <Wordmark height={40} title="Double H Studio" style={{ color: 'var(--dh-ink)' }} />
+            <span style={{ fontSize: 11, letterSpacing: '0.3em', color: 'var(--dh-sage)', fontWeight: 600 }}>ADMIN</span>
+          </div>
           {params.get('expired') ? (
             <p style={{ color: 'var(--dh-error)', fontSize: 14 }}>Your session expired. Please sign in again.</p>
           ) : null}

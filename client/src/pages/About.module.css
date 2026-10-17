@@ -1,0 +1,17 @@
+.lede { max-width: 680px; font-size: clamp(16px, 2vw, 19px); font-weight: 300; color: #d9e6e4; }
+.crafts { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-top: 32px; }
+.craft {
+  background: rgba(230, 236, 236, 0.06);
+  border: 1px solid rgba(230, 236, 236, 0.14);
+  border-radius: var(--dh-radius-card);
+  padding: 22px;
+  transition: transform 300ms ease-out, border-color 300ms ease-out;
+}
+.craft:hover { transform: translateY(-4px); border-color: rgba(230, 236, 236, 0.35); }
+.craft h3 { margin: 0 0 8px; font-size: 19px; }
+.craft p { margin: 0; font-weight: 300; color: #c6d6d4; }
+.values { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-top: 26px; }
+.value { background: var(--dh-white); border: 1px solid var(--dh-field-border); border-radius: var(--dh-radius-card); padding: 22px; }
+.value h3 { margin: 0 0 8px; color: var(--dh-green); font-size: 18px; }
+.value p { margin: 0; color: #3c4a49; font-weight: 300; }
+.ctaRow { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px; }

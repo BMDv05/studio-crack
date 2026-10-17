@@ -1,0 +1,30 @@
+.card {
+  max-width: 640px; margin-inline: auto; text-align: center;
+  background: var(--dh-white);
+  border: 1px solid var(--dh-field-border);
+  border-radius: var(--dh-radius-card);
+  padding: clamp(26px, 6vw, 48px);
+  animation: thanksIn 600ms ease-out both;
+}
+@keyframes thanksIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+.badge {
+  width: 64px; height: 64px; margin: 0 auto 18px;
+  display: grid; place-items: center;
+  background: var(--dh-green); color: var(--dh-white);
+  border-radius: 999px; font-size: 30px; font-weight: 700;
+  animation: badgePop 500ms 200ms ease-out both;
+}
+@keyframes badgePop {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.lede { font-size: 17px; font-weight: 300; color: #3c4a49; }
+.ref { font-size: 15px; color: var(--dh-sage); }
+.ref code {
+  background: var(--dh-mist); border: 1px solid var(--dh-field-border);
+  border-radius: 8px; padding: 3px 10px; font-size: 14px; color: var(--dh-ink);
+}
+.ctaRow { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 26px; }

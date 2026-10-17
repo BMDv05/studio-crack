@@ -1,0 +1,25 @@
+/* Double H Studio — Part A design tokens. The ONLY brand colors.
+   Everything references these variables; no raw hex in components. */
+:root {
+  --dh-ink: #12393a;      /* deepest green: dark surfaces, headings on light, footer */
+  --dh-green: #134c4b;    /* primary brand green: buttons on light, active states */
+  --dh-mist: #e6ecec;     /* light surface and light page background */
+  --dh-sage: #46766f;     /* secondary accent: borders, icons, hover, LARGE text only */
+  --dh-black: #161919;    /* near-black: video letterbox, deepest overlays */
+  --dh-white: #ffffff;
+
+  /* Status badges only (muted tones) */
+  --dh-success: #5da87a;
+  --dh-warning: #c9a227;
+  --dh-error: #c0564d;
+
+  --dh-font-latin: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --dh-font-arabic: "Cairo", system-ui, sans-serif;
+
+  --dh-radius-card: 20px;
+  --dh-radius-field: 12px;
+  --dh-radius-pill: 999px;
+
+  --dh-input-height: 56px;
+  --dh-field-border: #c9d6d5;
+}

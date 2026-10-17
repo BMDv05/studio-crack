@@ -1,0 +1,7 @@
+.wrap { max-width: 760px; }
+.list { padding-inline-start: 20px; display: grid; gap: 12px; font-weight: 300; }
+.list strong { font-weight: 600; color: var(--dh-green); }
+.note {
+  margin-top: 26px; font-size: 14px; color: var(--dh-sage);
+  border-top: 1px solid var(--dh-field-border); padding-top: 16px;
+}

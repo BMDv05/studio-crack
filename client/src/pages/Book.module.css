@@ -1,0 +1,41 @@
+.lede { max-width: 640px; font-size: clamp(16px, 2vw, 18px); font-weight: 300; }
+.notice {
+  border-inline-start: 3px solid var(--dh-sage);
+  background: var(--dh-white);
+  border-radius: 0 var(--dh-radius-field) var(--dh-radius-field) 0;
+  padding: 14px 18px; margin: 22px 0 26px; font-size: 15px;
+}
+.form {
+  display: grid; gap: 18px;
+  background: var(--dh-white);
+  border: 1px solid var(--dh-field-border);
+  border-radius: var(--dh-radius-card);
+  padding: clamp(18px, 4vw, 32px);
+  max-width: 760px;
+}
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+/* Spec: date + time are two 56px fields on one row (the .field inputs are
+   already var(--dh-input-height)); the timezone line spans both columns. */
+.tzline {
+  margin: -8px 0 0; font-size: 14px; color: var(--dh-sage); font-weight: 500;
+}
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.card {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: var(--dh-input-height);
+  border: 1.5px solid var(--dh-field-border);
+  border-radius: var(--dh-radius-field);
+  cursor: pointer; font-weight: 600; font-size: 15px;
+  transition: border-color 300ms ease-out, background-color 300ms ease-out;
+}
+.card:hover { border-color: var(--dh-sage); }
+.card:has(input:checked) { border-color: var(--dh-green); background: #eef4f3; }
+.card input { width: 18px; height: 18px; accent-color: var(--dh-green); }
+.consent { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; font-weight: 400; font-size: 15px; line-height: 1.55; }
+.consent input { width: 20px; height: 20px; min-width: 20px; margin-top: 3px; accent-color: var(--dh-green); }
+.consent a { color: var(--dh-green); }
+.hp { position: absolute; inset-inline-start: -9999px; width: 1px; height: 1px; opacity: 0; }
+.status { min-height: 1.4em; margin: 0; font-size: 15px; color: var(--dh-error); font-weight: 500; }
+@media (max-width: 600px) {
+  .two, .cards { grid-template-columns: 1fr; }
+}

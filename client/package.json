@@ -1,0 +1,24 @@
+{
+  "name": "double-h-studio-client",
+  "version": "1.0.0",
+  "description": "Double H Studio frontend — React 18 + Vite + React Router",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fontsource/cairo": "^5.1.0",
+    "@fontsource/poppins": "^5.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.0"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}

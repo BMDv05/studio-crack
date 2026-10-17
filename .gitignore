@@ -18,6 +18,7 @@ legacy/test-uploads*/
 
 # Uploads & local runtime data
 server/uploads/
+server/emails/
 *.sqlite*
 
 # OS / editor

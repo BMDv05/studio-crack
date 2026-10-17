@@ -1,0 +1,89 @@
+/* Double H Studio — global styles. All color comes from tokens.css variables. */
+@import "./tokens.css";
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--dh-font-latin);
+  background: var(--dh-black);
+  color: var(--dh-white);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+[lang="ar"], .arabic { font-family: var(--dh-font-arabic); }
+a { color: inherit; }
+img, video { max-width: 100%; }
+.wrap { max-width: 1120px; margin-inline: auto; padding-inline: 20px; }
+.section { padding: 64px 0; background: var(--dh-black); color: var(--dh-white); }
+.section h2 { font-size: clamp(28px, 4vw, 44px); line-height: 1.12; margin: 8px 0 10px; }
+.section-light { background: var(--dh-mist); color: var(--dh-ink); }
+.section-light .eyebrow { color: var(--dh-sage); }
+.skip { position: absolute; inset-inline-start: -9999px; top: 0; background: var(--dh-mist); color: var(--dh-ink); padding: 10px 16px; z-index: 99; }
+.skip:focus { inset-inline-start: 12px; top: 12px; }
+
+/* Eyebrow motif: thin line — letterspaced label — thin line */
+.eyebrow {
+  display: flex; align-items: center; gap: 16px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.32em; text-transform: uppercase;
+  color: var(--dh-sage); margin: 0 0 16px;
+}
+.eyebrow::before, .eyebrow::after { content: ""; height: 1px; width: 56px; background: currentColor; opacity: 0.7; }
+.eyebrow.center { justify-content: center; }
+
+/* Buttons: green fill + white on light; mist fill + ink on dark */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; padding: 12px 28px; border-radius: var(--dh-radius-pill);
+  border: 1px solid transparent; cursor: pointer; text-decoration: none;
+  font-family: inherit; font-size: 15px; font-weight: 600;
+  transition: transform 300ms ease-out, background-color 300ms ease-out, border-color 300ms ease-out;
+}
+.btn-light { background: var(--dh-green); color: var(--dh-white); }
+.btn-light:hover { background: var(--dh-ink); }
+.btn-dark { background: var(--dh-mist); color: var(--dh-ink); }
+.btn-dark:hover { background: var(--dh-white); }
+.btn-ghost-light { background: transparent; color: var(--dh-ink); border-color: var(--dh-sage); }
+.btn-ghost-dark { background: transparent; color: var(--dh-mist); border-color: rgba(230, 236, 236, 0.35); }
+.btn-ghost-dark:hover { border-color: var(--dh-mist); }
+.btn:disabled { opacity: 0.55; cursor: wait; }
+
+/* Forms: 56px controls, one border, one radius, one focus style */
+.field { display: grid; gap: 8px; }
+.field > label, fieldset.field > legend { font-size: 15px; font-weight: 600; line-height: 1.4; padding: 0; }
+.field input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+.field select, .field textarea {
+  font-family: inherit; font-size: 16px; color: var(--dh-ink); background: var(--dh-white);
+  border: 1px solid var(--dh-field-border); border-radius: var(--dh-radius-field);
+  padding: 0 16px; width: 100%; height: var(--dh-input-height); margin: 0;
+}
+.field textarea { height: auto; min-height: 130px; padding: 16px; resize: vertical; }
+.field .error { font-size: 14px; color: var(--dh-error); min-height: 1.2em; }
+.field.invalid input:not([type="checkbox"]):not([type="radio"]),
+.field.invalid select, .field.invalid textarea { border-color: var(--dh-error); }
+:is(input, select, textarea, button, a):focus-visible {
+  outline: 2px solid var(--dh-sage); outline-offset: 2px;
+}
+.on-dark :is(input, select, textarea, button, a):focus-visible {
+  outline-color: var(--dh-mist);
+}
+
+/* Motion: slow, subtle, once. Fully off under reduced motion. */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 600ms ease-out, transform 600ms ease-out; }
+.reveal.is-visible { opacity: 1; transform: none; }
+.reveal[data-delay="1"] { transition-delay: 120ms; }
+.reveal[data-delay="2"] { transition-delay: 240ms; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.001s !important; transition-duration: 0.001s !important; }
+  .reveal { opacity: 1; transform: none; }
+}
+
+@keyframes kenburns {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}

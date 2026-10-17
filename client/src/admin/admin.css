@@ -8,12 +8,9 @@
   display: flex; flex-direction: column; gap: 8px;
   padding: 18px 14px; position: sticky; top: 0; height: 100vh;
 }
-.a-brand { display: flex; align-items: center; gap: 10px; color: var(--dh-mist); text-decoration: none; font-weight: 700; line-height: 1.2; padding: 4px 6px 14px; }
-.a-brand small { font-weight: 500; letter-spacing: 0.3em; font-size: 10px; opacity: 0.85; }
-.a-brand-badge {
-  width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
-  background: var(--dh-mist); color: var(--dh-ink); font-size: 18px;
-}
+.a-brand { display: grid; gap: 3px; justify-items: start; color: var(--dh-mist); text-decoration: none; padding: 4px 6px 14px; }
+.a-brand svg { display: block; }
+.a-brand-admin { font-size: 10px; font-weight: 500; letter-spacing: 0.3em; opacity: 0.85; padding-inline-start: 2px; }
 .a-nav { display: grid; gap: 4px; }
 .a-nav a {
   display: flex; align-items: center; gap: 8px; justify-content: space-between;

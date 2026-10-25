@@ -7,9 +7,15 @@ const { db } = require('../db');
 const { config } = require('../config');
 
 function hashPassword(plain) {
+  if (process.env.WORKER_RUNTIME === 'true') {
+    return db.$queryRaw`select extensions.crypt(${String(plain)}, extensions.gen_salt('bf', 12)) as hash`.then(rows => rows[0].hash);
+  }
   return bcrypt.hashSync(String(plain), 12);
 }
 function checkPassword(plain, hash) {
+  if (process.env.WORKER_RUNTIME === 'true') {
+    return db.$queryRaw`select extensions.crypt(${String(plain)}, ${hash}) = ${hash} as valid`.then(rows => rows[0].valid);
+  }
   try {
     return bcrypt.compareSync(String(plain), hash);
   } catch {
@@ -35,7 +41,7 @@ async function seedAdmin() {
     console.log('[admin] ADMIN_PASSWORD must be at least 10 characters — seed refused.');
     return { seeded: false };
   }
-  await db.admin.create({ data: { email, name, passwordHash: hashPassword(password) } });
+  await db.admin.create({ data: { email, name, passwordHash: await hashPassword(password) } });
   console.log(`[admin] seeded admin account ${email}`);
   return { seeded: true };
 }
@@ -112,6 +118,7 @@ function requireCsrf(req, res, next) {
 // ---- Login rate limiting (per IP + per email, in-memory) ----
 const loginHits = new Map();
 function loginAllowed(key, max) {
+  if (process.env.WORKER_RUNTIME === 'true') return require('../services/rateLimit').allowed(`login:${sha256(key)}`, max, config.loginRateLimit.windowMs);
   const now = Date.now();
   const arr = (loginHits.get(key) || []).filter((t) => now - t < config.loginRateLimit.windowMs);
   arr.push(now);

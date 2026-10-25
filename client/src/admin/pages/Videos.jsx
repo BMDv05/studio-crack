@@ -189,6 +189,15 @@ async function replaceFile(id, file, duration, csrf) {
 }
 
 async function uploadFile(id, file, duration, csrf) {
+  const meta = await get('/api/admin/meta');
+  if (meta.storageDriver === 'supabase') {
+    const signed = await post(`/api/admin/videos/${id}/upload-url`, {
+      mime: file.type, filename: file.name, size: file.size, duration,
+    });
+    const response = await fetch(signed.url, { method: signed.method, headers: signed.headers, body: file });
+    if (!response.ok) throw new ApiError(response.status, { error: 'Video upload failed. Please try again.' });
+    return post(`/api/admin/videos/${id}/finalize`, { key: signed.key, duration });
+  }
   const qs = duration ? `?duration=${Math.round(duration * 10) / 10}` : '';
   return uploadWithProgress(`/api/admin/videos/${id}/file${qs}`, file, () => {}, csrf);
 }

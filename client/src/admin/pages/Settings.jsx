@@ -156,14 +156,15 @@ export default function Settings() {
           </div>
           <div className="a-f">
             <label htmlFor="s-driver">Storage driver</label>
-            <select id="s-driver" value={uploads.storageDriver} onChange={(e) => setUploads((p) => ({ ...p, storageDriver: e.target.value }))}>
+            <select id="s-driver" value={uploads.storageDriver} disabled={s.storageDriver === 'supabase'} onChange={(e) => setUploads((p) => ({ ...p, storageDriver: e.target.value }))}>
+              <option value="supabase">Supabase Storage</option>
               <option value="local">Local disk (dev)</option>
               <option value="s3">Object storage — signed URLs (S3 / R2)</option>
             </select>
             <span className="a-err">{errors.storageDriver || ''}</span>
           </div>
           <p className="a-hint">
-            {uploads.storageDriver === 's3'
+            {uploads.storageDriver === 'supabase' ? 'Private cloud storage. Videos appear publicly when published. Maximum file size: 50 MB.' : uploads.storageDriver === 's3'
               ? (s.storageS3 ? 'Object storage: configured ✓ — uploads go direct via signed URLs.' : 'Object storage selected but S3_* env vars are missing — set them in server/.env.')
               : 'Local disk: files are streamed to server/uploads and served from /media.'}
           </p>

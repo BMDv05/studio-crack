@@ -4,6 +4,7 @@
   "description": "Double H Studio — React 18 + Vite frontend, Node/Express/PostgreSQL backend",
   "private": true,
   "scripts": {
+    "deploy": "npm --prefix server run generate && npm run build && wrangler deploy",
     "predev": "node db/pg.cjs up",
     "dev": "node scripts/dev.cjs",
     "dev:server": "npm --prefix server run dev",
@@ -17,5 +18,8 @@
     "db:seed": "npm --prefix server run seed",
     "import:legacy": "npm --prefix server run import:legacy"
   },
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "wrangler": "4.152.0"
+  }
 }

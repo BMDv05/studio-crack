@@ -9,8 +9,8 @@ const TEST_URL = process.env.TEST_DATABASE_URL || 'postgresql://doubleh:doubleh@
 const MAINT_URL = TEST_URL.replace(/\/[^/]*$/, '/postgres');
 
 async function main() {
-  const { PrismaClient } = require('@prisma/client');
-  const admin = new PrismaClient({ datasourceUrl: MAINT_URL });
+  const { createDb } = require('../src/db');
+  const admin = createDb(MAINT_URL);
   try {
     await admin.$queryRawUnsafe('CREATE DATABASE "doubleh_test"');
     console.log('[test-db] created doubleh_test');

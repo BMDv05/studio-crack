@@ -2,7 +2,9 @@
 /* Central configuration. Everything secret or site-specific comes from the
  * environment (see .env.example). Settings stored in the DB override the
  * studio/upload defaults at runtime. */
-require('dotenv').config({ path: require('node:path').join(__dirname, '..', '.env') });
+if (process.env.WORKER_RUNTIME !== 'true') {
+  require('dotenv').config({ path: require('node:path').join(__dirname, '..', '.env') });
+}
 
 function parseList(value, fallback) {
   const raw = (value ?? '').toString().trim();

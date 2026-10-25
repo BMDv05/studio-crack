@@ -16,13 +16,13 @@ const STATUSES = ['new', 'confirmed', 'declined', 'closed'];
 router.post('/login', asyncHandler(async (req, res) => {
   const ip = (req.ip || 'unknown').toString();
   const email = String(req.body?.email || '').toLowerCase().trim();
-  if (!auth.loginAllowed('ip:' + ip, config.loginRateLimit.maxPerIp) ||
-      !auth.loginAllowed('email:' + email, config.loginRateLimit.maxPerEmail)) {
+  if (!(await auth.loginAllowed('ip:' + ip, config.loginRateLimit.maxPerIp)) ||
+      !(await auth.loginAllowed('email:' + email, config.loginRateLimit.maxPerEmail))) {
     return res.status(429).json({ ok: false, error: 'Too many attempts. Try again later.' });
   }
   await new Promise((r) => setTimeout(r, 300));
   const admin = email ? await db.admin.findUnique({ where: { email } }) : null;
-  const ok = admin && auth.checkPassword(req.body?.password || '', admin.passwordHash);
+  const ok = admin && await auth.checkPassword(req.body?.password || '', admin.passwordHash);
   if (!ok) return res.status(401).json({ ok: false, error: 'Invalid email or password.' });
   await db.adminSession.deleteMany({ where: { lastSeenAt: { lt: new Date(Date.now() - 7 * 24 * 3600 * 1000) } } });
   const { token, csrf } = await auth.createSession(admin.id);
@@ -195,7 +195,7 @@ router.post('/requests/:id/retry-studio-email', auth.requireCsrf, asyncHandler(a
   };
   const transporter = buildTransporter(config.smtp);
   const r = await sendWithRetry(transporter, {
-    kind: 'studio-retry', from: config.studioFrom, to: e.studioEmail, replyTo: api.email,
+    kind: 'studio-retry', bookingId: row.id, from: config.studioFrom, to: e.studioEmail, replyTo: api.email,
     subject: studioSubject(api), text: studioText(api, api.id, row.createdAt.toISOString(), e.timezone),
   }, 3);
   if (r.delivered) {
@@ -217,7 +217,7 @@ router.post('/requests/:id/send-confirmation', auth.requireCsrf, asyncHandler(as
   };
   const transporter = buildTransporter(config.smtp);
   const r = await sendWithRetry(transporter, {
-    kind: 'confirmation', from: config.studioFrom, to: api.email,
+    kind: 'confirmation', bookingId: row.id, from: config.studioFrom, to: api.email,
     subject: `Meeting confirmed – Double H Studio (ref ${api.id.slice(0, 8)})`,
     text: confirmationText(api, api.id, e.timezone),
   }, 3);
@@ -283,7 +283,13 @@ router.patch('/settings', auth.requireCsrf, asyncHandler(async (req, res) => {
   if (b.maxSocialSec !== undefined && (!Number.isInteger(b.maxSocialSec) || b.maxSocialSec < 15 || b.maxSocialSec > 600)) {
     errors.maxSocialSec = 'Must be 15–600 seconds.';
   }
-  if (b.storageDriver !== undefined && !['local', 's3'].includes(b.storageDriver)) errors.storageDriver = 'Must be local or s3.';
+  if (b.storageDriver !== undefined && !['local', 's3', 'supabase'].includes(b.storageDriver)) errors.storageDriver = 'Invalid storage provider.';
+  if (process.env.WORKER_RUNTIME === 'true' && b.storageDriver && b.storageDriver !== 'supabase') errors.storageDriver = 'This deployment uses Supabase Storage.';
+  if (process.env.WORKER_RUNTIME === 'true') {
+    for (const key of ['maxUploadMb', 'maxUploadMbProduction', 'maxUploadMbSocial']) {
+      if (b[key] > 50) errors[key] = 'This storage plan supports files up to 50 MB.';
+    }
+  }
   if (b.studioEmail !== undefined && !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(String(b.studioEmail).trim())) {
     errors.studioEmail = 'Enter a valid email address.';
   }
@@ -304,12 +310,12 @@ router.patch('/settings', auth.requireCsrf, asyncHandler(async (req, res) => {
 
 router.post('/password', auth.requireCsrf, asyncHandler(async (req, res) => {
   const admin = await db.admin.findUnique({ where: { email: req.admin.email } });
-  if (!admin || !auth.checkPassword(String(req.body?.current || ''), admin.passwordHash)) {
+  if (!admin || !(await auth.checkPassword(String(req.body?.current || ''), admin.passwordHash))) {
     return res.status(401).json({ ok: false, error: 'Current password is incorrect.' });
   }
   const next = String(req.body?.next || '');
   if (next.length < 10) return res.status(422).json({ ok: false, errors: { next: 'At least 10 characters.' } });
-  await db.admin.update({ where: { id: admin.id }, data: { passwordHash: auth.hashPassword(next) } });
+  await db.admin.update({ where: { id: admin.id }, data: { passwordHash: await auth.hashPassword(next) } });
   res.json({ ok: true });
 }));
 

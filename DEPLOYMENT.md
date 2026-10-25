@@ -16,7 +16,8 @@ npm run build
 npx wrangler deploy
 ```
 
-Cloudflare Git builds use the same commands, with `npx wrangler deploy` as the deploy command.
+GitHub Actions deploys pushes to `main` using the encrypted `CLOUDFLARE_API_TOKEN`
+repository secret. The token is limited to the `double-h-studio` Worker.
 `npm run deploy` regenerates Prisma and builds the frontend before deployment.
 
 ## Runtime configuration
@@ -24,9 +25,10 @@ Cloudflare Git builds use the same commands, with `npx wrangler deploy` as the d
 `wrangler.jsonc` holds public configuration. These values must remain Worker secrets:
 `DATABASE_URL`, `STORAGE_BROKER_TOKEN`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`,
 `SMTP_USER`, and `SMTP_PASS`. Never put secrets in a `VITE_*` variable or commit
-`.dev.vars`. The database uses a restricted `studio_worker` role through the
-Supabase transaction pooler with certificate verification. The public Supabase
-root CA is bundled in `server/src/supabase-ca.js`.
+`.dev.vars`. Production uses the `HYPERDRIVE` binding with a restricted
+`studio_worker` role, query caching disabled, and verified TLS to Supabase using
+the Supabase root CA. The `DATABASE_URL` fallback also verifies the Supabase CA,
+bundled in `server/src/supabase-ca.js`.
 
 Every API request has its own Prisma connection pool and closes it afterwards.
 All app tables use RLS and deny direct access by `anon` and `authenticated`.

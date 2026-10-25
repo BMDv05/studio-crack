@@ -1,29 +1,47 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "double-h-studio",
-  "account_id": "440f8277ea16aab29b52f91088058c02",
-  "main": "server/worker.mjs",
-  "compatibility_date": "2026-10-25",
-  "compatibility_flags": ["nodejs_compat"],
-  "workers_dev": true,
-  "preview_urls": false,
-  "triggers": { "crons": ["*/5 * * * *"] },
-  "assets": {
-    "directory": "./client/dist",
-    "binding": "ASSETS",
-    "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*", "/media/*"]
-  },
-  "vars": {
-    "WORKER_RUNTIME": "true",
-    "CLIENT_ORIGIN": "https://double-h-studio.com",
-    "SECURE_COOKIES": "true",
-    "STUDIO_EMAIL": "info@double-h-studio.com",
-    "STUDIO_REPLY_FROM": "Double H Studio <info@double-h-studio.com>",
-    "STORAGE_DRIVER": "supabase",
-    "MAX_UPLOAD_MB_PRODUCTION": "50",
-    "MAX_UPLOAD_MB_SOCIAL": "50",
-    "SUPABASE_URL": "https://nxtxhaddmhypzqaobrqc.supabase.co"
-  },
-  "observability": { "enabled": true }
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "double-h-studio",
+	"account_id": "440f8277ea16aab29b52f91088058c02",
+	"main": "server/worker.mjs",
+	"compatibility_date": "2026-10-25",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"minify": true,
+	"workers_dev": true,
+	"preview_urls": false,
+	"triggers": {
+		"crons": [
+			"*/5 * * * *"
+		]
+	},
+	"assets": {
+		"directory": "./client/dist",
+		"binding": "ASSETS",
+		"not_found_handling": "single-page-application",
+		"run_worker_first": [
+			"/api/*",
+			"/media/*"
+		]
+	},
+	"vars": {
+		"WORKER_RUNTIME": "true",
+		"CLIENT_ORIGIN": "https://double-h-studio.com",
+		"SECURE_COOKIES": "true",
+		"STUDIO_EMAIL": "info@double-h-studio.com",
+		"STUDIO_REPLY_FROM": "Double H Studio <info@double-h-studio.com>",
+		"STORAGE_DRIVER": "supabase",
+		"MAX_UPLOAD_MB_PRODUCTION": "50",
+		"MAX_UPLOAD_MB_SOCIAL": "50",
+		"SUPABASE_URL": "https://nxtxhaddmhypzqaobrqc.supabase.co"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"hyperdrive": [
+		{
+			"binding": "HYPERDRIVE",
+			"id": "c7bc0f002d4a4eb3b782ccffb77910de"
+		}
+	]
 }

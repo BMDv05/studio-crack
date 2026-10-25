@@ -12,7 +12,7 @@ const handler = httpServerHandler({ port: 3100 });
 
 export default {
   async scheduled(_event, env, ctx) {
-    const db = database.createDb(env.DATABASE_URL);
+    const db = database.createDb(env.HYPERDRIVE?.connectionString || env.DATABASE_URL);
     try {
       await runtime.requestContext.run({ db, env }, async () => {
         await (await import('./src/services/email.js')).default.drainOutbox({ pass: env.SMTP_PASS });
@@ -27,8 +27,8 @@ export default {
       if (origin && origin !== new URL(request.url).origin) return Response.json({ ok: false, error: 'Invalid request origin.' }, { status: 403 });
     }
     if (!path.startsWith('/api/') && !path.startsWith('/media/')) return env.ASSETS.fetch(request);
-    if (!env.DATABASE_URL || !env.STORAGE_BROKER_TOKEN) return Response.json({ ok: false, error: 'Service setup is incomplete.' }, { status: 503 });
-    const db = database.createDb(env.DATABASE_URL);
+    if ((!env.HYPERDRIVE && !env.DATABASE_URL) || !env.STORAGE_BROKER_TOKEN) return Response.json({ ok: false, error: 'Service setup is incomplete.' }, { status: 503 });
+    const db = database.createDb(env.HYPERDRIVE?.connectionString || env.DATABASE_URL);
     try {
       return await runtime.requestContext.run({ db, env }, async () => {
         if (path.startsWith('/media/')) {

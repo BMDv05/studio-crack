@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Studio line-art tracer — Double H Studio (dev tool)</title>
+    <style>
+      :root {
+        --ink: #12393a;
+        --green: #134c4b;
+        --mist: #e6ecec;
+        --sage: #46766f;
+        --black: #161919;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--black);
+        color: var(--mist);
+        font: 400 14px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+      a { color: var(--mist); }
+      header {
+        padding: 30px 26px 22px;
+        border-bottom: 1px solid rgba(230, 236, 236, 0.12);
+      }
+      h1 { margin: 0 0 6px; font-size: 19px; letter-spacing: 0.02em; }
+      header p { margin: 0; max-width: 74ch; color: rgba(230, 236, 236, 0.65); font-size: 13px; }
+      main {
+        display: grid;
+        grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+        gap: 26px;
+        padding: 24px 26px 60px;
+        align-items: start;
+      }
+      @media (max-width: 1000px) { main { grid-template-columns: minmax(0, 1fr); } }
+
+      .panel {
+        display: grid;
+        gap: 20px;
+        padding: 20px;
+        border: 1px solid rgba(230, 236, 236, 0.14);
+        border-radius: 12px;
+        background: rgba(230, 236, 236, 0.03);
+      }
+      #drop {
+        display: grid;
+        place-items: center;
+        gap: 8px;
+        padding: 26px 16px;
+        border: 1px dashed rgba(230, 236, 236, 0.3);
+        border-radius: 10px;
+        text-align: center;
+        font-size: 13px;
+        color: rgba(230, 236, 236, 0.7);
+        cursor: pointer;
+      }
+      #drop[data-over="true"] { border-color: var(--sage); background: rgba(70, 118, 111, 0.12); }
+      #drop input { display: none; }
+      #drop b { color: var(--mist); font-weight: 600; }
+      #meta { font-size: 12px; color: var(--sage); min-height: 1.4em; word-break: break-all; }
+
+      .ctrl { display: grid; gap: 4px; }
+      .ctrl label { display: flex; justify-content: space-between; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(230, 236, 236, 0.62); }
+      .ctrl output { color: var(--mist); font-variant-numeric: tabular-nums; }
+      input[type="range"] { width: 100%; accent-color: var(--sage); }
+      .hint { margin: -6px 0 0; font-size: 11.5px; color: rgba(230, 236, 236, 0.45); }
+
+      .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+      button {
+        font: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 10px 16px;
+        border-radius: 999px;
+        border: 1px solid rgba(230, 236, 236, 0.3);
+        background: transparent;
+        color: var(--mist);
+        cursor: pointer;
+        transition: background-color 200ms ease-out, border-color 200ms ease-out;
+      }
+      button:hover:not(:disabled) { background: rgba(230, 236, 236, 0.08); border-color: var(--mist); }
+      button:disabled { opacity: 0.4; cursor: not-allowed; }
+      button.primary { background: var(--sage); border-color: var(--sage); color: #0b1414; }
+      button.primary:hover { background: #5b8f87; border-color: #5b8f87; }
+
+      .solo { display: flex; flex-wrap: wrap; gap: 8px; }
+      .solo button { padding: 6px 12px; font-size: 11px; }
+      .solo button[data-active="true"] { background: var(--sage); border-color: var(--sage); color: #0b1414; }
+
+      .viewer {
+        display: grid;
+        gap: 14px;
+        padding: 20px;
+        border: 1px solid rgba(230, 236, 236, 0.14);
+        border-radius: 12px;
+        background:
+          linear-gradient(to right, rgba(70, 118, 111, 0.12) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(70, 118, 111, 0.12) 1px, transparent 1px);
+        background-size: 42px 42px;
+      }
+      canvas { width: 100%; height: auto; display: block; border-radius: 6px; }
+      #stats { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12px; color: rgba(230, 236, 236, 0.7); }
+      .stat { display: inline-flex; align-items: center; gap: 7px; }
+      .stat b { color: var(--mist); font-variant-numeric: tabular-nums; }
+      .stat.stage i { width: 9px; height: 2px; background: var(--c); display: inline-block; }
+      .stat.stage em { font-style: normal; color: rgba(230, 236, 236, 0.42); font-size: 11px; }
+      #status { font-size: 12px; color: var(--sage); }
+      #status[data-busy="true"] { color: var(--mist); }
+      #warn { font-size: 12px; color: #d8b477; min-height: 1.4em; }
+
+      code { background: rgba(230, 236, 236, 0.1); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+      ol { margin: 0; padding-left: 18px; font-size: 12.5px; color: rgba(230, 236, 236, 0.7); display: grid; gap: 5px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Studio line-art tracer</h1>
+      <p>
+        Development tool. Turns the studio photograph into organized architectural line work —
+        straight structural lines first, then boundaries, openings, furniture silhouettes and detail —
+        and exports <code>studio.lines.svg</code> whose viewBox equals the photograph's pixel
+        dimensions, so the drawing stays aligned with the image at every viewport size.
+        This is a <b>first pass</b>: review it, tune the controls, and refine the result before shipping.
+      </p>
+    </header>
+
+    <main>
+      <section class="panel">
+        <label id="drop" for="file">
+          <b>Drop the studio photograph here</b>
+          <span>or click to choose — jpg, png, webp, avif</span>
+          <input id="file" type="file" accept="image/*" />
+        </label>
+        <div id="meta">No photograph loaded yet.</div>
+
+        <div class="ctrl">
+          <label for="low">Edge threshold · weak <output data-out="low">0.09</output></label>
+          <input id="low" type="range" min="0.02" max="0.4" step="0.01" data-param="low" />
+        </div>
+        <div class="ctrl">
+          <label for="high">Edge threshold · strong <output data-out="high">0.2</output></label>
+          <input id="high" type="range" min="0.04" max="0.7" step="0.01" data-param="high" />
+        </div>
+        <div class="ctrl">
+          <label for="minLineFactor">Shortest straight line <output data-out="minLineFactor">0.035</output></label>
+          <input id="minLineFactor" type="range" min="0.005" max="0.12" step="0.005" data-param="minLineFactor" />
+          <p class="hint">As a fraction of the photograph's longest side.</p>
+        </div>
+        <div class="ctrl">
+          <label for="detail">Detail <output data-out="detail">1</output></label>
+          <input id="detail" type="range" min="0.4" max="2" step="0.1" data-param="detail" />
+          <p class="hint">Higher keeps more contour fragments and straighter polylines.</p>
+        </div>
+        <div class="ctrl">
+          <label for="blurRadius">Smoothing <output data-out="blurRadius">1</output></label>
+          <input id="blurRadius" type="range" min="0" max="2" step="1" data-param="blurRadius" />
+          <p class="hint">Raise it if the trace picks up texture instead of architecture.</p>
+        </div>
+
+        <div class="solo">
+          <button type="button" data-solo="1" data-active="false">1 Guides</button>
+          <button type="button" data-solo="2" data-active="false">2 Structure</button>
+          <button type="button" data-solo="3" data-active="false">3 Openings</button>
+          <button type="button" data-solo="4" data-active="false">4 Furniture</button>
+          <button type="button" data-solo="5" data-active="false">5 Detail</button>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="primary" id="export" disabled>Export studio.lines.svg</button>
+          <button type="button" id="copy" disabled>Copy SVG</button>
+          <button type="button" id="sample">Load sample scene</button>
+          <button type="button" id="reset">Reset</button>
+        </div>
+        <p class="hint">
+          “Load sample scene” draws a synthetic interior in code so the tracer and the
+          construction animation can be tested without a photograph. It is a test fixture,
+          not the studio — never ship its output as the studio line layer.
+        </p>
+
+        <div>
+          <ol>
+            <li>Save the exported file as <code>client/public/studio/studio.lines.svg</code>.</li>
+            <li>Save the photograph as <code>client/public/studio/studio.webp</code> (or .jpg / .png).</li>
+            <li>Reload the home page — the construction sequence picks both up automatically.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="viewer">
+        <canvas id="view" width="1200" height="800" aria-label="Trace preview"></canvas>
+        <div id="stats"><span class="stat">Load a photograph to begin.</span></div>
+        <div id="status">Idle</div>
+        <div id="warn"></div>
+      </section>
+    </main>
+
+    <script type="module" src="/src/tools/traceStudio.js"></script>
+  </body>
+</html>

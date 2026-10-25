@@ -1,0 +1,13 @@
+.bar {
+  position: fixed;
+  top: 0;
+  inset-inline: 0;
+  height: 2px;
+  background: var(--dh-sage);
+  transform: scaleX(0);
+  transform-origin: left center;
+  z-index: 80;
+  pointer-events: none;
+  will-change: transform;
+}
+:global([dir="rtl"]) .bar { transform-origin: right center; }

@@ -1,0 +1,185 @@
+/* Studio blueprint opening — full-screen real-time scene, pinned by scroll.
+   The stage, the rail and the vignette are the only chrome: the scene itself
+   is the opening, exactly where the studio film used to sit. */
+
+.slot {
+  /* Pulled up under the sticky header so the opening owns the first pixel of
+     the page. --sba-header is measured before paint by the component. */
+  position: relative;
+  margin-top: calc(-1 * var(--sba-header, 0px));
+  /* Transparent, not a dark band: once the stage lets go, the fixed studio
+     plate behind the page owns every pixel. The stage itself is opaque. */
+  background: transparent;
+}
+
+/* Over the sticky header (50) and the scroll progress bar (80) while the
+   opening owns the screen — and only then, so the header returns as it ends. */
+.slot[data-above] {
+  z-index: 85;
+}
+
+.stage {
+  position: relative;
+  /* The large viewport: a pinned opening must never reveal a strip of the page
+     below when a phone's address bar collapses mid-scroll. */
+  height: 100vh;
+  height: 100lvh;
+  overflow: hidden;
+  background: #06100f;
+  isolation: isolate;
+}
+
+.stage :global(canvas) {
+  display: block;
+}
+
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(125% 92% at 50% 46%, rgba(2, 8, 7, 0) 44%, rgba(2, 8, 7, 0.52) 100%),
+    linear-gradient(180deg, rgba(2, 8, 7, 0.28) 0%, rgba(2, 8, 7, 0) 18%, rgba(2, 8, 7, 0) 82%, rgba(2, 8, 7, 0.34) 100%);
+}
+
+/* The optical close: the lens floods with light as the camera crosses the
+   glass, and that same veil dissolves into the home page — no black frame
+   and no separator between the intro and the site.
+
+   Fixed, so it keeps covering the viewport after the pin releases while the
+   hero rises behind it. --wash (0..1, written by the reveal trigger) slowly
+   expands the bloom as the page opens. */
+.lens {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  background:
+    radial-gradient(
+      115% 80% at 50% 45%,
+      rgba(122, 247, 232, 0.3) 0%,
+      rgba(30, 96, 88, 0.55) 22%,
+      rgba(6, 22, 20, 0.92) 48%,
+      #04100e 78%,
+      #020807 100%
+    );
+  transform: scale(calc(1 + 0.14 * var(--wash, 0)));
+  transform-origin: 50% 45%;
+  will-change: opacity, transform;
+}
+
+/* Once the scene is built the section simply ends: nothing overlays it. */
+
+.chrome {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 3;
+  display: grid;
+  justify-items: center;
+  padding-bottom: clamp(18px, 3.4vh, 30px);
+  pointer-events: none;
+}
+
+.hint {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(205, 242, 236, 0.86);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.7);
+  transition: opacity 0.5s ease;
+}
+
+.rail {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 2px;
+  background: rgba(112, 222, 208, 0.16);
+  overflow: hidden;
+}
+
+.railFill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(78, 238, 220, 0.45), #c8fff8);
+  box-shadow: 0 0 12px rgba(84, 244, 226, 0.5);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  will-change: transform;
+}
+
+:global([dir='rtl']) .railFill {
+  transform-origin: 100% 50%;
+}
+
+/* --------------------------------------------------------------------------
+   CSS-only plate (no WebGL / scene failure). Still, dark, architectural —
+   never a video and never the reference frames.
+   -------------------------------------------------------------------------- */
+
+.fallback {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(90% 70% at 50% 52%, #0b2320 0%, #06100f 56%, #030a09 100%);
+}
+
+.fallbackGlow {
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  width: min(72vw, 900px);
+  aspect-ratio: 2.1 / 1;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(98, 240, 226, 0.16), rgba(98, 240, 226, 0) 72%);
+  filter: blur(14px);
+}
+
+.fallbackGrid {
+  position: absolute;
+  left: -30%;
+  right: -30%;
+  bottom: 0;
+  /* Tall plane, tilted away: the projection compresses it into the lower
+     half of the frame, ending just under the horizon. */
+  height: 260%;
+  background-image:
+    linear-gradient(rgba(104, 240, 226, 0.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(104, 240, 226, 0.22) 1px, transparent 1px);
+  background-size: 68px 46px;
+  transform: perspective(1200px) rotateX(64deg);
+  transform-origin: 50% 100%;
+  -webkit-mask-image: linear-gradient(to top, #000 55%, transparent 92%);
+  mask-image: linear-gradient(to top, #000 55%, transparent 92%);
+}
+
+.fallbackHorizon {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 52%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(158, 255, 244, 0.5), transparent);
+}
+
+@media (max-width: 760px) {
+  .hint {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+  }
+
+  .fallbackGrid {
+    background-size: 52px 38px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hint {
+    transition: none;
+  }
+}

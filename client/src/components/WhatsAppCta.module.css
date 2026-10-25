@@ -1,0 +1,149 @@
+/* WhatsAppCta — "Chat with us" card. All colors come from tokens.css. */
+
+.section {
+  padding-block: 64px;
+}
+
+.container {
+  max-width: var(--dh-container);
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(240px, 1fr);
+  align-items: center;
+  gap: 32px;
+  padding: 52px;
+  border: 1px solid var(--dh-border-on-dark);
+  border-radius: var(--dh-radius-panel);
+  background: linear-gradient(158deg, var(--dh-surface-on-dark-soft), var(--dh-surface-on-dark));
+}
+
+.copy {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Higher specificity than the global .eyebrow so sage becomes AA-contrast teal on ink. */
+.card .eyebrow {
+  margin-block-end: 4px;
+  color: var(--dh-heading-on-dark);
+}
+
+.heading {
+  margin: 0;
+  font-size: clamp(24px, 3.2vw, 34px);
+  line-height: 1.16;
+}
+
+.body {
+  margin: 0;
+  max-width: 54ch;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--dh-text-on-dark);
+}
+
+.action {
+  display: grid;
+  gap: 10px;
+  align-content: center;
+  justify-items: stretch;
+  min-width: 0;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 24px;
+  border: 1px solid transparent;
+  border-radius: var(--dh-radius-pill);
+  background: var(--dh-mist);
+  color: var(--dh-ink);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 200ms ease-out, box-shadow 200ms ease-out,
+    background-color 200ms ease-out, filter 200ms ease-out;
+}
+.button:hover {
+  background: var(--dh-white);
+  box-shadow: var(--dh-shadow-lift);
+  filter: brightness(1.04);
+  transform: translateY(-2px);
+}
+.button:active {
+  box-shadow: var(--dh-shadow-soft);
+  transform: translateY(0);
+}
+/* Keyboard focus: a light ring clears the dark card behind the light button. */
+.button:focus-visible {
+  outline: 2px solid var(--dh-white);
+  outline-offset: 3px;
+}
+.button svg {
+  flex: none;
+}
+
+.number {
+  justify-self: start;
+  unicode-bidi: isolate; /* keeps +963 … in reading order inside RTL text */
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--dh-text-on-dark);
+  text-decoration: none;
+  transition: color 200ms ease-out;
+}
+.number:hover,
+.number:focus-visible {
+  color: var(--dh-mist);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.hint {
+  justify-self: start;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dh-heading-on-dark);
+}
+/* Arabic is a connected script: letter-spacing breaks the joins. */
+:global([dir='rtl']) .hint {
+  letter-spacing: 0;
+  font-size: 13px;
+}
+
+@media (max-width: 860px) {
+  .section {
+    padding-block: 48px;
+  }
+  .card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding: 32px 24px;
+  }
+  .body {
+    font-size: 15px;
+  }
+  /* Keep the eyebrow on one line: the theme's 56px side rules are too wide here. */
+  .card .eyebrow {
+    flex-wrap: nowrap;
+    gap: 12px;
+  }
+  .card .eyebrow::before,
+  .card .eyebrow::after {
+    flex: none;
+    width: 24px;
+  }
+}

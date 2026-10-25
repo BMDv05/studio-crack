@@ -29,3 +29,8 @@ Thumbs.db
 uploads/
 test-uploads*/
 Double-H-Studio/
+
+# Isolated PostgreSQL instance for this copy (see db/README.md)
+db/data/
+db/pgsql/
+db/logs/

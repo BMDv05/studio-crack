@@ -2,7 +2,7 @@
 
 React 18 + Vite + React Router. Planned structure:
 
-- `src/pages` — Home, Work, About, Book, ThankYou, Privacy, NotFound, admin/*
+- `src/pages` — Home, Work, About, Book, ThankYou, NotFound, admin/*
 - `src/components` — layout, cards, forms, player, toasts, skeletons
 - `src/hooks` — data fetching, reveal-on-scroll, idle logout
 - `src/api` — single typed API layer

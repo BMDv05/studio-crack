@@ -1,0 +1,337 @@
+/* Studio reveal — scroll-driven construction of the studio photograph.
+   Dark sheet, teal line work, one pinned 100vh stage. */
+
+.root {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--dh-black);
+  color: var(--dh-mist);
+  isolation: isolate;
+}
+
+/* ---- blueprint sheet: grid + crop marks -------------------------------- */
+.sheet {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.sheetGrid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(70, 118, 111, 0.16) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(70, 118, 111, 0.16) 1px, transparent 1px);
+  background-size: 84px 84px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, #000 0%, rgba(0, 0, 0, 0.4) 60%, transparent 82%);
+  mask-image: radial-gradient(ellipse at 50% 50%, #000 0%, rgba(0, 0, 0, 0.4) 60%, transparent 82%);
+}
+.crop {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  opacity: 0.45;
+}
+.cropTL { top: 26px; inset-inline-start: 26px; border-top: 1px solid var(--dh-mist); border-inline-start: 1px solid var(--dh-mist); }
+.cropTR { top: 26px; inset-inline-end: 26px; border-top: 1px solid var(--dh-mist); border-inline-end: 1px solid var(--dh-mist); }
+.cropBL { bottom: 26px; inset-inline-start: 26px; border-bottom: 1px solid var(--dh-mist); border-inline-start: 1px solid var(--dh-mist); }
+.cropBR { bottom: 26px; inset-inline-end: 26px; border-bottom: 1px solid var(--dh-mist); border-inline-end: 1px solid var(--dh-mist); }
+
+/* ---- layout ------------------------------------------------------------ */
+.inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  max-width: var(--dh-container);
+  margin-inline: auto;
+  padding: 96px 20px 56px;
+  display: grid;
+  grid-template-columns: minmax(160px, 236px) minmax(0, 1fr);
+  align-items: center;
+  gap: 48px;
+}
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  will-change: transform, opacity;
+}
+.eyebrow {
+  margin: 0;
+  color: var(--dh-sage);
+}
+
+.counter {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.counterNow {
+  font-size: clamp(30px, 3.4vw, 44px);
+  font-weight: 600;
+  color: var(--dh-mist);
+}
+.counterSep {
+  font-size: 14px;
+  color: var(--dh-sage);
+}
+.counterAll {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--dh-sage);
+}
+
+.labelMask {
+  margin: 0;
+  overflow: hidden;
+  padding-bottom: 0.12em;
+}
+.label {
+  display: inline-block;
+  font-size: clamp(15px, 1.5vw, 19px);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dh-mist);
+  will-change: transform, opacity;
+}
+
+/* ---- progress rail ----------------------------------------------------- */
+.rail {
+  position: relative;
+  width: 1px;
+  height: 132px;
+  margin: 6px 0 4px;
+  margin-inline-start: 4px;
+}
+.railTrack,
+.railFill {
+  position: absolute;
+  inset: 0;
+}
+.railTrack { background: rgba(230, 236, 236, 0.16); }
+.railFill {
+  background: var(--dh-sage);
+  transform: scaleY(0.001);
+  transform-origin: top;
+}
+.dot {
+  position: absolute;
+  inset-inline-start: -3.5px;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 50%;
+  border: 1px solid rgba(230, 236, 236, 0.32);
+  background: var(--dh-black);
+  transition: background-color 400ms ease-out, border-color 400ms ease-out;
+}
+.dot[data-on='true'] {
+  background: var(--dh-sage);
+  border-color: var(--dh-sage);
+}
+
+.progress {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+}
+.pct {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--dh-mist);
+}
+.pctLabel {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: lowercase;
+  color: var(--dh-sage);
+}
+
+.caption {
+  margin: 2px 0 0;
+  max-width: 24ch;
+  font-size: 12px;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  color: rgba(230, 236, 236, 0.5);
+}
+
+/* ---- the stage: photograph + line art ---------------------------------- */
+.frameWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  --sb-h: calc(100vh - 220px);
+}
+@supports (height: 100svh) {
+  .frameWrap { --sb-h: calc(100svh - 220px); }
+}
+
+.frame {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  width: min(100%, calc(var(--sb-h) * var(--sb-aspect, 1.5)));
+  aspect-ratio: var(--sb-aspect, 1.5);
+  background: #0d1212;
+}
+
+.photo,
+.tint,
+.grid,
+.lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* The photograph is never cropped, stretched or re-graded: the frame takes its
+   intrinsic aspect ratio, so object-fit: cover resolves to no crop at all. */
+.photo {
+  object-fit: cover;
+  will-change: transform, opacity;
+}
+
+/* Blueprint wash — turns the photograph monochrome-ink without any filter
+   cost, and is fully reversible. */
+.tint {
+  background: var(--dh-ink);
+  mix-blend-mode: color;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+/* Drafting paper: fine grid + vignette over the washed photograph. */
+.grid {
+  opacity: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(230, 236, 236, 0.11) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(230, 236, 236, 0.11) 1px, transparent 1px);
+  background-size: 62px 62px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, #000 30%, transparent 92%);
+  mask-image: radial-gradient(ellipse at 50% 50%, #000 30%, transparent 92%);
+  will-change: opacity;
+}
+
+/* Inlined traced SVG. `stroke`, `fill` and `stroke-width` are left to the
+   tracer (presentation attributes beat the values inherited from here), so a
+   stroke missing them still gets the house look. */
+.lines {
+  pointer-events: none;
+  opacity: 1;
+  color: var(--dh-mist);
+  will-change: opacity;
+}
+.lines svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  stroke: var(--dh-mist);
+  stroke-width: 1.6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.lines svg * {
+  vector-effect: non-scaling-stroke;
+}
+
+.hint {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--dh-sage);
+}
+.hintArrow {
+  width: 1px;
+  height: 20px;
+  background: linear-gradient(to bottom, transparent, var(--dh-sage));
+  animation: sbNudge 2.4s ease-in-out infinite;
+}
+@keyframes sbNudge {
+  0%, 100% { transform: translateY(-3px); opacity: 0.55; }
+  50% { transform: translateY(3px); opacity: 1; }
+}
+
+/* ---- tablet / mobile --------------------------------------------------- */
+@media (max-width: 900px) {
+  .inner {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    align-content: center;
+    gap: 22px;
+    padding: 84px 18px 34px;
+  }
+  .aside {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 16px;
+  }
+  .eyebrow,
+  .caption,
+  .rail { display: none; }
+  .counter { grid-column: 1; }
+  .labelMask { grid-column: 2; }
+  .progress { grid-column: 3; }
+  .label { letter-spacing: 0.12em; }
+  .frameWrap {
+    --sb-h: calc(100vh - 300px);
+    align-self: center;
+  }
+  @supports (height: 100svh) {
+    .frameWrap { --sb-h: calc(100svh - 300px); }
+  }
+}
+
+@media (max-width: 560px) {
+  .counterNow { font-size: 26px; }
+  .label { font-size: 13px; }
+  .sheetGrid { background-size: 56px 56px; }
+  .grid { background-size: 44px 44px; }
+  .crop { width: 16px; height: 16px; }
+  .cropTL, .cropTR { top: 18px; }
+  .cropBL, .cropBR { bottom: 18px; }
+  .cropTL, .cropBL { inset-inline-start: 18px; }
+  .cropTR, .cropBR { inset-inline-end: 18px; }
+}
+
+/* ---- reduced motion: the photograph is the whole story ------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .photo {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .aside {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .tint,
+  .grid { opacity: 0 !important; }
+  .lines { display: none; }
+  .hint { display: none; }
+  .railFill { transform: scaleY(1); }
+  .hintArrow { animation: none; }
+}

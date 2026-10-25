@@ -4,14 +4,17 @@
   "description": "Double H Studio — React 18 + Vite frontend, Node/Express/PostgreSQL backend",
   "private": true,
   "scripts": {
+    "predev": "node db/pg.cjs up",
     "dev": "node scripts/dev.cjs",
     "dev:server": "npm --prefix server run dev",
     "dev:client": "npm --prefix client run dev",
     "build": "npm --prefix client run build",
-    "test": "npm --prefix server test",
-    "db:up": "docker compose up -d db",
-    "db:migrate": "npm --prefix server run db:migrate",
-    "db:seed": "npm --prefix server run db:seed",
+    "test": "node scripts/test.cjs",
+    "db:up": "node db/pg.cjs up",
+    "db:down": "node db/pg.cjs down",
+    "db:status": "node db/pg.cjs status",
+    "db:migrate": "npm --prefix server run migrate:deploy",
+    "db:seed": "npm --prefix server run seed",
     "import:legacy": "npm --prefix server run import:legacy"
   },
   "license": "UNLICENSED"

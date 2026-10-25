@@ -1,0 +1,58 @@
+.band {
+  position: relative;
+  overflow: hidden;
+  border-block: 1px solid rgba(230, 236, 236, 0.13);
+  background: var(--dh-ink);
+  color: var(--dh-mist);
+  direction: ltr;
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: 15px;
+  padding: 13px 26px;
+  color: var(--dh-text-on-dark);
+  font-family: var(--dh-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mark {
+  display: inline-block;
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--dh-sage);
+  transform: rotate(45deg);
+}
+.item:nth-child(3n + 1) .mark {
+  background: var(--dh-sage);
+}
+
+/* The technical strip stays LTR, but Arabic service names need the Arabic
+   face and their natural joins — never the mono tracking. */
+:global([dir='rtl']) .item {
+  font-family: var(--dh-font-arabic);
+  font-size: 11px;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+
+@media (max-width: 760px) {
+  .item {
+    gap: 12px;
+    padding: 12px 20px;
+    font-size: 9px;
+  }
+}

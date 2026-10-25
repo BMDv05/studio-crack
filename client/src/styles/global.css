@@ -12,9 +12,10 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 [lang="ar"], .arabic { font-family: var(--dh-font-arabic); }
+html[lang="ar"] body { font-family: var(--dh-font-arabic); }
 a { color: inherit; }
 img, video { max-width: 100%; }
-.wrap { max-width: 1120px; margin-inline: auto; padding-inline: 20px; }
+.wrap { max-width: var(--dh-container); margin-inline: auto; padding-inline: 20px; }
 .section { padding: 64px 0; background: var(--dh-black); color: var(--dh-white); }
 .section h2 { font-size: clamp(28px, 4vw, 44px); line-height: 1.12; margin: 8px 0 10px; }
 .section-light { background: var(--dh-mist); color: var(--dh-ink); }
@@ -34,6 +35,10 @@ img, video { max-width: 100%; }
 }
 .eyebrow::before, .eyebrow::after { content: ""; height: 1px; width: 56px; background: currentColor; opacity: 0.7; }
 .eyebrow.center { justify-content: center; }
+
+/* Arabic: letter-spacing breaks joined script — relax it and ease the uppercase tracking */
+[dir='rtl'] .eyebrow { letter-spacing: 0.08em; font-size: 13px; }
+[dir='rtl'] body, [dir='rtl'] .btn, [dir='rtl'] input, [dir='rtl'] select, [dir='rtl'] textarea { letter-spacing: 0; }
 
 /* Buttons: green fill + white on light; mist fill + ink on dark */
 .btn {
@@ -90,4 +95,22 @@ img, video { max-width: 100%; }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: none; }
+}
+
+/* ---- Animation helpers (GSAP) ---- */
+
+/* SplitText masks: each line is clipped, its inner slides up from below. */
+.st-line { display: block; overflow: hidden; padding-bottom: 0.12em; margin-bottom: -0.12em; }
+.st-inner { display: block; will-change: transform; }
+.st-word { display: inline-block; }
+
+/* Elements that show the custom "View" cursor hide the native one. */
+[data-cursor] { cursor: none; }
+
+/* Dividers / lines that draw from the inline start edge. */
+.draw-line { transform-origin: left center; }
+[dir="rtl"] .draw-line { transform-origin: right center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .st-inner { will-change: auto; }
 }

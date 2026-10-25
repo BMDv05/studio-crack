@@ -1,20 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import PageMeta from '../components/PageMeta.jsx';
+import SplitText from '../components/SplitText.jsx';
+import Reveal from '../components/Reveal.jsx';
+import ParallaxImage from '../components/ParallaxImage.jsx';
+import { lockScroll, unlockScroll } from '../hooks/useLenis.js';
 import { get } from '../api/client.js';
+import { useLang } from '../i18n/LanguageContext.jsx';
 import styles from './Work.module.css';
 
 const FALLBACK_POSTER =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23134c4b'/%3E%3Cstop offset='1' stop-color='%23161919'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1280' height='720' fill='url(%23g)'/%3E%3C/svg%3E";
-
-const TITLES = {
-  production: 'Work — Production films | Double H Studio',
-  social: 'Work — Social videos | Double H Studio',
-};
-const DESCS = {
-  production: 'Double H Studio portfolio: cinematic Production films — showreels, commercials and short films.',
-  social: 'Double H Studio portfolio: vertical Social Media videos for Reels, TikTok and Shorts.',
-};
 
 function fmtDur(sec) {
   if (sec == null || !isFinite(sec)) return '';
@@ -57,25 +53,26 @@ function Preview({ video }) {
 
 function Player({ video, onClose }) {
   const boxRef = useRef(null);
+  const { t } = useLang();
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
+    lockScroll();
     const btn = boxRef.current && boxRef.current.querySelector('button');
     if (btn) btn.focus();
     return () => {
       window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
+      unlockScroll();
     };
   }, [onClose]);
   if (!video) return null;
-  const meta = [video.description, video.client_name ? `Client: ${video.client_name}` : '', (video.platforms || []).join(' · ')]
+  const meta = [video.description, video.client_name ? t('work.client', { name: video.client_name }) : '', (video.platforms || []).join(' · ')]
     .filter(Boolean).join('\n');
   return (
     <div className={styles.player}>
       <div className={styles.playerBack} onClick={onClose} />
-      <div ref={boxRef} className={`${styles.playerBox} ${video.category === 'social' ? styles.narrow : ''}`} role="dialog" aria-modal="true" aria-label="Video player">
-        <button className={styles.playerX} onClick={onClose} aria-label="Close player">✕</button>
+      <div ref={boxRef} className={`${styles.playerBox} ${video.category === 'social' ? styles.narrow : ''}`} role="dialog" aria-modal="true" aria-label={t('work.playerAria')}>
+        <button className={styles.playerX} onClick={onClose} aria-label={t('work.close')}>✕</button>
         <video src={video.video_url} poster={video.thumbnail_url || undefined} controls playsInline autoPlay />
         <div className={styles.playerMeta}>
           <h2>{video.title}</h2>
@@ -91,6 +88,7 @@ export default function Work() {
   const view = params.get('type') === 'social' ? 'social' : 'production';
   const [lists, setLists] = useState({ production: null, social: null });
   const [openId, setOpenId] = useState(null);
+  const { t } = useLang();
 
   const load = useCallback(async (cat) => {
     try {
@@ -135,50 +133,54 @@ export default function Work() {
 
   return (
     <>
-      <PageMeta title={TITLES[view]} description={DESCS[view]} />
+      <PageMeta title={t(`work.meta.${view}Title`)} description={t(`work.meta.${view}Desc`)} />
       <script type="application/ld+json" id="video-ld">{'{"@context":"https://schema.org","@type":"ItemList","name":"Double H Studio portfolio","itemListElement":[]}'}</script>
       <section className="section">
         <div className="wrap">
-          <p className="eyebrow">Portfolio</p>
-          <h1>Work that moves.</h1>
-          <p className={styles.lede}>Cinematic productions and vertical social cuts — two formats, one studio. Videos load only when scrolled into view.</p>
-          <nav className={styles.seg} aria-label="Portfolio views">
-            <a href="/work?type=production" aria-current={view === 'production'} onClick={(e) => switchTo(e, 'production')}>Production</a>
-            <a href="/work?type=social" aria-current={view === 'social'} onClick={(e) => switchTo(e, 'social')}>Social Media</a>
+          <p className="eyebrow">{t('work.eyebrow')}</p>
+          <SplitText as="h1" text={t('work.title')} />
+          <Reveal as="p" className={styles.lede} delay={0.15}>{t('work.lede')}</Reveal>
+          <nav className={styles.seg} aria-label={t('work.segAria')}>
+            <a href="/work?type=production" aria-current={view === 'production'} onClick={(e) => switchTo(e, 'production')}>{t('work.production')}</a>
+            <a href="/work?type=social" aria-current={view === 'social'} onClick={(e) => switchTo(e, 'social')}>{t('work.social')}</a>
           </nav>
           {view === 'production' ? (
-            <div role="tabpanel" aria-label="Production films">
+            <div role="tabpanel" aria-label={t('work.panelProduction')}>
               {lists.production !== null && list.length === 0 ? (
-                <div className={styles.empty}>No production films published yet — check back soon.</div>
+                <div className={styles.empty}>{t('work.emptyProduction')}</div>
               ) : (
-                <div className={styles.grid}>
+                <Reveal className={styles.grid} stagger>
                   {(list.length ? list : []).map((v) => (
                     <article className={styles.work} key={v.id}>
-                      <button className={styles.playBtn} onClick={() => setOpenId(v.id)} aria-label={`Play ${v.title}`}>
-                        <Preview video={v} />
-                      </button>
+                      <ParallaxImage className={styles.media} strength={0.06}>
+                        <button className={styles.playBtn} data-cursor="View" onClick={() => setOpenId(v.id)} aria-label={t('work.play', { title: v.title })}>
+                          <Preview video={v} />
+                        </button>
+                      </ParallaxImage>
                       <div className={styles.meta}>
                         <h3>{v.title}</h3>
                         {v.description ? <p>{v.description}</p> : null}
-                        <p className={styles.sub}>{[v.client_name ? `Client: ${v.client_name}` : '', fmtDur(v.duration_sec)].filter(Boolean).join(' · ')}</p>
+                        <p className={styles.sub}>{[v.client_name ? t('work.client', { name: v.client_name }) : '', fmtDur(v.duration_sec)].filter(Boolean).join(' · ')}</p>
                       </div>
                     </article>
                   ))}
-                  {lists.production === null && <div className={styles.empty}>Loading films…</div>}
-                </div>
+                  {lists.production === null && <div className={styles.empty}>{t('work.loadingFilms')}</div>}
+                </Reveal>
               )}
             </div>
           ) : (
-            <div role="tabpanel" aria-label="Social media videos">
+            <div role="tabpanel" aria-label={t('work.panelSocial')}>
               {lists.social !== null && list.length === 0 ? (
-                <div className={styles.empty}>No social videos published yet — check back soon.</div>
+                <div className={styles.empty}>{t('work.emptySocial')}</div>
               ) : (
-                <div className={styles.socialGrid}>
+                <Reveal className={styles.socialGrid} stagger>
                   {(list.length ? list : []).map((v) => (
                     <article className={styles.socialCard} key={v.id}>
-                      <button className={styles.play} onClick={() => setOpenId(v.id)} aria-label={`Play ${v.title}`}>
-                        <Preview video={v} />
-                      </button>
+                      <ParallaxImage className={styles.media} strength={0.06}>
+                        <button className={styles.play} data-cursor="View" onClick={() => setOpenId(v.id)} aria-label={t('work.play', { title: v.title })}>
+                          <Preview video={v} />
+                        </button>
+                      </ParallaxImage>
                       <div className={styles.meta}>
                         <h3>{v.title}</h3>
                         {v.description ? <p>{v.description}</p> : null}
@@ -188,14 +190,14 @@ export default function Work() {
                       </div>
                     </article>
                   ))}
-                  {lists.social === null && <div className={styles.empty}>Loading videos…</div>}
-                </div>
+                  {lists.social === null && <div className={styles.empty}>{t('work.loadingVideos')}</div>}
+                </Reveal>
               )}
             </div>
           )}
           <div className={styles.ctaRow}>
-            <Link className="btn btn-dark" to="/book">Book a Meeting</Link>
-            <Link className="btn btn-ghost-dark" to="/">Back to Home</Link>
+            <Link className="btn btn-dark" to="/book">{t('common.book')}</Link>
+            <Link className="btn btn-ghost-dark" to="/">{t('common.backHome')}</Link>
           </div>
         </div>
       </section>

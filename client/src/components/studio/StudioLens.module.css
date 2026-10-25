@@ -1,0 +1,180 @@
+.stage {
+  position: relative;
+  width: min(100%, 540px);
+  margin-inline: auto;
+  padding: 16px 16px 0;
+  color: var(--dh-mist);
+  isolation: isolate;
+}
+
+.lens {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(0 34px 52px rgba(0, 0, 0, 0.55));
+}
+
+/* Corner brackets, like a monitor / viewfinder. */
+.corner {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  z-index: 3;
+  pointer-events: none;
+  border-color: rgba(230, 236, 236, 0.36);
+}
+.tl { inset-block-start: 0; inset-inline-start: 0; border-block-start: 1px solid; border-inline-start: 1px solid; }
+.tr { inset-block-start: 0; inset-inline-end: 0; border-block-start: 1px solid; border-inline-end: 1px solid; }
+.bl { inset-block-end: 40px; inset-inline-start: 0; border-block-end: 1px solid; border-inline-start: 1px solid; }
+.br { inset-block-end: 40px; inset-inline-end: 0; border-block-end: 1px solid; border-inline-end: 1px solid; }
+
+.flare {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: 9%;
+  inset-inline-start: 14%;
+  width: 62%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 44% 38%, rgba(230, 236, 236, 0.48), rgba(70, 118, 111, 0.16) 38%, transparent 68%);
+  filter: blur(10px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+/* Glass reflection across the front element. */
+.stage::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 16px;
+  border-radius: 50%;
+  background: linear-gradient(126deg, transparent 31%, rgba(230, 236, 236, 0.09) 43%, transparent 51%);
+  pointer-events: none;
+}
+
+/* -- SVG paint --------------------------------------------------------------- */
+.metalLight { stop-color: var(--dh-sage); stop-opacity: 0.92; }
+.metalDark { stop-color: var(--dh-black); }
+.metalMid { stop-color: var(--dh-green); }
+
+.glassHot { stop-color: var(--dh-mist); stop-opacity: 0.92; }
+.glassMid { stop-color: var(--dh-sage); stop-opacity: 0.78; }
+.glassDeep { stop-color: var(--dh-green); stop-opacity: 0.9; }
+.glassEdge { stop-color: var(--dh-black); }
+
+.irisMid { stop-color: var(--dh-green); stop-opacity: 0.72; }
+.irisDeep { stop-color: var(--dh-black); }
+.irisEdge { stop-color: var(--dh-black); }
+
+.metalInner {
+  fill: none;
+  stroke: rgba(230, 236, 236, 0.22);
+  stroke-width: 1;
+}
+.metalHairline {
+  fill: none;
+  stroke: rgba(230, 236, 236, 0.09);
+  stroke-width: 12;
+  stroke-dasharray: 1 5;
+}
+.ribs {
+  will-change: transform;
+}
+.ribs line {
+  stroke: rgba(230, 236, 236, 0.2);
+  stroke-width: 1;
+}
+.rimGroove {
+  fill: none;
+  stroke: var(--dh-black);
+  stroke-width: 18;
+  opacity: 0.86;
+}
+.rimInner {
+  fill: none;
+  stroke: rgba(230, 236, 236, 0.18);
+  stroke-width: 1.5;
+}
+.glassWash {
+  fill: rgba(230, 236, 236, 0.025);
+}
+.glassHighlights {
+  mix-blend-mode: screen;
+}
+.glassHighlights path,
+.glassHighlights ellipse {
+  fill: rgba(230, 236, 236, 0.13);
+}
+.blades path {
+  fill: rgba(18, 57, 58, 0.26);
+  stroke: rgba(230, 236, 236, 0.15);
+  stroke-width: 1;
+}
+.apertureHex {
+  fill: none;
+  stroke: rgba(230, 236, 236, 0.4);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+.apertureEdge {
+  fill: none;
+  stroke: rgba(230, 236, 236, 0.24);
+  stroke-width: 1.5;
+}
+.focusRing {
+  fill: none;
+  stroke: var(--dh-sage);
+  stroke-width: 0.8;
+  stroke-dasharray: 2 11;
+  opacity: 0.55;
+}
+.reticle path {
+  fill: none;
+  stroke: rgba(230, 236, 236, 0.46);
+  stroke-width: 1;
+}
+.rimType text {
+  font-family: var(--dh-font-mono);
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  fill: var(--dh-mist);
+  opacity: 0.66;
+}
+
+/* -- Readout ----------------------------------------------------------------- */
+.readout {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+  padding-top: 11px;
+  border-top: 1px solid rgba(230, 236, 236, 0.16);
+  color: var(--dh-text-on-dark);
+  font-family: var(--dh-font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+.liveDot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-inline-end: 8px;
+  border-radius: 50%;
+  background: var(--dh-success);
+  box-shadow: 0 0 0 3px rgba(93, 168, 122, 0.14);
+  vertical-align: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flare { opacity: 0.35; }
+}

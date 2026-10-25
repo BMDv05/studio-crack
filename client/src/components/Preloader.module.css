@@ -1,0 +1,173 @@
+/* Preloader — "build the studio from zero". Dark screen, teal architecture. */
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  visibility: hidden; /* GSAP fades it in before paint */
+  overflow: hidden;
+}
+
+/* Two curtains — the screen opens along the foundation line on exit:
+   the top half rises, the bottom half drops, revealing the studio build. */
+.panelTop, .panelBottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.5%; /* slight overlap so no hairline shows before the split */
+  background: var(--dh-black);
+  will-change: transform;
+}
+.panelTop { top: 0; }
+.panelBottom { bottom: 0; }
+
+/* A soft light leak along the opening edge, so the split stays legible even
+   where the studio scene is still dark. It only appears once the exit starts. */
+.panelTop::after, .panelBottom::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: min(20vh, 170px);
+  opacity: 0;
+  transition: opacity 450ms ease;
+  pointer-events: none;
+}
+.panelTop::after {
+  bottom: 0;
+  background: linear-gradient(to top, rgba(92, 224, 208, 0.16), rgba(92, 224, 208, 0));
+}
+.panelBottom::before {
+  top: 0;
+  background: linear-gradient(to bottom, rgba(92, 224, 208, 0.16), rgba(92, 224, 208, 0));
+}
+.root[data-exit] .panelTop::after,
+.root[data-exit] .panelBottom::before { opacity: 1; }
+
+/* The lit foundation seam that parts the curtains. */
+.seam {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(120, 235, 220, 0) 0%,
+    rgba(120, 235, 220, 0.7) 26%,
+    #d9fffa 50%,
+    rgba(120, 235, 220, 0.7) 74%,
+    rgba(120, 235, 220, 0) 100%
+  );
+  box-shadow: 0 0 20px 1px rgba(96, 226, 210, 0.4);
+  transform: scaleX(0);
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+}
+.seam::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(56vw, 560px);
+  height: 110px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(96, 230, 214, 0.16), rgba(96, 230, 214, 0) 72%);
+}
+
+.content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  color: var(--dh-mist);
+}
+
+/* Blueprint grid, fades in from the centre, masked at the edges. */
+.grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(70, 118, 111, 0.35) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(70, 118, 111, 0.35) 1px, transparent 1px);
+  background-size: 72px 72px;
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 0%, rgba(0, 0, 0, 0.35) 55%, transparent 78%);
+  mask-image: radial-gradient(circle at 50% 50%, #000 0%, rgba(0, 0, 0, 0.35) 55%, transparent 78%);
+  will-change: transform, opacity;
+}
+
+/* The teal "foundation" line drawn across the centre. */
+.foundation {
+  position: absolute;
+  top: 50%;
+  inset-inline: 0;
+  margin-inline: auto;
+  width: min(74vw, 640px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--dh-sage), transparent);
+  will-change: transform;
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: clamp(22px, 3.2vh, 34px);
+  z-index: 1;
+}
+
+.marks { display: flex; gap: 20px; }
+.glyph { width: 62px; height: 88px; display: block; }
+.glyph path {
+  fill: var(--dh-mist);
+  stroke: var(--dh-sage);
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+  will-change: stroke-dashoffset, fill-opacity;
+}
+
+/* The official wordmark rises into place under the monogram. The mask keeps
+   the reveal clean; the SVG itself is direction-independent, so the name
+   stays readable in Arabic (RTL) as well. */
+.nameMask {
+  display: block;
+  width: min(64vw, 300px);
+  overflow: hidden;
+  padding-bottom: 10px;
+  margin-bottom: -10px;
+}
+.nameInner {
+  display: block;
+  will-change: transform, opacity;
+}
+.wordmark {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: var(--dh-mist);
+  will-change: transform, opacity;
+}
+
+/* Corner crop marks — architect's sheet. */
+.crop { position: absolute; width: 22px; height: 22px; opacity: 0.5; }
+.cropTL { top: 26px; left: 26px; border-top: 1px solid var(--dh-mist); border-left: 1px solid var(--dh-mist); }
+.cropTR { top: 26px; right: 26px; border-top: 1px solid var(--dh-mist); border-right: 1px solid var(--dh-mist); }
+.cropBL { bottom: 26px; left: 26px; border-bottom: 1px solid var(--dh-mist); border-left: 1px solid var(--dh-mist); }
+.cropBR { bottom: 26px; right: 26px; border-bottom: 1px solid var(--dh-mist); border-right: 1px solid var(--dh-mist); }
+
+/* Lighter on small screens. */
+@media (max-width: 760px) {
+  .grid { background-size: 52px 52px; }
+  .glyph { width: 46px; height: 66px; }
+  .marks { gap: 14px; }
+  .crop { width: 16px; height: 16px; }
+  .cropTL, .cropTR { top: 18px; }
+  .cropBL, .cropBR { bottom: 18px; }
+  .cropTL, .cropBL { left: 18px; }
+  .cropTR, .cropBR { right: 18px; }
+  .nameMask { width: min(66vw, 240px); }
+  .stage { gap: 20px; }
+}

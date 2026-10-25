@@ -1,0 +1,190 @@
+/* Footer — deep-teal brand band. All colors come from tokens.css. */
+
+.footer {
+  padding-block: 56px 24px;
+  border-top: 1px solid var(--dh-border-on-dark);
+  background: var(--dh-ink);
+  color: var(--dh-text-on-dark);
+}
+
+.container {
+  max-width: var(--dh-container);
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1.15fr 0.85fr;
+  gap: 40px 32px;
+}
+
+.column {
+  min-width: 0;
+}
+
+.brandColumn {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 16px;
+  min-width: 0;
+}
+
+.brandLink {
+  color: var(--dh-mist);
+  line-height: 0;
+}
+.brandLink svg {
+  display: block;
+}
+
+.tagline {
+  margin: 0;
+  max-width: 32ch;
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--dh-text-on-dark);
+}
+
+.socials {
+  display: flex;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--dh-border-on-dark);
+  border-radius: var(--dh-radius-pill);
+  color: var(--dh-mist);
+  transition: background-color 200ms ease-out, border-color 200ms ease-out,
+    transform 200ms ease-out;
+}
+.social:hover {
+  border-color: var(--dh-border-on-dark-strong);
+  background: var(--dh-surface-on-dark);
+  transform: translateY(-2px);
+}
+
+.heading {
+  margin: 0 0 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dh-heading-on-dark);
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Muted white that brightens with a thin animated underline (no layout shift). */
+.link {
+  display: inline-block;
+  padding-bottom: 2px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--dh-text-on-dark);
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: color 200ms ease-out, background-size 200ms ease-out;
+}
+.link:hover,
+.link:focus-visible {
+  color: var(--dh-mist);
+  background-size: 100% 1px;
+}
+/* Arabic is a connected script: letter-spacing breaks the joins. */
+:global([dir='rtl']) .heading {
+  letter-spacing: 0;
+  font-size: 13px;
+}
+/* RTL: the thin underline grows from the right edge (the start of the line). */
+:global([dir='rtl']) .link {
+  background-position: 100% 100%;
+}
+
+.plain {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--dh-text-on-dark);
+}
+
+/* Latin/number rows stay in reading order inside RTL text. */
+.link[dir="ltr"],
+.plain[dir="ltr"] {
+  unicode-bidi: isolate;
+}
+
+.bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--dh-border-on-dark);
+}
+
+.copyright {
+  margin: 0;
+  font-size: 14px;
+  color: var(--dh-text-on-dark);
+}
+
+.toTop {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 1px solid var(--dh-border-on-dark);
+  border-radius: var(--dh-radius-pill);
+  background: transparent;
+  color: var(--dh-mist);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 200ms ease-out, border-color 200ms ease-out;
+}
+.toTop:hover {
+  border-color: var(--dh-border-on-dark-strong);
+  background: var(--dh-surface-on-dark);
+}
+
+@media (max-width: 1000px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .footer {
+    padding-block: 40px 20px;
+  }
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+  .bottom {
+    margin-top: 32px;
+  }
+}

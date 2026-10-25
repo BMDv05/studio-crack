@@ -29,7 +29,7 @@ const bookingSchema = z.object({
   preferred_time: z.string().regex(TIME_RE, 'Please choose a valid time (HH:MM).'),
   meeting_type: z.string().transform((v) => v.toLowerCase().replace('in-person', 'in_person'))
     .refine((v) => ['online', 'in_person'].includes(v), 'Please choose Online or In-person.'),
-  consent: z.union([z.boolean(), z.string()]).refine((v) => v === true || v === 'true' || v === 'on', 'Please accept the privacy notice.'),
+  consent: z.union([z.boolean(), z.string()]).refine((v) => v === true || v === 'true' || v === 'on', 'Please tick the consent box.'),
   website: z.string().optional().default(''),
   submissionKey: z.string().max(64).optional(),
   loadedAt: z.number().optional(),

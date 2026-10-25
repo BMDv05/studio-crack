@@ -10,10 +10,13 @@ import '@fontsource/cairo/600.css';
 import '@fontsource/cairo/900.css';
 import './styles/tokens.css';
 import './styles/global.css';
+import { LanguageProvider } from './i18n/LanguageContext.jsx';
 import App from './App.jsx';
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <LanguageProvider>
+      <App />
+    </LanguageProvider>
   </React.StrictMode>
 );

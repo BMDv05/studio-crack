@@ -1,0 +1,22 @@
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 150;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: var(--dh-green);
+  color: var(--dh-mist);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  will-change: transform, opacity;
+}
+@media (max-width: 760px) { .cursor { display: none; } }

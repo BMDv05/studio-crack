@@ -14,8 +14,8 @@ double-h-studio/
 ## Quick start
 
 ```bash
-# 1. Database (PostgreSQL 16 in Docker)
-npm run db:up
+# 1. Database (isolated PostgreSQL 17 for this copy, port 5434)
+npm run db:up        # or skip: `npm run dev` starts it automatically
 
 # 2. First-time server setup
 cd server
@@ -34,7 +34,7 @@ cd ..
 npm run dev
 ```
 
-- Site: http://localhost:5173 — public pages `/`, `/work`, `/about`, `/book`, `/privacy`
+- Site: http://localhost:5173 — public pages `/`, `/work`, `/about`, `/book`
 - Admin: http://localhost:5173/admin (noindex; sign in with `ADMIN_EMAIL` / `ADMIN_PASSWORD`)
 - API health: http://localhost:3100/api/health
 
@@ -53,7 +53,7 @@ Uses a separate `doubleh_test` database (created + migrated automatically by `pr
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | API + frontend together (Ctrl+C stops both) |
-| `npm run db:up` | Start PostgreSQL container |
+| `npm run db:up` | Start the isolated PostgreSQL instance (port 5434, see `db/README.md`) |
 | `npm test` | Server API tests against `doubleh_test` |
 | `npm run build` | Production build of the client into `client/dist` |
 | `npm run import:legacy` | One-shot import of legacy SQLite data + media files |
@@ -70,6 +70,15 @@ Maintenance helpers in `server/scripts/`:
   `--dh-black` `#161919`, white). Poppins/Cairo self-hosted via `@fontsource`. Eyebrow motif
   (line — label — line), radii 20/12/999px, 56px inputs, one focus style (2px sage outline,
   offset 2px), logical CSS properties, motion 300–600ms ease-out with `prefers-reduced-motion`.
+- **Opening (public home):** the hero slot is a single pinned, scroll-driven R3F studio
+  build — the object on screen is the scene, not a video or image sequence. After the
+  build (400vh desktop / 330vh tablet / 260vh mobile), a 360/300/240vh finale moves the
+  real camera to the hero camera's rear screen, draws the official Double H + STUDIO
+  wordmark in the blueprint line style, orbits to the lens, pushes down the actual lens
+  axis and closes to black before the real home page is released. Scroll is the only
+  controller and
+  forward/backward resolve from the same progress value. Reduced motion and no-WebGL /
+  scene failures keep a static studio plate and open the site immediately.
 - **Two video types (Part C):** `videos.category` is required (`production` | `social`),
   independent `sort_order` per category, `/work?type=` pill switch synced to the URL
   (default `production`, back button works), 16:9 grid vs 9:16 grid with muted looping

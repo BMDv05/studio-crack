@@ -1,32 +1,42 @@
 .header {
   position: sticky; top: 0; z-index: 50;
   background: rgba(18, 57, 58, 0.94);
-  backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(230, 236, 236, 0.14);
+  will-change: transform;
+}
+/* After 80px of scroll: blurred, slightly lighter backdrop. */
+.scrolled {
+  background: rgba(18, 57, 58, 0.72);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border-bottom-color: rgba(230, 236, 236, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+}
+/* Route-change wipe (teal panel). */
+.transition {
+  position: fixed; inset: 0; z-index: 120;
+  background: var(--dh-green);
+  transform: scaleY(0); transform-origin: center top;
+  visibility: hidden; pointer-events: none;
+  will-change: transform;
 }
 .nav {
   display: flex; align-items: center; gap: 18px;
-  padding: 14px 20px; max-width: 1120px; margin-inline: auto;
+  padding: 14px 24px; max-width: 100%; margin-inline: auto;
 }
 .nav a { text-decoration: none; color: var(--dh-mist); }
 .nav a:global(.btn) { color: var(--dh-ink); } /* keep button text above the link color rule */
 .brandLink { display: block; line-height: 0; color: var(--dh-mist); }
 .brandLink svg { display: block; }
-.links { display: flex; gap: 18px; margin-inline-start: auto; align-items: center; }
+.navRight { display: flex; gap: 18px; margin-inline-start: auto; align-items: center; }
+.links { display: flex; gap: 18px; align-items: center; }
 .links a:not(.btn) { opacity: 0.9; }
 .links a:not(.btn):hover, .links a:not(.btn)[aria-current="page"] { opacity: 1; text-decoration: underline; }
 .menuBtn {
   display: none; background: none; color: var(--dh-mist);
   border: 1.5px solid rgba(230, 236, 236, 0.35); border-radius: 10px;
-  padding: 8px 12px; font-size: 16px; margin-inline-start: auto;
+  padding: 8px 12px; font-size: 16px;
 }
-.footer { border-top: 1px solid rgba(230, 236, 236, 0.14); padding: 34px 0 46px; background: var(--dh-ink); color: var(--dh-mist); }
-.footBrand { display: grid; gap: 10px; color: var(--dh-mist); }
-.footBrand svg { display: block; }
-.foot { display: flex; gap: 24px; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; }
-.foot nav { display: flex; gap: 16px; flex-wrap: wrap; }
-.foot a { text-decoration: none; opacity: 0.9; }
-.foot a:hover { opacity: 1; text-decoration: underline; }
 @media (max-width: 760px) {
   .links { display: none; }
   .links.open {

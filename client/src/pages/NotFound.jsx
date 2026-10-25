@@ -1,22 +1,24 @@
 import { Link } from 'react-router-dom';
 import PageMeta from '../components/PageMeta.jsx';
+import { useLang } from '../i18n/LanguageContext.jsx';
 import styles from './NotFound.module.css';
 
 export default function NotFound() {
+  const { t } = useLang();
   return (
     <>
       <PageMeta
-        title="Page not found — Double H Studio"
-        description="This page does not exist. Head back to the Double H Studio home page."
+        title={t('notFound.meta.title')}
+        description={t('notFound.meta.description')}
       />
       <section className="section">
         <div className={`wrap ${styles.wrap}`}>
-          <p className="eyebrow center">404</p>
-          <h1>This reel is missing.</h1>
-          <p className={styles.lede}>The page you asked for does not exist — it may have moved, or the link is old.</p>
+          <p className="eyebrow center">{t('notFound.eyebrow')}</p>
+          <h1>{t('notFound.title')}</h1>
+          <p className={styles.lede}>{t('notFound.lede')}</p>
           <div className={styles.ctaRow}>
-            <Link className="btn btn-dark" to="/">Back to Home</Link>
-            <Link className="btn btn-ghost-dark" to="/work">Explore Our Work</Link>
+            <Link className="btn btn-dark" to="/">{t('common.backHome')}</Link>
+            <Link className="btn btn-ghost-dark" to="/work">{t('common.exploreWork')}</Link>
           </div>
         </div>
       </section>

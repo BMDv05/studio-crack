@@ -1,0 +1,43 @@
+/* EN / عربي segmented toggle — mist pill slides under the active label.
+   Uses inset-inline-start so it flips automatically in RTL.
+   Both buttons share a fixed width so the 50% pill always lines up. */
+.switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  border: 1.5px solid rgba(230, 236, 236, 0.35);
+  border-radius: var(--dh-radius-pill);
+  flex-shrink: 0;
+}
+.switch button {
+  position: relative;
+  z-index: 1;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--dh-mist);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  min-width: 54px;
+  padding: 7px 10px;
+  border-radius: var(--dh-radius-pill);
+  transition: color 300ms ease-out;
+  opacity: 0.72;
+}
+.switch button:hover { opacity: 1; }
+.switch button.active { color: var(--dh-ink); opacity: 1; }
+.arabicLabel { font-family: var(--dh-font-arabic); }
+.pill {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  width: calc(50% - 3px);
+  background: var(--dh-mist);
+  border-radius: var(--dh-radius-pill);
+  inset-inline-start: 3px;
+  transition: inset-inline-start 300ms ease-out;
+}
+.pill[data-lang='ar'] { inset-inline-start: 50%; }

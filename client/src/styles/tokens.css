@@ -15,6 +15,14 @@
 
   --dh-font-latin: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
   --dh-font-arabic: "Cairo", system-ui, sans-serif;
+  --dh-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* Motion system: one set of timings/eases for the cinematic moments. */
+  --dh-dur-fast: 180ms;
+  --dh-dur-base: 320ms;
+  --dh-dur-slow: 560ms;
+  --dh-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dh-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 
   --dh-radius-card: 20px;
   --dh-radius-field: 12px;
@@ -22,4 +30,23 @@
 
   --dh-input-height: 56px;
   --dh-field-border: #c9d6d5;
+
+  /* --- Layout ------------------------------------------------------------------
+     One knob for every page container: .wrap (header + pages), the footer and the
+     WhatsApp card all read this. */
+  --dh-container: 1200px;
+
+  /* --- Dark chrome tokens: footer + WhatsApp card -----------------------------
+     Derived from the palette above (mist at low opacity over ink). They exist so
+     the dark surfaces, borders and muted text stay consistent and can be retuned
+     in one place instead of inside components. Contrast is tuned for AA on --dh-ink. */
+  --dh-radius-panel: 24px;
+  --dh-border-on-dark: rgba(230, 236, 236, 0.14);
+  --dh-border-on-dark-strong: rgba(230, 236, 236, 0.3);
+  --dh-surface-on-dark: rgba(230, 236, 236, 0.06);
+  --dh-surface-on-dark-soft: rgba(230, 236, 236, 0.025);
+  --dh-text-on-dark: rgba(230, 236, 236, 0.74);  /* muted body/link text — 6.5:1 on ink */
+  --dh-heading-on-dark: #8fb0aa;                 /* muted teal headings — 5.4:1 on ink */
+  --dh-shadow-soft: 0 6px 18px rgba(0, 0, 0, 0.22);
+  --dh-shadow-lift: 0 12px 24px rgba(0, 0, 0, 0.3);
 }

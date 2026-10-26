@@ -18,6 +18,8 @@ npx wrangler deploy
 
 GitHub Actions deploys pushes to `main` using the encrypted `CLOUDFLARE_API_TOKEN`
 repository secret. The token is limited to the `double-h-studio` Worker.
+Custom domains are managed separately in Cloudflare so CI does not need zone
+administration permissions; routine deployments retain the attached domains.
 `npm run deploy` regenerates Prisma and builds the frontend before deployment.
 
 ## Runtime configuration
@@ -70,4 +72,5 @@ Domain: `double-h-studio.com`; Hostinger remains the registrar and mailbox provi
 Cloudflare nameservers: `howard.ns.cloudflare.com` and `paige.ns.cloudflare.com`.
 Keep both Hostinger MX records, the SPF and DMARC TXT records, all three
 `hostingermail-*._domainkey` CNAMEs, and mail autoconfiguration CNAMEs. Mail CNAMEs
-must be DNS-only. Connect the apex and `www` to this Worker after application checks pass.
+must be DNS-only. The apex and `www` attach to this Worker. Previous website targets
+are retained as `legacy-origin` and `legacy-www` for rollback.

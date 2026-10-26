@@ -10,10 +10,6 @@
 	"minify": true,
 	"workers_dev": true,
 	"preview_urls": false,
-	"routes": [
-		{ "pattern": "double-h-studio.com", "custom_domain": true, "zone_id": "81aadf8d86b9320fa4a8656624ab5981" },
-		{ "pattern": "www.double-h-studio.com", "custom_domain": true, "zone_id": "81aadf8d86b9320fa4a8656624ab5981" }
-	],
 	"triggers": {
 		"crons": [
 			"*/5 * * * *"

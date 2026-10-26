@@ -3,8 +3,14 @@
    so timing stays consistent and is easy to change in one place. */
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { CustomEase } from 'gsap/CustomEase';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, CustomEase);
+
+/* The interface curve — cubic-bezier(0.16, 1, 0.3, 1). GSAP has no
+   cubic-bezier parser, so the same curve is registered once and used by name.
+   Long, soft expo with zero overshoot: the site assembles, it never bounces. */
+CustomEase.create('dh-ui', 'M0,0 C0.16,1 0.3,1 1,1');
 
 /* Brand colors — mirror styles/tokens.css (keep in sync). */
 export const COLORS = {
@@ -19,6 +25,7 @@ export const COLORS = {
 /* Easings */
 export const EASE = {
   out: 'expo.out',       // reveals, fades
+  ui: 'dh-ui',           // the interface pop-up curve (cubic-bezier .16,1,.3,1)
   inOut: 'power3.inOut', // drawing lines, wipes
   curtain: 'power4.inOut', // preloader panels / page transitions
   soft: 'power2.out',

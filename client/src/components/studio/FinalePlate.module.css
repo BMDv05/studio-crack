@@ -1,0 +1,321 @@
+/* The last frame of the opening: the about-studio plate, full screen.
+
+   This deliberately copies the editorial framing of the about hero plate
+   (same photograph, same grade, same crop marks and caption) and changes only
+   the container: the plate is centered in the screen instead of a page
+   column. The photograph itself is never transformed. The aperture opening,
+   the darkness and the UI fade are all driven from --plate-* variables by
+   StudioBlueprintAnimation. */
+
+.stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(70% 70% at 50% 42%, rgba(18, 48, 44, 0.38), transparent 72%),
+    #020807;
+  pointer-events: none;
+}
+
+.stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    92% 80% at 50% 45%,
+    transparent 42%,
+    rgba(0, 0, 0, 0.46) 100%
+  );
+  pointer-events: none;
+}
+
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+  mix-blend-mode: soft-light;
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+.plate {
+  position: relative;
+  z-index: 1;
+  width: min(100%, calc(100vh * 16 / 9));
+  width: min(100%, calc(100svh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(230, 236, 236, 0.32);
+  border-radius: clamp(0px, 0.4vw, 4px);
+  background: var(--dh-ink);
+  isolation: isolate;
+}
+
+.image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(0.68) contrast(1.08) brightness(0.78)
+    blur(var(--plate-blur, 0px));
+}
+
+.grade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(3, 13, 13, 0.86) 0%,
+      rgba(3, 13, 13, 0.5) 28%,
+      rgba(3, 13, 13, 0.04) 58%,
+      rgba(3, 13, 13, 0.18) 100%
+    ),
+    linear-gradient(
+      0deg,
+      rgba(3, 11, 11, 0.82) 0%,
+      rgba(3, 11, 11, 0.28) 26%,
+      transparent 56%
+    ),
+    linear-gradient(180deg, rgba(3, 11, 11, 0.42), transparent 22%);
+  pointer-events: none;
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+  mix-blend-mode: soft-light;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+/* The lens interior resolves into the room. This layer sits above the image
+   but below the editorial interface, so the photograph emerges from darkness
+   while the type arrives with it. It is exactly 0 on the final frame. */
+.darkness {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: #020807;
+  opacity: var(--plate-dark, 0);
+  pointer-events: none;
+}
+
+.labelTop {
+  position: absolute;
+  top: clamp(14px, 1.6vw, 22px);
+  inset-inline-start: clamp(14px, 1.8vw, 24px);
+  z-index: 5;
+  color: var(--dh-mist);
+  font-family: var(--dh-font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
+  opacity: var(--plate-ui, 1);
+}
+
+.corner {
+  position: absolute;
+  z-index: 5;
+  width: 14px;
+  height: 14px;
+  border-color: rgba(230, 236, 236, 0.46);
+  pointer-events: none;
+  opacity: var(--plate-ui, 1);
+}
+
+.tl {
+  top: 14px;
+  inset-inline-start: 14px;
+  border-top: 1px solid;
+  border-inline-start: 1px solid;
+}
+
+.tr {
+  top: 14px;
+  inset-inline-end: 14px;
+  border-top: 1px solid;
+  border-inline-end: 1px solid;
+}
+
+.bl {
+  bottom: 14px;
+  inset-inline-start: 14px;
+  border-bottom: 1px solid;
+  border-inline-start: 1px solid;
+}
+
+.br {
+  bottom: 14px;
+  inset-inline-end: 14px;
+  border-bottom: 1px solid;
+  border-inline-end: 1px solid;
+}
+
+.caption {
+  position: absolute;
+  bottom: clamp(16px, 2.8vw, 34px);
+  inset-inline-start: clamp(16px, 2.8vw, 34px);
+  z-index: 5;
+  display: grid;
+  gap: 8px;
+  max-width: min(38ch, 62%);
+  padding-inline-start: 14px;
+  border-inline-start: 1px solid rgba(230, 236, 236, 0.34);
+  opacity: var(--plate-ui, 1);
+}
+
+.captionLabel {
+  color: var(--dh-heading-on-dark);
+  font-family: var(--dh-font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.caption p {
+  margin: 0;
+  color: var(--dh-mist);
+  font-size: clamp(12px, 1.2vw, 14px);
+  font-weight: 300;
+  line-height: 1.6;
+  opacity: 0.88;
+}
+
+.meta {
+  position: absolute;
+  bottom: clamp(16px, 2.8vw, 34px);
+  inset-inline-end: clamp(16px, 2.8vw, 34px);
+  z-index: 5;
+  color: rgba(230, 236, 236, 0.56);
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: var(--dh-font-mono);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: var(--plate-ui, 1);
+}
+
+/* RTL: the interface mirrors; the photograph never does. */
+:global([dir="rtl"]) .labelTop,
+:global([dir="rtl"]) .captionLabel {
+  font-family: var(--dh-font-arabic);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+:global([dir="rtl"]) .labelTop {
+  font-size: 10px;
+}
+
+:global([dir="rtl"]) .captionLabel {
+  font-size: 10px;
+}
+
+:global([dir="rtl"]) .grade {
+  background:
+    linear-gradient(
+      270deg,
+      rgba(3, 13, 13, 0.86) 0%,
+      rgba(3, 13, 13, 0.5) 28%,
+      rgba(3, 13, 13, 0.04) 58%,
+      rgba(3, 13, 13, 0.18) 100%
+    ),
+    linear-gradient(
+      0deg,
+      rgba(3, 11, 11, 0.82) 0%,
+      rgba(3, 11, 11, 0.28) 26%,
+      transparent 56%
+    ),
+    linear-gradient(180deg, rgba(3, 11, 11, 0.42), transparent 22%);
+}
+
+@media (max-width: 760px) {
+  .labelTop {
+    top: 14px;
+    inset-inline-start: 14px;
+    font-size: 8px;
+  }
+
+  .corner {
+    width: 10px;
+    height: 10px;
+  }
+
+  .tl {
+    top: 10px;
+    inset-inline-start: 10px;
+  }
+
+  .tr {
+    top: 10px;
+    inset-inline-end: 10px;
+  }
+
+  .bl {
+    bottom: 10px;
+    inset-inline-start: 10px;
+  }
+
+  .br {
+    bottom: 10px;
+    inset-inline-end: 10px;
+  }
+
+  .caption {
+    bottom: 14px;
+    inset-inline-start: 14px;
+    gap: 5px;
+    max-width: 58%;
+    padding-inline-start: 9px;
+  }
+
+  .captionLabel {
+    font-size: 8px;
+  }
+
+  .caption p {
+    font-size: 10px;
+    line-height: 1.5;
+  }
+
+  .meta {
+    bottom: 14px;
+    inset-inline-end: 14px;
+    font-size: 6.5px;
+    letter-spacing: 0.12em;
+  }
+
+  :global([dir="rtl"]) .labelTop,
+  :global([dir="rtl"]) .captionLabel {
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 380px) {
+  .meta {
+    display: none;
+  }
+
+  .caption {
+    max-width: calc(100% - 28px);
+  }
+}

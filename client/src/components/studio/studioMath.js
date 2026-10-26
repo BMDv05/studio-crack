@@ -58,9 +58,15 @@ export const PHASE = {
 /* Scroll length in viewport heights — the same pacing as the site's other
    pinned sequences (more room on desktop where the detail is visible).
    The build keeps its original length; the finale is appended after it, so
-   the completed studio is reached at exactly the same scroll distance. */
+   the completed studio is reached at exactly the same scroll distance.
+
+   A plate hold is appended after the finale. It does not slow down or stretch
+   the camera move: the build and the finale are mapped over their original
+   scroll distance, and the extra distance simply keeps the last frame still
+   before the opening lets go. */
 export const SCROLL_VH = { desktop: 400, tablet: 330, mobile: 260 };
 export const FINALE_SCROLL_VH = { desktop: 360, tablet: 300, mobile: 240 };
+export const PLATE_HOLD_VH = { desktop: 80, tablet: 65, mobile: 55 };
 
 export function scrollLengthVh() {
   if (typeof window === 'undefined') return SCROLL_VH.desktop;
@@ -78,14 +84,30 @@ export function finaleLengthVh() {
   return FINALE_SCROLL_VH.desktop;
 }
 
-export function totalScrollLengthVh() {
+export function plateHoldVh() {
+  if (typeof window === 'undefined') return PLATE_HOLD_VH.desktop;
+  const w = window.innerWidth;
+  if (w < 760) return PLATE_HOLD_VH.mobile;
+  if (w < 1100) return PLATE_HOLD_VH.tablet;
+  return PLATE_HOLD_VH.desktop;
+}
+
+export function activeScrollLengthVh() {
   return scrollLengthVh() + finaleLengthVh();
 }
 
-/* Where the build ends inside the total pinned range. */
+export function totalScrollLengthVh() {
+  return activeScrollLengthVh() + plateHoldVh();
+}
+
+/* Where the build ends inside the moving (non-hold) part of the pin. */
 export function scrollSplit() {
-  const total = totalScrollLengthVh();
-  return scrollLengthVh() / total;
+  return scrollLengthVh() / activeScrollLengthVh();
+}
+
+/* How much of the pin is the build + lens move, before the plate hold. */
+export function activeScrollFraction() {
+  return activeScrollLengthVh() / totalScrollLengthVh();
 }
 
 /* The finale's internal beats. They overlap on purpose: the camera is already

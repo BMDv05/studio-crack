@@ -17,8 +17,6 @@ export default function Layout() {
   const headerRef = useRef(null);
   const footerRef = useRef(null);
   const panelRef = useRef(null);
-  const openRef = useRef(open);
-  openRef.current = open;
   const firstNav = useRef(true);
   const navPlayed = useRef(false);
 
@@ -50,7 +48,9 @@ export default function Layout() {
     gsap.fromTo(header, { yPercent: -100 }, { yPercent: 0, duration: 0.6, ease: EASE.out });
   }, [ready]);
 
-  /* Nav: blurred background past 80px, hides on scroll down, shows on up. */
+  /* Nav: blurred background past 80px of scroll. The strip itself stays on
+     screen the whole way down — it used to slide out on scroll-down and only
+     return on scroll-up, which made the bar under the header vanish mid-page. */
   useEffect(() => {
     const header = headerRef.current;
     if (!header) return undefined;
@@ -61,22 +61,7 @@ export default function Layout() {
       onToggle: (self) => header.classList.toggle(styles.scrolled, self.isActive),
     });
 
-    if (prefersReducedMotion()) return () => blurST.kill();
-
-    let hidden = false;
-    const hideST = ScrollTrigger.create({
-      start: 0,
-      end: 'max',
-      onUpdate: (self) => {
-        if (openRef.current) return;
-        const shouldHide = self.direction === 1 && self.scroll() > 200;
-        if (shouldHide === hidden) return;
-        hidden = shouldHide;
-        gsap.to(header, { yPercent: hidden ? -110 : 0, duration: DUR.nav, ease: EASE.soft, overwrite: true });
-      },
-    });
-
-    return () => { blurST.kill(); hideST.kill(); gsap.killTweensOf(header); };
+    return () => { blurST.kill(); gsap.killTweensOf(header); };
   }, []);
 
   /* Footer slides up when it enters view. */

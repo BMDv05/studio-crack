@@ -31,6 +31,9 @@
 
 .stage :global(canvas) {
   display: block;
+  /* The optical blur of the crossing. It is written by scroll progress, so it
+     costs nothing while the build is still (the scene renders on demand). */
+  filter: blur(var(--lens-blur, 0px));
 }
 
 
@@ -44,32 +47,180 @@
     linear-gradient(180deg, rgba(2, 8, 7, 0.28) 0%, rgba(2, 8, 7, 0) 18%, rgba(2, 8, 7, 0) 82%, rgba(2, 8, 7, 0.34) 100%);
 }
 
-/* The optical close: the lens floods with light as the camera crosses the
-   glass, and that same veil dissolves into the home page — no black frame
-   and no separator between the intro and the site.
+/* A still opening for reduced motion or a scene that cannot run: the exact
+   final plate, with no build and no scroll-driven lens crossing. */
+.staticPlate {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
 
-   Fixed, so it keeps covering the viewport after the pin releases while the
-   hero rises behind it. --wash (0..1, written by the reveal trigger) slowly
-   expands the bloom as the page opens. */
+/* The optical close: the lens floods with light as the camera crosses the
+   glass, and that same veil sits behind the final plate. It is absolute, not
+   fixed, so when the pin releases the whole last frame scrolls away with the
+   stage and hands the screen to the home hero below. --wash (0..1, written by
+   the reveal trigger) slowly expands the bloom as the page opens. */
 .lens {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 2;
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
+  /* The barrel around the opening: almost black at the edges, with only a
+     quiet teal bounce close to the glass. The old bright wash read as a
+     glowing portal rather than a lens. */
   background:
     radial-gradient(
-      115% 80% at 50% 45%,
-      rgba(122, 247, 232, 0.3) 0%,
-      rgba(30, 96, 88, 0.55) 22%,
-      rgba(6, 22, 20, 0.92) 48%,
-      #04100e 78%,
-      #020807 100%
+      circle at 50% 45%,
+      rgba(24, 66, 60, 0.32) 0%,
+      rgba(7, 26, 23, 0.76) 17%,
+      rgba(3, 12, 11, 0.95) 36%,
+      #010504 63%,
+      #000302 100%
     );
   transform: scale(calc(1 + 0.14 * var(--wash, 0)));
   transform-origin: 50% 45%;
   will-change: opacity, transform;
+}
+
+/* --------------------------------------------------------------------------
+   The lens crossing
+   -------------------------------------------------------------------------- */
+
+/* Everything here is a pure function of --lens-* custom properties written by
+   StudioBlueprintAnimation. Opacity, a clip and one blur: the compositor does
+   the rest, and a wheel that stops mid-crossing holds the frame there. */
+.crossing {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+/* Controlled motion blur: fine radial streaks around the lens axis, faded in
+   only as the camera gains speed, and masked away from the centre so the
+   glass itself stays readable. */
+.streaks {
+  position: absolute;
+  inset: -14%;
+  z-index: 2;
+  opacity: calc(var(--lens-entry, 0) * 0.13);
+  background: repeating-conic-gradient(
+    from 0deg at 50% 45%,
+    rgba(198, 255, 247, 0.12) 0deg 0.55deg,
+    transparent 0.55deg 7deg
+  );
+  -webkit-mask-image: radial-gradient(
+    circle at 50% 45%,
+    transparent 0 30%,
+    #000 60%,
+    transparent 86%
+  );
+  mask-image: radial-gradient(
+    circle at 50% 45%,
+    transparent 0 30%,
+    #000 60%,
+    transparent 86%
+  );
+  transform: scale(calc(1 + 0.08 * var(--lens-entry, 0)));
+  filter: blur(1.2px);
+  mix-blend-mode: screen;
+  will-change: opacity, transform;
+}
+
+/* The glass: two soft reflections travelling across the front element and a
+   cool sheen over its centre. Subtle by design — it must never read as a
+   filter over the picture. */
+.glass {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: calc(var(--lens-entry, 0) * 0.58);
+  background:
+    linear-gradient(
+      108deg,
+      transparent 24%,
+      rgba(206, 255, 248, 0.07) 33%,
+      rgba(160, 255, 244, 0.02) 39%,
+      transparent 47%
+    ),
+    linear-gradient(
+      288deg,
+      transparent 54%,
+      rgba(150, 240, 230, 0.055) 63%,
+      transparent 70%
+    ),
+    radial-gradient(
+      30% 22% at 50% 43%,
+      rgba(186, 255, 246, 0.085),
+      transparent 72%
+    );
+  mix-blend-mode: screen;
+}
+
+/* The hot core: the light behind the glass the instant before the camera
+   passes through it. It blooms, then it is gone. */
+.flare {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  opacity: calc(var(--lens-flare, 0) * 0.62);
+  background:
+    radial-gradient(
+      18% 14% at 50% 45%,
+      rgba(236, 255, 252, 0.72),
+      rgba(139, 247, 233, 0.18) 50%,
+      transparent 76%
+    ),
+    radial-gradient(
+      34% 26% at 50% 45%,
+      rgba(96, 235, 220, 0.12),
+      transparent 70%
+    );
+  mix-blend-mode: screen;
+  will-change: opacity;
+}
+
+/* The portal. Clipped, never scaled: the studio plate is already at its final
+   size in this overlay, so the reveal is an opening rather than a zoom. At
+   full radius the plate fills the viewport and holds there. */
+.aperture {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  visibility: hidden;
+  clip-path: circle(calc(var(--lens-aperture, 0) * 78vmax) at 50% 45%);
+  will-change: clip-path;
+}
+
+.stage[data-aperture] .aperture {
+  visibility: visible;
+}
+
+/* The iris rim, drawn on the edge of the clip so the opening reads as glass
+   rather than as a cut. It is a gradient inside the frame — never an element
+   wider than the viewport, which is what a classic scrollbar turns into a
+   horizontal bar under the page. It is gone before the portal is full. */
+.rim {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  opacity: var(--lens-rim, 0);
+  /* A thin specular edge seated in a dark inner bevel. No thick neon halo:
+     the barrel itself supplies the surrounding darkness. */
+  background: radial-gradient(
+    circle at 50% 45%,
+    rgba(0, 0, 0, 0) 0 calc(var(--lens-aperture, 0) * 78vmax - 9px),
+    rgba(0, 0, 0, 0.42) calc(var(--lens-aperture, 0) * 78vmax - 6px),
+    rgba(0, 0, 0, 0) calc(var(--lens-aperture, 0) * 78vmax + 1px),
+    rgba(198, 255, 247, 0.38) calc(var(--lens-aperture, 0) * 78vmax + 2px),
+    rgba(126, 246, 232, 0.14) calc(var(--lens-aperture, 0) * 78vmax + 8px),
+    rgba(126, 246, 232, 0) calc(var(--lens-aperture, 0) * 78vmax + 24px)
+  );
+  will-change: opacity;
 }
 
 /* Once the scene is built the section simply ends: nothing overlays it. */

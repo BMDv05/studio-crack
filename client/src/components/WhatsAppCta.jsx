@@ -53,7 +53,7 @@ export default function WhatsAppCta() {
       <div className={styles.container}>
         <div className={styles.card}>
           <Reveal className={styles.copy}>
-            <p className={`eyebrow ${styles.eyebrow}`}>{label(COPY.eyebrow)}</p>
+            <p className={`eyebrow center ${styles.eyebrow}`}>{label(COPY.eyebrow)}</p>
             <h2 id="wa-heading" className={styles.heading}>{label(COPY.heading)}</h2>
             <p className={styles.body}>{label(COPY.body)}</p>
           </Reveal>

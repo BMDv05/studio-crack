@@ -143,14 +143,93 @@ export const en = {
     meta: {
       title: 'About — Double H Studio',
       description:
-        'Double H Studio is a creative studio working across brand identity, architectural visualization and cinematic video.',
+        'Inside Double H Studio: a creative practice in Amman working across brand identity, architectural visualization, cinematic video, social formats and digital systems.',
     },
-    eyebrow: 'About',
-    title: 'A studio built on craft.',
-    lede:
-      'Double H Studio works across brand identity, architectural visualization and cinematic video. We treat every project like a piece of research: reference deeply, iterate visibly, document everything — then ship work that feels inevitable.',
-    howEyebrow: 'How we work',
-    howTitle: 'Three principles, applied daily.',
+    hero: {
+      topline: 'Studio dossier / Amman, Jordan',
+      year: 'Dossier 001',
+      eyebrow: 'The studio, on the record',
+      title: 'The room behind the motion.',
+      lede:
+        'Double H Studio is a creative practice in Amman working across five crafts — brand, architecture, film, social and digital. One team, one language, from first sketch to final frame.',
+      note:
+        'New work, process notes and studio openings — shared from the room, not from a press release.',
+      ctaWork: 'See the work',
+      plateAlt: 'The Double H Studio workspace, photographed in low light.',
+      plate: 'Plate 01 / The room',
+      plateCaption:
+        'The studio floor in Amman: desks, light, and a wall that has held every reference we have tested.',
+      plateMeta: '35mm · 1/60 · ISO 400',
+      scroll: 'Scroll the dossier',
+    },
+    chapters: {
+      label: 'Chapters',
+      studio: 'The room',
+      craft: 'Craft',
+      method: 'Method',
+    },
+    dossier: {
+      eyebrow: '01 / The room',
+      title: 'A small studio with a wide frame.',
+      lede:
+        'We keep the team close and the references closer. The room is part office, part set, part edit bay — the place where a brief becomes a build.',
+      alt: 'The Double H Studio interior with framed references and warm light.',
+      caption: 'Studio wall, Double H / Amman',
+      body1:
+        'Double H began with a simple working belief: the image and the system behind it should be made by the same hands. A logo, a building, a film and a feed are not separate assignments — they are the same story at different distances.',
+      body2:
+        'So we stay deliberately small. Strategy, design, motion and edit sit in one room, which means fewer handoffs, faster decisions, and work that holds together when it leaves us.',
+      noteLabel: 'Margin note',
+      note: '“We don’t decorate a message. We find its pace.”',
+      facts: {
+        base: { k: 'Base', v: 'Amman, Jordan' },
+        room: { k: 'The room', v: 'Studio + edit bay, one floor' },
+        craft: { k: 'Craft', v: 'Five disciplines, one team' },
+        formats: { k: 'Formats', v: 'Film, stills, social, identity, digital' },
+        hours: { k: 'Hours', v: 'Sun–Thu · 09:00–18:00 (GMT+3)' },
+      },
+    },
+    craft: {
+      eyebrow: '02 / Craft',
+      title: 'Five crafts, one visual dialect.',
+      lede:
+        'Each discipline has its own tools and tempo. They share a palette, a grid, and a stubborn belief that the details are the message.',
+      note:
+        'Most projects begin with one craft and end up speaking two or three. We plan for that from the first meeting instead of treating it as scope creep.',
+      tags: {
+        brand: { a: 'Identity systems', b: 'Launch kits' },
+        arch: { a: 'Stills', b: 'Fly-throughs' },
+        video: { a: 'Project films', b: 'Showreels' },
+        social: { a: 'Vertical', b: 'Reels · TikTok · Shorts' },
+        digital: { a: 'Design tokens', b: 'Component libraries' },
+      },
+    },
+    method: {
+      eyebrow: '03 / Method',
+      title: 'A method you can watch.',
+      lede:
+        'No black box. Every project moves through the same four checkpoints, and you see the work at each one.',
+      steps: {
+        s1: {
+          h: 'Reference before pixels.',
+          p: 'We collect the visual evidence first — architecture, film, typography, material — and agree on what the work should feel like before we open a canvas.',
+        },
+        s2: {
+          h: 'Sketch in the open.',
+          p: 'Directions are shared early and often: rough frames, type tests, motion tests. Feedback lands while it can still change the outcome.',
+        },
+        s3: {
+          h: 'Build the system, not just the asset.',
+          p: 'Every deliverable comes with the rules behind it: tokens, grids, motion timings, usage notes. The work should survive without us in the room.',
+        },
+        s4: {
+          h: 'Finish at the frame.',
+          p: 'The last ten percent is the work. We sound-design, colour, compress and test on real screens before anything ships.',
+        },
+      },
+      principlesEyebrow: 'Working principles',
+      principlesTitle: 'What stays constant.',
+    },
     crafts: {
       brand: {
         h: 'Brand Identity & Logo',
@@ -186,6 +265,21 @@ export const en = {
         h: 'Proof over promises',
         p: 'We show the work before we describe it. The portfolio is the pitch.',
       },
+    },
+    cta: {
+      eyebrow: 'Start a project',
+      title: 'Bring the brief. We’ll find its pulse.',
+      lede:
+        'Tell us what you’re making, who it’s for, and when it needs to move. We reply by email, usually within two working days.',
+      primary: 'Book a meeting',
+      secondary: 'Explore the work',
+      note: 'A request is not a confirmed slot until the studio replies.',
+      emailLabel: 'Email',
+      locationLabel: 'Studio',
+      hoursLabel: 'Hours',
+      email: 'studio@doubleh.example',
+      location: 'Amman, Jordan',
+      hours: 'Sun–Thu · 09:00–18:00 (GMT+3)',
     },
   },
   book: {
@@ -433,14 +527,93 @@ export const ar = {
     meta: {
       title: 'عن الاستوديو — استوديو دبل إتش',
       description:
-        'استوديو دبل إتش هو استوديو إبداعي يعمل في الهوية البصرية، والتصور المعماري، والفيديو السينمائي.',
+        'داخل استوديو دبل إتش: ممارسة إبداعية في عمّان تعمل في الهوية البصرية، والتصور المعماري، والفيديو السينمائي، وصيغ السوشيال، والأنظمة الرقمية.',
     },
-    eyebrow: 'عن الاستوديو',
-    title: 'استوديو بُني على الحِرفية.',
-    lede:
-      'يعمل استوديو دبل إتش في الهوية البصرية والتصور المعماري والفيديو السينمائي. نعامل كل مشروع كأنه عمل بحثي: مراجع عميقة، وتجريب متكرر بوضوح، وتوثيق لكل شيء — ثم نسلّم عملاً يبدو حتمياً.',
-    howEyebrow: 'كيف نعمل',
-    howTitle: 'ثلاثة مبادئ، نطبّقها يومياً.',
+    hero: {
+      topline: 'ملف الاستوديو / عمّان، الأردن',
+      year: 'ملف ٠٠١',
+      eyebrow: 'الاستوديو، على السجل',
+      title: 'الغرفة خلف الحركة.',
+      lede:
+        'استوديو دبل إتش ممارسة إبداعية في عمّان تعمل عبر خمس حِرف — الهوية، والعمارة، والفيلم، والسوشيال، والرقمي. فريق واحد، ولغة واحدة، من أول رسم إلى الإطار الأخير.',
+      note:
+        'أعمال جديدة، وملاحظات من العملية، وأبواب مفتوحة من الاستوديو — نشاركها من الغرفة، لا من بيان صحفي.',
+      ctaWork: 'شاهد الأعمال',
+      plateAlt: 'مساحة عمل استوديو دبل إتش في إضاءة خافتة.',
+      plate: 'لوحة 01 / الغرفة',
+      plateCaption:
+        'أرضية الاستوديو في عمّان: مكاتب، وضوء، وجدار حمل كل المراجع التي جرّبناها.',
+      plateMeta: '35mm · 1/60 · ISO 400',
+      scroll: 'مرّر الملف',
+    },
+    chapters: {
+      label: 'الفصول',
+      studio: 'الغرفة',
+      craft: 'الحِرف',
+      method: 'المنهج',
+    },
+    dossier: {
+      eyebrow: '01 / الغرفة',
+      title: 'استوديو صغير، وإطار واسع.',
+      lede:
+        'نُبقي الفريق قريباً، والمراجع أقرب. الغرفة مكتب ومجموعة تصوير وغرفة مونتاج في مكان واحد — هنا يتحوّل الموجز إلى بناء.',
+      alt: 'الفضاء الداخلي لاستوديو دبل إتش مع مراجع مؤطّرة وضوء دافئ.',
+      caption: 'جدار الاستوديو، دبل إتش / عمّان',
+      body1:
+        'بدأ دبل إتش من قناعة عملية بسيطة: الصورة والنظام الذي يقف خلفها يجب أن تصنعهما اليدان نفساهما. الشعار، والمبنى، والفيلم، والتغذية — ليست مهام منفصلة، بل القصة نفسها على مسافات مختلفة.',
+      body2:
+        'لذلك نبقى صغاراً بوعي. الاستراتيجية والتصميم والحركة والمونتاج في غرفة واحدة، أي تسليمات أقل، وقرارات أسرع، وعمل متماسك حين يغادرنا.',
+      noteLabel: 'ملاحظة هامشية',
+      note: '«نحن لا نزيّن الرسالة. نجد إيقاعها.»',
+      facts: {
+        base: { k: 'المقر', v: 'عمّان، الأردن' },
+        room: { k: 'الغرفة', v: 'استوديو + غرفة مونتاج، طابق واحد' },
+        craft: { k: 'الحِرف', v: 'خمس تخصصات، وفريق واحد' },
+        formats: { k: 'الصيغ', v: 'فيلم، وصور ثابتة، وسوشيال، وهوية، ورقمي' },
+        hours: { k: 'الساعات', v: 'الأحد–الخميس · 09:00–18:00 (غرينتش+3)' },
+      },
+    },
+    craft: {
+      eyebrow: '02 / الحِرف',
+      title: 'خمس حِرف، ولهجة بصرية واحدة.',
+      lede:
+        'لكل تخصص أدواته وإيقاعه. لكنها تتشارك لوحة الألوان، والشبكة، وقناعة عنيدة بأن التفاصيل هي الرسالة.',
+      note:
+        'معظم المشاريع تبدأ بحرفة واحدة وتنتهي متحدثة بحرفتين أو ثلاث. نخطط لذلك من الاجتماع الأول بدل اعتباره توسّعاً في النطاق.',
+      tags: {
+        brand: { a: 'أنظمة هوية', b: 'حزم إطلاق' },
+        arch: { a: 'صور ثابتة', b: 'جولات ثلاثية الأبعاد' },
+        video: { a: 'أفلام مشاريع', b: 'عروض أعمال' },
+        social: { a: 'رأسي', b: 'ريلز · تيك توك · شورتس' },
+        digital: { a: 'رموز تصميم', b: 'مكتبات مكوّنات' },
+      },
+    },
+    method: {
+      eyebrow: '03 / المنهج',
+      title: 'منهج يمكنك مشاهدته.',
+      lede:
+        'لا صندوق أسود. كل مشروع يمرّ بأربع محطات ثابتة، وترى العمل في كل واحدة.',
+      steps: {
+        s1: {
+          h: 'المرجع قبل البكسل.',
+          p: 'نجمع الدليل البصري أولاً — عمارة، وفيلم، وطباعة، ومادة — ونتفق على إحساس العمل قبل أن نفتح أي مساحة تصميم.',
+        },
+        s2: {
+          h: 'نرسم في العلن.',
+          p: 'نشارك الاتجاهات مبكراً وباستمرار: إطارات خام، واختبارات خطوط، وتجارب حركة. تصل الملاحظات وهي قادرة على تغيير النتيجة.',
+        },
+        s3: {
+          h: 'نبني النظام، لا الأصل فقط.',
+          p: 'كل تسليم يأتي مع القواعد التي تحكمه: رموز، وشبكات، وتوقيتات حركة، وملاحظات استخدام. يجب أن يبقى العمل حياً دوننا في الغرفة.',
+        },
+        s4: {
+          h: 'النهاية عند الإطار.',
+          p: 'العشرة بالمئة الأخيرة هي العمل. نصمم الصوت، ونضبط اللون، ونضغط، ونختبر على شاشات حقيقية قبل أي إطلاق.',
+        },
+      },
+      principlesEyebrow: 'مبادئ العمل',
+      principlesTitle: 'ما يبقى ثابتاً.',
+    },
     crafts: {
       brand: {
         h: 'الهوية البصرية والشعار',
@@ -476,6 +649,21 @@ export const ar = {
         h: 'الدليل قبل الوعد',
         p: 'نعرض العمل قبل أن نصفه. معرض الأعمال هو العرض نفسه.',
       },
+    },
+    cta: {
+      eyebrow: 'ابدأ مشروعاً',
+      title: 'أحضر الموجز. سنعثر على نبضه.',
+      lede:
+        'أخبرنا بما تصنعه، ولمن، ومتى يجب أن يتحرك. نرد بالبريد الإلكتروني، عادةً خلال يومَي عمل.',
+      primary: 'احجز اجتماعاً',
+      secondary: 'استعرض الأعمال',
+      note: 'الطلب ليس موعداً مؤكداً حتى يرد الاستوديو.',
+      emailLabel: 'البريد',
+      locationLabel: 'الاستوديو',
+      hoursLabel: 'الساعات',
+      email: 'studio@doubleh.example',
+      location: 'عمّان، الأردن',
+      hours: 'الأحد–الخميس · 09:00–18:00 (غرينتش+3)',
     },
   },
   book: {

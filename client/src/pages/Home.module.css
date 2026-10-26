@@ -8,11 +8,17 @@
 /* -------------------------------------------------------------------------- */
 /* The plate is fixed to the viewport, not to the hero. When the opening fades
    away there is only one continuous background behind it, so no seam between
-   an upper and a lower section is ever exposed. */
+   an upper and a lower section is ever exposed.
+   z-index -1 keeps it a *background*: it paints behind the page's own blocks
+   and only shows through what is transparent (the hero, and the moment the
+   studio opening lets go). At z-index 0 it was a positioned layer, which CSS
+   paints above every static section's background and text — the contact
+   section below the hero read as an empty black frame because the plate was
+   covering its copy. */
 .backdrop {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   overflow: hidden;
   pointer-events: none;
   background:

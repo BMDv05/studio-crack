@@ -43,10 +43,9 @@ function HomeBackdrop() {
   );
 }
 
-/* The hero is the finished website: one full-screen studio frame, one
-   navigation row, one editorial statement, and a single lower rail for the
-   disciplines and camera status. It waits for the intro to hand over, then
-   builds the interface in a quiet, staggered reveal. */
+/* Retired home hero. The studio plate is now the final frame of the opening,
+   so this screen is intentionally not rendered. It is kept intact so the
+   previous home layout can be restored without reconstructing it. */
 function Hero({ open, landed }) {
   const heroRef = useRef(null);
   const { t, lang } = useLang();
@@ -105,11 +104,9 @@ function Hero({ open, landed }) {
   useEffect(() => {
     if (!live) return undefined;
     const el = heroRef.current;
-    if (!el) return undefined;
-
-    const ctx = gsap.context(() => {
-      const q = gsap.utils.selector(el);
-      const tl = gsap.timeline({ defaults: { ease: EASE.out } });
+    if (!el) return undefined;      const ctx = gsap.context(() => {
+        const q = gsap.utils.selector(el);
+        const tl = gsap.timeline({ defaults: { ease: EASE.ui } });
 
       if (prefersReducedMotion()) {
         tl.set(
@@ -142,13 +139,13 @@ function Hero({ open, landed }) {
          the same long, soft expo curve; no bounce, no float, no spin. */
       tl.to(
         q("[data-hero-title]"),
-        { opacity: 1, scale: 1, duration: 0.68, ease: "expo.out" },
+        { opacity: 1, scale: 1, duration: 0.68, ease: EASE.ui },
         0,
       )
         .fromTo(
           q(".st-inner"),
           { yPercent: 115 },
-          { yPercent: 0, duration: 0.72, stagger: 0.1, ease: "expo.out" },
+          { yPercent: 0, duration: 0.72, stagger: 0.1, ease: EASE.ui },
           0.02,
         )
         .to(
@@ -168,7 +165,7 @@ function Hero({ open, landed }) {
         )
         .to(
           q("[data-hero-nav]"),
-          { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.09 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.1 },
           0.48,
         )
         .to(
@@ -178,12 +175,12 @@ function Hero({ open, landed }) {
         )
         .to(
           q("[data-hero-service]"),
-          { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.08 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.09 },
           0.58,
         )
         .to(
           q("[data-hero-rail-label]"),
-          { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.08 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.09 },
           0.64,
         )
         .to(
@@ -193,7 +190,7 @@ function Hero({ open, landed }) {
         )
         .to(
           q("[data-hero-cta] a"),
-          { opacity: 1, y: 0, scale: 1, duration: 0.6, stagger: 0.08 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.6, stagger: 0.12 },
           0.78,
         )
         /* Last: the frame's thin rules and corner marks, once every piece of
@@ -217,7 +214,7 @@ function Hero({ open, landed }) {
         .fromTo(
           q("[data-hero-lock]"),
           { opacity: 0, scale: 1.35 },
-          { opacity: 1, scale: 1, duration: 0.45, ease: "expo.out" },
+          { opacity: 1, scale: 1, duration: 0.45, ease: EASE.ui },
           1.6,
         )
         .to(
@@ -230,9 +227,11 @@ function Hero({ open, landed }) {
     return () => ctx.revert();
   }, [live, lang]);
 
-  /* The finished frame owns the screen: keep the global header out of it,
-     including after a language switch refreshes ScrollTrigger. The hero has
-     its own navigation, so there is never a second header over the plate.
+  /* The finished frame owns the screen while its own nav is on it: the global
+     header stays out only while the hero's navigation row is showing — the two
+     share the same slot, so there is never a second bar over the plate. The
+     moment that row scrolls away the sticky header takes over, which keeps a
+     bar with its hairline on screen all the way down instead of leaving a gap.
      An observer is used rather than a scroll trigger because the language
      switch rebuilds the surrounding triggers; visibility must not depend on
      that refresh order. */
@@ -241,6 +240,9 @@ function Hero({ open, landed }) {
     if (!hero) return undefined;
     const header = document.querySelector("header");
     if (!header) return undefined;
+
+    /* The hero's own header row (falls back to the section if it is missing). */
+    const navRow = hero.querySelector("header") || hero;
 
     let overHero = false;
     const sync = (next) => {
@@ -254,9 +256,9 @@ function Hero({ open, landed }) {
       ([entry]) => sync(entry.isIntersecting),
       { threshold: 0 },
     );
-    observer.observe(hero);
+    observer.observe(navRow);
 
-    const rect = hero.getBoundingClientRect();
+    const rect = navRow.getBoundingClientRect();
     sync(rect.bottom > 0 && rect.top < window.innerHeight);
 
     return () => {
@@ -391,12 +393,10 @@ const STOP_LABELS = ["f/1.4", "f/2", "f/2.8", "f/4", "f/5.6"];
 export default function Home() {
   const { t, lang } = useLang();
   const [filmDone, setFilmDone] = useState(false);
-  const [heroLanded, setHeroLanded] = useState(false);
   const [homeReady, setHomeReady] = useState(false);
   const callRef = useRef(null);
   const callLineRef = useRef(null);
   const openSite = useCallback(() => setFilmDone(true), []);
-  const showHero = useCallback(() => setHeroLanded(true), []);
 
   /* Re-create the homepage's scroll triggers after the pinned studio has let go.
      Triggers born while a pin is active measure the rest of the page without
@@ -462,17 +462,15 @@ export default function Home() {
         title={t("home.meta.title")}
         description={t("home.meta.description")}
       />
-      {/* The studio opens the page. The finale takes the camera through the
-          lens while the light veil closes over the glass; then the whole
-          opening dissolves into the supplied studio-wall website plate. The
-          hero is already a single full-screen unit underneath, so no second
-          horizontal section is ever exposed. */}
+      {/* The studio plate is the page's opening and its final frame. The old
+          home hero is not rendered underneath it: the camera resolves into the
+          plate and the plate stays on screen until the visitor scrolls past
+          it. The header returns only once that frame has left the viewport. */}
+      <h1 className="sr-only">
+        {t("home.hero.title1")} {t("home.hero.title2")}
+      </h1>
       <HomeBackdrop />
-      <StudioBlueprintAnimation
-        onDone={openSite}
-        onReveal={showHero}
-      />
-      <Hero open={filmDone} landed={heroLanded} />
+      <StudioBlueprintAnimation onDone={openSite} />
 
       <Fragment key={homeReady ? "home-ready" : "home-intro"}>
         <section

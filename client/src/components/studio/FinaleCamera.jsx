@@ -84,6 +84,7 @@ export default function FinaleCamera({ progress, screenRef, lensRef }) {
       front055: V(),
       front004: V(),
       inside: V(),
+      through: V(),
       pos: V(),
       target: V(),
       orbitPts: [V(), V(), V(), V(), V()],
@@ -102,10 +103,12 @@ export default function FinaleCamera({ progress, screenRef, lensRef }) {
 
   const apply = useCallback(
     (finale) => {
-      /* The finale stops at the glass: the lens-front framing is the shot the
-       home page freezes on, so the last stretch of scroll only floods the
-       scene with light while the camera holds perfectly still. */
-      const f = Math.min(clamp01(finale || 0), FINALE.lensEnd);
+      /* The finale does not stop at the glass any more: the last stretch of
+         scroll carries the camera through the front element, accelerating as
+         it crosses. The DOM side of that move (the optical blur, the glass
+         reflections and the aperture that opens onto the site) is timed to the
+         same curve in StudioBlueprintAnimation. */
+      const f = clamp01(finale || 0);
 
       const setProjection = (fov, near) => {
         if (
@@ -189,12 +192,26 @@ export default function FinaleCamera({ progress, screenRef, lensRef }) {
           .lerp(
             t.lens,
             smoothstep(FINALE.orbitStart, FINALE.orbitEnd - 0.02, f),
-          );
-      } else {
-        /* At the glass — and held there. The remaining scroll belongs to the
-         light veil, not to the camera. */
+          );      } else {
+        /* At the glass, then through it. The push from 0.55 m to 4 cm is a
+           smooth arc; the crossing adds a second, accelerating span so the
+           camera is still gaining speed when it passes the front element. A
+           hard stop at the glass was what made the hand-off read as a
+           cross-fade instead of a pass-through. */
         const u = smoothstep(FINALE.orbitEnd, FINALE.lensEnd, f);
         t.pos.copy(t.front055).lerp(t.front004, u);
+
+        if (f > FINALE.lensEnd) {
+          const crossing = clamp01(
+            (f - FINALE.lensEnd) /
+              Math.max(1e-6, FINALE.opticalEnd - FINALE.lensEnd),
+          );
+          /* Squared: nothing happens at the glass, then the barrel swallows
+             the frame in the last few percent of the scroll. */
+          t.through.copy(t.lens).addScaledVector(t.dir, -0.26);
+          t.pos.lerp(t.through, crossing * crossing);
+        }
+
         t.target.copy(t.lens);
       }
 
@@ -203,7 +220,17 @@ export default function FinaleCamera({ progress, screenRef, lensRef }) {
       camera.lookAt(t.target);
 
       const lensT = smoothstep(FINALE.orbitStart, FINALE.lensEnd, f);
-      const fov = mix(base.fov, base.fov * 0.82, lensT);
+      /* The glass bends the frame as the camera crosses it: a small, steady
+         widening, never a snap. */
+      const crossingT = clamp01(
+        (f - FINALE.lensEnd) /
+          Math.max(1e-6, FINALE.opticalEnd - FINALE.lensEnd),
+      );
+      const fov = mix(
+        mix(base.fov, base.fov * 0.82, lensT),
+        base.fov * 0.94,
+        crossingT,
+      );
       /* Open the near plane as the camera approaches the glass instead of
        snapping it at one scroll pixel. The change is small, but it removes the
        one-frame projection pop in the middle of the push. */

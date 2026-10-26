@@ -24,7 +24,9 @@ import { ScrollTrigger, prefersReducedMotion } from "../../lib/anim.js";
 import { useAppReady } from "../../hooks/useAppReady.jsx";
 import { useLang } from "../../i18n/LanguageContext.jsx";
 import StudioScene from "./StudioScene.jsx";
+import FinalePlate from "./FinalePlate.jsx";
 import {
+  activeScrollFraction,
   clamp01,
   scrollSplit,
   smoothstep,
@@ -78,7 +80,7 @@ function canUseWebGL() {
   }
 }
 
-export default function StudioBlueprintAnimation({ onDone, onFreeze, onReveal }) {
+export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
   const { t } = useLang();
   const { ready } = useAppReady();
   const reduced = useMemo(() => prefersReducedMotion(), []);
@@ -110,8 +112,6 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze, onReveal })
   doneRef.current = onDone;
   const freezeRef = useRef(onFreeze);
   freezeRef.current = onFreeze;
-  const revealRef = useRef(onReveal);
-  revealRef.current = onReveal;
   const frozeRef = useRef(false);
   const freezePendingRef = useRef(false);
 
@@ -122,7 +122,6 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze, onReveal })
     () => ({
       p: reduced || !webgl ? 1 : 0,
       finale: 0,
-      reveal: 0,
       total: 0,
       invalidate: null,
     }),
@@ -152,12 +151,34 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze, onReveal })
   /* A still scene has no build to finish: the site opens immediately, and the
      header comes back if a live scene fails after mount. */
   useEffect(() => {
-    if (!settled) return;
+    if (!settled) return undefined;
+    const stage = rootRef.current;
+    const header = document.querySelector("header");
     slotRef.current?.removeAttribute("data-above");
     doneRef.current?.();
-    /* There is no scroll hand-off without the live scene, so the hero must
-       open immediately instead of waiting for a reveal that never runs. */
-    revealRef.current?.();
+
+    if (!stage || !header) return undefined;
+
+    /* The still plate is the whole opening: keep the header off it until the
+       stage's bottom has passed the top of the viewport. */
+    const sync = (hide) => {
+      if (hide) header.setAttribute("data-under-hero", "true");
+      else header.removeAttribute("data-under-hero");
+    };
+    const stageGone = () => stage.getBoundingClientRect().bottom <= 0;
+    const trigger = ScrollTrigger.create({
+      trigger: stage,
+      start: "bottom top",
+      end: "max",
+      onEnter: () => sync(false),
+      onLeaveBack: () => sync(true),
+    });
+    sync(!stageGone());
+
+    return () => {
+      trigger.kill();
+      header.removeAttribute("data-under-hero");
+    };
   }, [settled]);
 
   /* Scroll -> progress. Held back until the preloader curtain has opened. */
@@ -169,40 +190,112 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze, onReveal })
     let lastPct = "";
     let lastHint = "";
     let lastChrome = "";
-    let lastWash = "";
-    let lastStage = "";
-
-    /* The pinned scene ends before the hero is actually in front of the
-       visitor. The shot is still sliding away for the length of one viewport,
-       so firing the hero entrance at onLeave hides the whole thing behind the
-       stage. Hand the hero its cue only once the held frame owns enough of the
-       screen for the focus lock and the pop to be seen. */
-    const HERO_LAND_AT = 0.78;
-    let landed = false;
-    const announceLand = (value) => {
-      if (landed || value < HERO_LAND_AT) return;
-      landed = true;
-      revealRef.current?.();
+    let lastVeil = "";
+    const lastVars = {
+      entry: "",
+      aperture: "",
+      rim: "",
+      flare: "",
+      blur: "",
+      plateDark: "",
+      plateUi: "",
+      plateBlur: "",
     };
 
-    /* The optical close and the hand-off to the home page, in one veil.
-       As the camera crosses the lens glass the veil floods with light — never
-       a black frame — then the whole stage dissolves into the fixed studio
-       plate behind it. The plate is already viewport-filling, so the hand-off
-       never exposes an upper scene band over a separate lower hero. */
-    const applyWash = () => {
-      const lens = lensRef.current;
-      const washIn = smoothstep(0.86, 1, progress.finale);
-      const opacity = washIn * (1 - smoothstep(0.28, 0.92, progress.reveal));
-      const key = opacity.toFixed(3);
+    /* The plate is the final scene now, so the stage must never switch itself
+       off under the portal. Clear any opacity left by a previous mount. */
+    root.style.opacity = "";
 
-      /* The instant the light fully covers the lens, the live frame is
-         copied out. It is kept for the transition/fallback path; the finished
-         website plate itself is the supplied studio wall. The copy waits one
-         frame: render() invalidates the demand loop in the same tick, and this
-         must read the lens frame that render produces, not the previous frame
-         left in the buffer. */
-      if (!frozeRef.current && !freezePendingRef.current && washIn > 0.995) {
+    /* ---- the lens crossing and the final plate ---------------------------
+
+       The camera no longer stops 4 cm in front of the glass: it accelerates
+       into it over the last stretch of the finale. Everything the DOM has to
+       do for that move is read off the same finale progress, so the 3D shot
+       and the overlays can never drift apart, and a paused wheel pauses the
+       crossing:
+
+         entry     glass reflections + the streak smear of speed
+         flare     the hot core of the aperture as the camera reaches the glass
+         aperture  the studio plate seen through the lens (0 = closed, 1 = full)
+         rim       the iris rim, gone once the portal is wider than the plate
+
+       The portal is clipped, not scaled: the plate inside it is already at
+       its final size, so the reveal is an opening and never a zoom. The stage
+       stays opaque at the end and holds the final frame for the plate hold;
+       when the pin releases, the whole frame scrolls away to the next
+       section. */
+    const applyHandoff = () => {
+      const lens = lensRef.current;
+      const f = progress.finale;
+
+      const entry =
+        smoothstep(0.855, 0.95, f) * (1 - smoothstep(0.958, 0.992, f));
+      const aperture = smoothstep(0.9, 0.99, f);
+      const rim = smoothstep(0.9, 0.942, f) * (1 - smoothstep(0.962, 0.992, f));
+      const flare =
+        smoothstep(0.895, 0.955, f) * (1 - smoothstep(0.972, 0.998, f));
+      const blur =
+        2.2 * smoothstep(0.875, 0.952, f) * (1 - smoothstep(0.966, 0.996, f));
+      const veil = smoothstep(0.84, 0.95, f);
+
+      /* The photograph emerges from the dark interior. The final frame is
+         exactly 0 darkness, 0 blur and a fully opaque interface. */
+      const plateDark = 1 - smoothstep(0.905, 0.988, f);
+      const plateUi = smoothstep(0.925, 0.988, f);
+      const plateBlur =
+        2.4 * smoothstep(0.9, 0.95, f) * (1 - smoothstep(0.965, 0.992, f));
+
+      const write = (slot, name, value) => {
+        const next = value.toFixed(3);
+        if (lastVars[slot] === next) return;
+        lastVars[slot] = next;
+        root.style.setProperty(name, next);
+      };
+
+      write("entry", "--lens-entry", entry);
+      write("aperture", "--lens-aperture", aperture);
+      write("rim", "--lens-rim", rim);
+      write("flare", "--lens-flare", flare);
+      write("plateDark", "--plate-dark", plateDark);
+      write("plateUi", "--plate-ui", plateUi);
+
+      const blurPx = blur.toFixed(2);
+      if (lastVars.blur !== blurPx) {
+        lastVars.blur = blurPx;
+        root.style.setProperty("--lens-blur", `${blurPx}px`);
+      }
+
+      const plateBlurPx = plateBlur.toFixed(2);
+      if (lastVars.plateBlur !== plateBlurPx) {
+        lastVars.plateBlur = plateBlurPx;
+        root.style.setProperty("--plate-blur", `${plateBlurPx}px`);
+      }
+
+      const open = aperture > 0.001;
+      if (root.hasAttribute("data-aperture") !== open) {
+        root.toggleAttribute("data-aperture", open);
+      }
+
+      /* The veil is the light that floods the glass while the camera crosses
+         it. Never a black frame: the portal opens inside this halo. */
+      const veilKey = veil.toFixed(3);
+      if (lens && veilKey !== lastVeil) {
+        lastVeil = veilKey;
+        lens.style.opacity = veilKey;
+        /* Keep the veil out of the compositor for the whole build. */
+        lens.style.visibility = veil < 0.004 ? "hidden" : "visible";
+        lens.style.setProperty("--wash", f.toFixed(3));
+      }
+
+      /* The held lens frame, kept for the transition path that wants a still.
+         Only captured when something is listening: it is an expensive read of
+         the whole drawing buffer. */
+      if (
+        freezeRef.current &&
+        !frozeRef.current &&
+        !freezePendingRef.current &&
+        veil > 0.995
+      ) {
         freezePendingRef.current = true;
         window.requestAnimationFrame(() => {
           freezePendingRef.current = false;
@@ -214,42 +307,30 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze, onReveal })
           }
         });
       }
-
-      if (lens && key !== lastWash) {
-        lastWash = key;
-        lens.style.opacity = key;
-        /* Keep the veil out of the compositor for the whole build. */
-        lens.style.visibility = opacity < 0.004 ? "hidden" : "visible";
-        lens.style.setProperty("--wash", progress.reveal.toFixed(3));
-      }
-
-      /* The opening dissolves while the fixed plate is already behind it.
-         Keep this earlier and quicker than the copy cue: once the stage
-         unpins, any residual stage would read as a strip above the hero.
-         By 14% of the hand-off the viewport is one continuous studio frame. */
-      const stageKey = (1 - smoothstep(0, 0.14, progress.reveal)).toFixed(3);
-      if (stageKey !== lastStage) {
-        lastStage = stageKey;
-        root.style.opacity = stageKey === "1.000" ? "" : stageKey;
-      }
     };
 
     const render = (total) => {
+      /* Only the build + lens move drive the scene. The plate hold at the end
+         of the pin is extra scroll during which this value stays at 1, so the
+         camera path and its speed do not change. */
+      const activeFraction = activeScrollFraction();
+      const active = clamp01(total / Math.max(activeFraction, 1e-6));
       const split = scrollSplit();
-      const p = clamp01(total / Math.max(split, 1e-6));
-      const finale = clamp01((total - split) / Math.max(1 - split, 1e-6));
+      const p = clamp01(active / Math.max(split, 1e-6));
+      const finale = clamp01((active - split) / Math.max(1 - split, 1e-6));
 
       progress.p = p;
       progress.finale = finale;
-      progress.total = total;
+      progress.total = active;
       progress.invalidate?.();
 
-      if (railRef.current) railRef.current.style.transform = `scaleX(${total})`;
+      if (railRef.current)
+        railRef.current.style.transform = `scaleX(${active})`;
 
       /* These strings only change at a couple of beats. Avoid writing the same
          style/ARIA values on every scroll event; that keeps the scroll handler
          from touching layout at all through most of the finale. */
-      const hintOpacity = total > 0.015 ? "0" : "1";
+      const hintOpacity = active > 0.015 ? "0" : "1";
       if (hintRef.current && hintOpacity !== lastHint) {
         lastHint = hintOpacity;
         hintRef.current.style.opacity = hintOpacity;
@@ -271,14 +352,14 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze, onReveal })
         );
       }
 
-      const pct = total.toFixed(3);
+      const pct = active.toFixed(3);
       if (pct !== lastPct) {
         lastPct = pct;
         root.dataset.progress = pct;
         root.dataset.finale = finale.toFixed(3);
       }
 
-      applyWash();
+      applyHandoff();
     };
 
     const trigger = ScrollTrigger.create({
@@ -303,41 +384,46 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze, onReveal })
       onLeaveBack: (self) => render(self.progress),
     });
 
-    /* The hand-off: the veil owns exactly the viewport of scroll between the
-       pin releasing and the hero arriving. It is not pinned itself — it only
-       dissolves — so the visitor keeps scrolling straight through it. The
-       range is taken from the pin trigger's own end, so the two ranges share
-       one exact boundary at every refresh and viewport size. */
-    const reveal = ScrollTrigger.create({
-      trigger: root,
-      start: () => trigger.end,
-      end: () => trigger.end + window.innerHeight,
-      invalidateOnRefresh: true,
-      onUpdate: (self) => {
-        progress.reveal = self.progress;
-        applyWash();
-        announceLand(self.progress);
-      },
-      onLeaveBack: () => {
-        progress.reveal = 0;
-        applyWash();
-      },
+    /* The plate is the page's hero. The global header stays out of its frame
+       until the stage's bottom has passed the top of the viewport; because the
+       stage is pinned, that is the pin end plus one stage height. */
+    const header = document.querySelector("header");
+    const headerTrigger = header
+      ? ScrollTrigger.create({
+          trigger: root,
+          start: () => trigger.end + root.offsetHeight,
+          end: "max",
+          onEnter: () => header.removeAttribute("data-under-hero"),
+          onLeaveBack: () =>
+            header.setAttribute("data-under-hero", "true"),
+        })
+      : null;
+    if (header) {
+      const stageGone =
+        window.scrollY >= trigger.end + root.offsetHeight;
+      if (stageGone) header.removeAttribute("data-under-hero");
+      else header.setAttribute("data-under-hero", "true");
+    }
+
+    /* The pin's spacing was added after Lenis measured the document. Remeasure
+       on the next frame so the new final scene and the sections below it are
+       reachable by wheel/touch, not just by scripted scroll. */
+    const lenisResizeFrame = window.requestAnimationFrame(() => {
+      window.__lenis?.resize?.();
     });
 
     /* Adopt the scroll position we were remounted into (StrictMode, HMR, or a
        browser restoring a deep scroll) instead of resetting the build. */
     render(trigger.progress);
-    progress.reveal = reveal.progress;
-    applyWash();
-    /* Adopt a page restored past the hand-off too: the hero must not stay
-       hidden just because its entrance trigger was already behind us. */
-    announceLand(reveal.progress);
+    applyHandoff();
     if (slotRef.current)
       slotRef.current.toggleAttribute("data-above", trigger.progress < 1);
     if (trigger.progress >= 1) doneRef.current?.();
 
     return () => {
-      reveal.kill();
+      window.cancelAnimationFrame(lenisResizeFrame);
+      headerTrigger?.kill();
+      header?.removeAttribute("data-under-hero");
       trigger.kill();
     };
   }, [ready, reduced, webgl, failed, progress]);
@@ -364,6 +450,15 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze, onReveal })
           <StudioFallback />
         )}
 
+        {/* Reduced motion, no WebGL, or a scene failure: the final plate is
+            still the page's opening, shown as a still frame instead of a
+            build. */}
+        {settled && (
+          <div className={s.staticPlate}>
+            <FinalePlate />
+          </div>
+        )}
+
         {!settled && (
           <div className={s.chrome} ref={chromeRef}>
             <span ref={hintRef} className={s.hint}>
@@ -376,6 +471,25 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze, onReveal })
         )}
 
         <div className={s.vignette} aria-hidden="true" />
+
+        {/* The crossing: reflections on the glass, the smear of speed, the
+            hot core of the aperture, then the studio plate itself inside the
+            opening. The plate sits below the glass so the reflections pass
+            over the emerging photograph and fade before the final frame. All
+            of it reads the custom properties written by the scroll progress —
+            no extra timers, no extra renders. */}
+        {!settled && (
+          <div className={s.crossing}>
+            <div className={s.aperture}>
+              <FinalePlate />
+            </div>
+            <div className={s.streaks} />
+            <div className={s.glass} />
+            <div className={s.flare} />
+            <div className={s.rim} />
+          </div>
+        )}
+
         {!settled && (
           <div
             ref={lensRef}

@@ -10,20 +10,25 @@
   padding-inline: 20px;
 }
 
+/* One black card, centred: the contact block reads as a single quiet panel
+   on the section, not as a split with a lighter and a darker half. */
 .card {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(240px, 1fr);
-  align-items: center;
-  gap: 32px;
-  padding: 52px;
+  gap: 18px;
+  justify-items: center;
+  max-width: 760px;
+  margin-inline: auto;
+  padding: 52px clamp(24px, 5vw, 72px);
   border: 1px solid var(--dh-border-on-dark);
   border-radius: var(--dh-radius-panel);
-  background: linear-gradient(158deg, var(--dh-surface-on-dark-soft), var(--dh-surface-on-dark));
+  background: var(--dh-black);
+  text-align: center;
 }
 
 .copy {
   display: grid;
   gap: 8px;
+  justify-items: center;
   min-width: 0;
 }
 
@@ -51,8 +56,8 @@
 .action {
   display: grid;
   gap: 10px;
+  justify-items: center;
   align-content: center;
-  justify-items: stretch;
   min-width: 0;
 }
 
@@ -61,9 +66,8 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  width: 100%;
   min-height: 52px;
-  padding: 14px 24px;
+  padding: 14px 28px;
   border: 1px solid transparent;
   border-radius: var(--dh-radius-pill);
   background: var(--dh-mist);
@@ -94,7 +98,7 @@
 }
 
 .number {
-  justify-self: start;
+  justify-self: center;
   unicode-bidi: isolate; /* keeps +963 … in reading order inside RTL text */
   font-size: 15px;
   font-weight: 500;
@@ -111,7 +115,7 @@
 }
 
 .hint {
-  justify-self: start;
+  justify-self: center;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.08em;
@@ -129,9 +133,8 @@
     padding-block: 48px;
   }
   .card {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
-    padding: 32px 24px;
+    gap: 16px;
+    padding: 36px 24px;
   }
   .body {
     font-size: 15px;

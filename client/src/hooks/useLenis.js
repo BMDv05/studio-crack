@@ -36,6 +36,13 @@ export default function useLenis(enabled = true) {
     gsap.ticker.add(raf);
     gsap.ticker.lagSmoothing(0);
 
+    /* ScrollTrigger adds pin spacing after Lenis has measured the page. A
+       refresh changes the document height, so Lenis has to remeasure its
+       limit; otherwise a pinned opening can leave the rest of the page
+       unreachable by wheel/touch. */
+    const resizeLenis = () => lenis.resize();
+    ScrollTrigger.addEventListener('refresh', resizeLenis);
+
     /* Anchor links scroll smoothly. */
     const onClick = (e) => {
       const link = e.target && e.target.closest && e.target.closest('a[href^="#"]');
@@ -53,6 +60,7 @@ export default function useLenis(enabled = true) {
 
     return () => {
       document.removeEventListener('click', onClick);
+      ScrollTrigger.removeEventListener('refresh', resizeLenis);
       gsap.ticker.remove(raf);
       lenis.destroy();
       window.__lenis = null;

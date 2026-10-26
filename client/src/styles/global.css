@@ -10,6 +10,10 @@ body {
   color: var(--dh-white);
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  /* The site is vertical. Any full-bleed decoration must never turn into a
+     horizontal bar under the frame; `clip` keeps it out without creating a
+     scroll container (so sticky headers and the pinned studio still work). */
+  overflow-x: clip;
 }
 [lang="ar"], .arabic { font-family: var(--dh-font-arabic); }
 html[lang="ar"] body { font-family: var(--dh-font-arabic); }

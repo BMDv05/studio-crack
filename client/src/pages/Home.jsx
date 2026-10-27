@@ -10,14 +10,11 @@ import { Link } from "react-router-dom";
 import PageMeta from "../components/PageMeta.jsx";
 import SplitText from "../components/SplitText.jsx";
 import Reveal from "../components/Reveal.jsx";
-import { Wordmark } from "../components/Wordmark.jsx";
-import LanguageSwitcher from "../components/LanguageSwitcher.jsx";
 import StudioBlueprintAnimation from "../components/studio/StudioBlueprintAnimation.jsx";
 import StudioLens from "../components/studio/StudioLens.jsx";
 import CallSlate from "../components/studio/CallSlate.jsx";
 import WhatsAppCta from "../components/WhatsAppCta.jsx";
 import { useLang } from "../i18n/LanguageContext.jsx";
-import { useAppReady } from "../hooks/useAppReady.jsx";
 import {
   gsap,
   ScrollTrigger,
@@ -28,13 +25,15 @@ import styles from "./Home.module.css";
 
 const HERO_SERVICE_KEYS = ["brand", "arch", "video", "social", "digital"];
 
-/* The post-lens website plate. It is fixed rather than attached to the hero
-   so the stage can dissolve into it without ever exposing a two-section
-   seam. The plate is the studio wall from the supplied reference, with the
-   floor removed and the image graded into the site's deep teal. */
-function HomeBackdrop() {
+/* The studio-wall plate. Fixed for the page, inline for the hero inside the
+   opening. Both use the same light: the wall stays visible across the frame,
+   with only the left-hand scrim kept for copy contrast. */
+function HomeBackdrop({ inline = false }) {
   return (
-    <div className={styles.backdrop} aria-hidden="true">
+    <div
+      className={`${styles.backdrop}${inline ? ` ${styles.backdropInline}` : ""}`}
+      aria-hidden="true"
+    >
       <div className={styles.backdropImage} />
       <div className={styles.backdropGrade} />
       <div className={styles.backdropScrim} />
@@ -43,244 +42,26 @@ function HomeBackdrop() {
   );
 }
 
-/* Retired home hero. The studio plate is now the final frame of the opening,
-   so this screen is intentionally not rendered. It is kept intact so the
-   previous home layout can be restored without reconstructing it. */
-function Hero({ open, landed }) {
-  const heroRef = useRef(null);
-  const { t, lang } = useLang();
-  const { ready } = useAppReady();
-  const live = ready && open && landed;
-
-  /* Set the pre-entrance state before paint. The copy rises from its line
-     masks; every other piece is a small, clean pop with no overshoot. */
-  useLayoutEffect(() => {
-    const el = heroRef.current;
-    if (!el || prefersReducedMotion()) return;
-    const q = gsap.utils.selector(el);
-    const originX =
-      document.documentElement.dir === "rtl" ? "right center" : "left center";
-
-    gsap.set(
-      [
-        q("[data-hero-brand]"),
-        q("[data-hero-nav]"),
-        q("[data-hero-lang]"),
-        q("[data-hero-eyebrow]"),
-        q("[data-hero-lede]"),
-        q("[data-hero-cta] a"),
-        q("[data-hero-rail-label]"),
-        q("[data-hero-service]"),
-        q("[data-hero-side]"),
-        q("[data-hero-hud]"),
-        q("[data-hero-lock]"),
-      ],
-      { opacity: 0 },
-    );
-    gsap.set(q("[data-hero-brand]"), { y: 10, scale: 0.98 });
-    gsap.set(q("[data-hero-nav]"), { y: 10, scale: 0.98 });
-    gsap.set(q("[data-hero-lang]"), { y: 8, scale: 0.98 });
-    gsap.set(q("[data-hero-title]"), {
-      opacity: 0,
-      scale: 0.96,
-      transformOrigin: "center center",
-    });
-    gsap.set(q("[data-hero-eyebrow]"), { y: 16, scale: 0.98 });
-    gsap.set(q("[data-hero-lede]"), { y: 18, scale: 0.98 });
-    gsap.set(q("[data-hero-cta] a"), { y: 14, scale: 0.96 });
-    gsap.set(q("[data-hero-service]"), { y: 8, scale: 0.98 });
-    gsap.set(q("[data-hero-rail-label]"), { y: 8, scale: 0.98 });
-    gsap.set(q("[data-hero-side]"), { y: 10, scale: 0.98 });
-    gsap.set(q("[data-hero-rule]"), { scaleX: 0, transformOrigin: originX });
-    gsap.set(q("[data-hero-rail-rule]"), { scaleX: 0, transformOrigin: originX });
-    gsap.set(q("[data-hero-side-rule]"), {
-      scaleY: 0,
-      transformOrigin: "50% 0%",
-    });
-  }, []);
-
-  /* Replayed on a language change as well: SplitText rebuilds the heading,
-     and every element must return to its place instead of staying hidden. */
-  useEffect(() => {
-    if (!live) return undefined;
-    const el = heroRef.current;
-    if (!el) return undefined;      const ctx = gsap.context(() => {
-        const q = gsap.utils.selector(el);
-        const tl = gsap.timeline({ defaults: { ease: EASE.ui } });
-
-      if (prefersReducedMotion()) {
-        tl.set(
-          [
-            q("[data-hero-brand]"),
-            q("[data-hero-nav]"),
-            q("[data-hero-lang]"),
-            q("[data-hero-eyebrow]"),
-            q("[data-hero-title]"),
-            q("[data-hero-lede]"),
-            q("[data-hero-cta] a"),
-            q("[data-hero-rail-label]"),
-            q("[data-hero-service]"),
-            q("[data-hero-side]"),
-            q("[data-hero-hud]"),
-            q(".st-inner"),
-          ],
-          { opacity: 1, y: 0, yPercent: 0, scale: 1 },
-        );
-        tl.set(q("[data-hero-lock]"), { opacity: 0 });
-        tl.set(q("[data-hero-rule]"), { scaleX: 1 });
-        tl.set(q("[data-hero-rail-rule]"), { scaleX: 1 });
-        tl.set(q("[data-hero-side-rule]"), { scaleY: 1 });
-        return;
-      }
-
-      /* The camera has stopped and the plate is holding. The interface
-         arrives in reading order: statement, supporting copy, wayfinding,
-         indices, actions, and only then the decorative rules. Every item uses
-         the same long, soft expo curve; no bounce, no float, no spin. */
-      tl.to(
-        q("[data-hero-title]"),
-        { opacity: 1, scale: 1, duration: 0.68, ease: EASE.ui },
-        0,
-      )
-        .fromTo(
-          q(".st-inner"),
-          { yPercent: 115 },
-          { yPercent: 0, duration: 0.72, stagger: 0.1, ease: EASE.ui },
-          0.02,
-        )
-        .to(
-          q("[data-hero-eyebrow]"),
-          { opacity: 1, y: 0, scale: 1, duration: 0.5 },
-          0.14,
-        )
-        .to(
-          q("[data-hero-lede]"),
-          { opacity: 1, y: 0, scale: 1, duration: 0.62 },
-          0.3,
-        )
-        .to(
-          q("[data-hero-brand]"),
-          { opacity: 1, y: 0, scale: 1, duration: 0.55 },
-          0.42,
-        )
-        .to(
-          q("[data-hero-nav]"),
-          { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.1 },
-          0.48,
-        )
-        .to(
-          q("[data-hero-lang]"),
-          { opacity: 1, y: 0, scale: 1, duration: 0.5 },
-          0.55,
-        )
-        .to(
-          q("[data-hero-service]"),
-          { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.09 },
-          0.58,
-        )
-        .to(
-          q("[data-hero-rail-label]"),
-          { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.09 },
-          0.64,
-        )
-        .to(
-          q("[data-hero-side]"),
-          { opacity: 1, y: 0, scale: 1, duration: 0.55 },
-          0.66,
-        )
-        .to(
-          q("[data-hero-cta] a"),
-          { opacity: 1, y: 0, scale: 1, duration: 0.6, stagger: 0.12 },
-          0.78,
-        )
-        /* Last: the frame's thin rules and corner marks, once every piece of
-           content is already in place. */
-        .to(
-          q("[data-hero-rule]"),
-          { scaleX: 1, duration: 0.65 },
-          1.48,
-        )
-        .to(
-          q("[data-hero-rail-rule]"),
-          { scaleX: 1, duration: 0.7 },
-          1.54,
-        )
-        .to(
-          q("[data-hero-side-rule]"),
-          { scaleY: 1, duration: 0.6 },
-          1.6,
-        )
-        .to(q("[data-hero-hud]"), { opacity: 1, duration: 0.5 }, 1.56)
-        .fromTo(
-          q("[data-hero-lock]"),
-          { opacity: 0, scale: 1.35 },
-          { opacity: 1, scale: 1, duration: 0.45, ease: EASE.ui },
-          1.6,
-        )
-        .to(
-          q("[data-hero-lock]"),
-          { opacity: 0.55, scale: 1, duration: 0.5, ease: "power2.out" },
-          2.1,
-        );
-    }, el);
-
-    return () => ctx.revert();
-  }, [live, lang]);
-
-  /* The finished frame owns the screen while its own nav is on it: the global
-     header stays out only while the hero's navigation row is showing — the two
-     share the same slot, so there is never a second bar over the plate. The
-     moment that row scrolls away the sticky header takes over, which keeps a
-     bar with its hairline on screen all the way down instead of leaving a gap.
-     An observer is used rather than a scroll trigger because the language
-     switch rebuilds the surrounding triggers; visibility must not depend on
-     that refresh order. */
-  useEffect(() => {
-    const hero = heroRef.current;
-    if (!hero) return undefined;
-    const header = document.querySelector("header");
-    if (!header) return undefined;
-
-    /* The hero's own header row (falls back to the section if it is missing). */
-    const navRow = hero.querySelector("header") || hero;
-
-    let overHero = false;
-    const sync = (next) => {
-      if (next === overHero) return;
-      overHero = next;
-      if (next) header.setAttribute("data-under-hero", "true");
-      else header.removeAttribute("data-under-hero");
-    };
-
-    const observer = new IntersectionObserver(
-      ([entry]) => sync(entry.isIntersecting),
-      { threshold: 0 },
-    );
-    observer.observe(navRow);
-
-    const rect = navRow.getBoundingClientRect();
-    sync(rect.bottom > 0 && rect.top < window.innerHeight);
-
-    return () => {
-      observer.disconnect();
-      header.removeAttribute("data-under-hero");
-    };
-  }, []);
+/* The finished website screen: the studio plate is the last frame of the
+   lens crossing, so this is what the camera opens onto. The interface fades
+   in with the aperture (--plate-ui) and the photograph resolves out of the
+   dark (--plate-dark / --plate-blur) — both are written by the opening. */
+function Hero() {
+  const { t } = useLang();
 
   return (
-    <section
-      ref={heroRef}
-      className={styles.hero}
-      aria-label={t("home.hero.aria")}
-    >
-      <div className={styles.hud} data-hero-hud aria-hidden="true">
+    <section className={styles.hero} aria-label={t("home.hero.aria")}>
+      <HomeBackdrop inline />
+      <span className={styles.heroDarkness} aria-hidden="true" />
+
+      <div className={styles.hud} aria-hidden="true">
         <span className={`${styles.hudCorner} ${styles.hudTL}`} />
         <span className={`${styles.hudCorner} ${styles.hudTR}`} />
         <span className={`${styles.hudCorner} ${styles.hudBL}`} />
         <span className={`${styles.hudCorner} ${styles.hudBR}`} />
       </div>
 
-      <div className={styles.lock} data-hero-lock aria-hidden="true">
+      <div className={styles.lock} aria-hidden="true">
         <span className={`${styles.lockCorner} ${styles.lockTL}`} />
         <span className={`${styles.lockCorner} ${styles.lockTR}`} />
         <span className={`${styles.lockCorner} ${styles.lockBL}`} />
@@ -289,50 +70,22 @@ function Hero({ open, landed }) {
         <span className={styles.lockLabel}>AF LOCK</span>
       </div>
 
+      {/* The finished screen wears the site's own header, not a second bar:
+          the opening hands the top of the frame back to it once the aperture
+          is full. See StudioBlueprintAnimation. */}
       <div className={styles.heroShell}>
-        <header className={styles.heroTop}>
-          <Link
-            className={styles.heroBrand}
-            to="/"
-            aria-label={t("common.home")}
-            data-hero-brand
-          >
-            <Wordmark height={30} title="Double H Studio" />
-          </Link>
-
-          <div className={styles.heroTopRight}>
-            <nav className={styles.heroNav} aria-label="Primary">
-              <Link to="/work" data-hero-nav>
-                {t("common.work")}
-              </Link>
-              <Link to="/about" data-hero-nav>
-                {t("common.about")}
-              </Link>
-            </nav>
-            <div className={styles.heroLang} data-hero-lang>
-              <LanguageSwitcher />
-            </div>
-          </div>
-
-          <span className={styles.topRule} data-hero-rule aria-hidden="true" />
-        </header>
-
         <div className={styles.heroBody}>
           <div className={styles.heroInner}>
-            <p className={`${styles.eyebrow} eyebrow`} data-hero-eyebrow>
+            <p className={`${styles.eyebrow} eyebrow`}>
               {t("home.hero.eyebrow")}
             </p>
             <SplitText
               as="h1"
-              manual
               className={styles.title}
               lines={[t("home.hero.title1"), t("home.hero.title2")]}
-              data-hero-title
             />
-            <p className={styles.lede} data-hero-lede>
-              {t("home.hero.lede")}
-            </p>
-            <div className={styles.ctaRow} data-hero-cta>
+            <p className={styles.lede}>{t("home.hero.lede")}</p>
+            <div className={styles.ctaRow}>
               <Link className="btn btn-dark" to="/work">
                 {t("home.hero.ctaWork")}
               </Link>
@@ -342,11 +95,8 @@ function Hero({ open, landed }) {
             </div>
           </div>
 
-          <div className={styles.heroSide} aria-hidden="true" data-hero-side>
-            <span
-              className={styles.sideRule}
-              data-hero-side-rule
-            />
+          <div className={styles.heroSide} aria-hidden="true">
+            <span className={styles.sideRule} />
             <span className={styles.sideText}>
               SHOWREEL / 2026
               <span className={styles.sideDot} />
@@ -356,12 +106,8 @@ function Hero({ open, landed }) {
         </div>
 
         <div className={styles.heroRail}>
-          <span
-            className={styles.railRule}
-            data-hero-rail-rule
-            aria-hidden="true"
-          />
-          <span className={styles.railRec} data-hero-rail-label>
+          <span className={styles.railRule} aria-hidden="true" />
+          <span className={styles.railRec}>
             <span className={styles.recDot} />
             REC
           </span>
@@ -370,13 +116,13 @@ function Hero({ open, landed }) {
             aria-label={t("home.what.eyebrow")}
           >
             {HERO_SERVICE_KEYS.map((key) => (
-              <li className={styles.railService} key={key} data-hero-service>
+              <li className={styles.railService} key={key}>
                 <span className={styles.railMark} aria-hidden="true" />
                 {t(`home.ticker.${key}`)}
               </li>
             ))}
           </ul>
-          <span className={styles.railLocation} data-hero-rail-label>
+          <span className={styles.railLocation}>
             {t("home.ticker.location")}
           </span>
         </div>
@@ -462,15 +208,11 @@ export default function Home() {
         title={t("home.meta.title")}
         description={t("home.meta.description")}
       />
-      {/* The studio plate is the page's opening and its final frame. The old
-          home hero is not rendered underneath it: the camera resolves into the
-          plate and the plate stays on screen until the visitor scrolls past
-          it. The header returns only once that frame has left the viewport. */}
-      <h1 className="sr-only">
-        {t("home.hero.title1")} {t("home.hero.title2")}
-      </h1>
+      {/* The studio opening is the first frame; the camera crosses the lens and
+          opens onto the finished website screen (the hero). The hero is the
+          opening's final frame, so the two never show as separate sections. */}
       <HomeBackdrop />
-      <StudioBlueprintAnimation onDone={openSite} />
+      <StudioBlueprintAnimation onDone={openSite} finale={<Hero />} />
 
       <Fragment key={homeReady ? "home-ready" : "home-intro"}>
         <section

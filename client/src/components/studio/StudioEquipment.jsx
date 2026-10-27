@@ -10,8 +10,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
-import { RoundedBox } from '@react-three/drei';
-import { Box, Bar, Cyl, Disc, Part, lookQuat } from './primitives.jsx';
+import { Box, Bar, Cyl, Disc, Part, RoundedBox, lookQuat } from './primitives.jsx';
 import { TUBE20, TUBE64, OCTA, DISH, TORUS64, DISC256, DISC128 } from './geometry.js';
 import StudioLogoReveal from './StudioLogoReveal.jsx';
 import { smoothstep } from './studioMath.js';

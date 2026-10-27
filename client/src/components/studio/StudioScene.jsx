@@ -15,13 +15,16 @@
      - the floor sweep
      - the practical lights
      - the fading grid
-   No clocks, no random per-frame motion. */
+   No clocks, no random per-frame motion.
+
+   There is no post-processing stack. On integrated GPUs the full-screen bloom
+   passes were the largest per-frame cost by far; the practicals and the lens
+   have their own additive glow, and the renderer still tone-maps the frame
+   directly. */
 
 import { Component, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { createRoot, extend, useFrame, useThree } from '@react-three/fiber';
-import { Bloom, EffectComposer, ToneMapping } from '@react-three/postprocessing';
-import { ToneMappingMode } from 'postprocessing';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 import { createGridMaterial, createLineMaterial, createStudioMaterials } from './BlueprintMaterials.js';
@@ -75,6 +78,38 @@ function applyScene(p, u, scene, mats) {
   mats.glowWarm.visible = light > 0.005;
   mats.glowCool.opacity = 0.14 * light;
   mats.glowCool.visible = light > 0.005;
+}
+
+/* The last stretch of the opening is a close-up: the camera body and lens fill
+   the frame, so every pixel is expensive. The finale opens with a short camera
+   hold, and that still frame is where the scene drops to 0.8x; every frame
+   where the camera actually moves is then cheap, and the finished hero is DOM
+   and stays sharp. */
+const LOW_RENDER_SCALE = 0.8;
+
+function ResolutionGovernor({ progress, low }) {
+  const gl = useThree((state) => state.gl);
+  const base = useRef(1);
+  const reduced = useRef(false);
+
+  useLayoutEffect(() => {
+    const cap = low ? 1 : 1.25;
+    base.current = Math.min(window.devicePixelRatio || 1, cap);
+  }, [low]);
+
+  useFrame(() => {
+    const f = progress.finale;
+    /* The finale's opening hold is a still frame: the one-time buffer resize
+       costs nothing visible there. The hysteresis keeps a scroll poised on
+       the boundary from flickering between sizes. */
+    if (!reduced.current && f > 0.001) reduced.current = true;
+    else if (reduced.current && f < 0.0005) reduced.current = false;
+
+    const target = base.current * (reduced.current ? LOW_RENDER_SCALE : 1);
+    if (Math.abs(gl.getPixelRatio() - target) > 0.02) gl.setPixelRatio(target);
+  });
+
+  return null;
 }
 
 function World({ progress, low }) {
@@ -212,6 +247,7 @@ function World({ progress, low }) {
 
   return (
     <>
+      <ResolutionGovernor progress={progress} low={low} />
       <color attach="background" args={['#06100f']} />
       <FinaleCamera progress={progress} screenRef={heroScreenRef} lensRef={heroLensRef} />
       <StudioLighting progress={progress} low={low} />
@@ -237,17 +273,6 @@ function World({ progress, low }) {
         material={gridMaterial}
         renderOrder={2}
       />
-
-      <EffectComposer multisampling={low ? 0 : 2}>
-        <Bloom
-          mipmapBlur
-          intensity={low ? 0.26 : 0.42}
-          luminanceThreshold={0.8}
-          luminanceSmoothing={0.3}
-          radius={0.55}
-        />
-        <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
-      </EffectComposer>
     </>
   );
 }
@@ -304,16 +329,12 @@ export default function StudioScene({ progress, low = false, onFail }) {
             antialias: false,
             alpha: false,
             stencil: false,
-            /* The finale copies the held lens frame out to the home hero as
-               its backdrop; toDataURL can only read a buffer that survives
-               between frames. */
-            preserveDrawingBuffer: true,
             powerPreference: 'high-performance',
           },
           size: { width, height, top: 0, left: 0 },
           camera: { fov: 34, near: 0.1, far: 170, position: [0, 1.5, 10] },
           shadows: 'soft',
-          dpr: [1, low ? 1.25 : 1.5],
+          dpr: [1, low ? 1 : 1.25],
           frameloop: 'demand',
           onCreated: ({ gl }) => {
             gl.toneMapping = THREE.ACESFilmicToneMapping;
@@ -328,21 +349,6 @@ export default function StudioScene({ progress, low = false, onFail }) {
         );
 
         store.getState().invalidate();
-
-        /* One-shot snapshot of the current frame, used by the hand-off: the
-           light veil is at full cover, so the still leaves the page with the
-           camera held on the glass and the hero opens on the same pixels. */
-        progress.freeze = () => {
-          try {
-            /* Ask for WebP, but do not reject another encoding: some WebGL
-               implementations fall back to PNG for toDataURL. The still is
-               captured once, so a larger payload is still the right trade. */
-            const url = canvas.toDataURL('image/webp', 0.92);
-            return url.startsWith('data:image/') ? url : null;
-          } catch {
-            return null;
-          }
-        };
 
         observer = new ResizeObserver((entries) => {
           const rect = entries[0] && entries[0].contentRect;
@@ -369,7 +375,6 @@ export default function StudioScene({ progress, low = false, onFail }) {
       disposed = true;
       if (timer) window.clearTimeout(timer);
       if (observer) observer.disconnect();
-      progress.freeze = null;
       if (root) {
         try {
           root.unmount();

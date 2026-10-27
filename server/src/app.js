@@ -22,6 +22,14 @@ app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false 
 app.use(cors({ origin: config.clientOrigin, credentials: true }));
 app.use(express.json({ limit: '64kb' }));
 
+/* API payloads are per-request (and admin ones per-session): nothing between
+ * the Worker and the browser should store them. Static assets take their
+ * caching rules from client/public/_headers instead. */
+app.use('/api', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
+
 if (process.env.WORKER_RUNTIME === 'true') {
   app.use('/api/admin/videos', require('./routes/cloudStorage').router);
 }

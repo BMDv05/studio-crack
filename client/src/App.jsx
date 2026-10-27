@@ -8,13 +8,22 @@ import useLenis, { scrollToTop } from './hooks/useLenis.js';
 import { AppReadyProvider, useAppReady } from './hooks/useAppReady.jsx';
 import { ScrollTrigger } from './lib/anim.js';
 import Home from './pages/Home.jsx';
-import Work from './pages/Work.jsx';
-import About from './pages/About.jsx';
-import Book from './pages/Book.jsx';
-import ThankYou from './pages/ThankYou.jsx';
-import NotFound from './pages/NotFound.jsx';
+
+/* The landing page (and its 3D opening) is what every visit starts on; the
+   other views are split out so a first paint never waits for the whole site. */
+const Work = lazy(() => import('./pages/Work.jsx'));
+const About = lazy(() => import('./pages/About.jsx'));
+const Book = lazy(() => import('./pages/Book.jsx'));
+const ThankYou = lazy(() => import('./pages/ThankYou.jsx'));
+const NotFound = lazy(() => import('./pages/NotFound.jsx'));
 
 const AdminApp = lazy(() => import('./admin/AdminApp.jsx'));
+
+/* Suspense inside the route element keeps the shared Layout (header/footer)
+   mounted while a page chunk arrives. */
+function Page({ children }) {
+  return <Suspense fallback={null}>{children}</Suspense>;
+}
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -76,11 +85,11 @@ function Shell() {
         />
         <Route element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="/work" element={<Work />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/book" element={<Book />} />
-          <Route path="/book/thank-you" element={<ThankYou />} />
-          <Route path="*" element={<NotFound />} />
+          <Route path="/work" element={<Page><Work /></Page>} />
+          <Route path="/about" element={<Page><About /></Page>} />
+          <Route path="/book" element={<Page><Book /></Page>} />
+          <Route path="/book/thank-you" element={<Page><ThankYou /></Page>} />
+          <Route path="*" element={<Page><NotFound /></Page>} />
         </Route>
       </Routes>
       <Cursor />

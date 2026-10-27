@@ -75,11 +75,15 @@ function confirmationText(b, reference, tz) {
 }
 
 function buildTransporter(smtp) {
+  if (process.env.WORKER_RUNTIME === 'true' && smtp.pass) {
+    return { sendMail: mail => require('./cloudStorage').broker('mail', { mail, smtpPassword: smtp.pass }) };
+  }
   if (!smtp.host || !nodemailer) return null;
   return nodemailer.createTransport({
     host: smtp.host,
     port: smtp.port,
     secure: smtp.secure,
+    connectionTimeout: 10000, greetingTimeout: 10000, socketTimeout: 15000,
     auth: smtp.user ? { user: smtp.user, pass: smtp.pass } : undefined,
   });
 }
@@ -93,6 +97,11 @@ function logToFile(kind, mail) {
 }
 
 async function sendWithRetry(transporter, mail, attempts = 3) {
+  if (process.env.WORKER_RUNTIME === 'true' && !transporter) {
+    const { db } = require('../db');
+    await db.emailOutbox.create({ data: { kind: mail.kind, payload: mail } });
+    return { delivered: false, queued: true };
+  }
   let lastErr = null;
   for (let i = 1; i <= attempts; i++) {
     try {
@@ -107,6 +116,7 @@ async function sendWithRetry(transporter, mail, attempts = 3) {
         replyTo: mail.replyTo,
         subject: mail.subject,
         text: mail.text,
+        messageId: mail.bookingId ? `<${mail.bookingId}.${mail.kind.replace('studio-retry', 'studio')}@double-h-studio.com>` : undefined,
       });
       return { delivered: true, fileLogged: false };
     } catch (err) {
@@ -115,8 +125,43 @@ async function sendWithRetry(transporter, mail, attempts = 3) {
       await new Promise((r) => setTimeout(r, 400 * i));
     }
   }
+  if (process.env.WORKER_RUNTIME === 'true') {
+    const { db } = require('../db');
+    await db.emailOutbox.create({ data: { kind: mail.kind, payload: mail, attempts } });
+    return { delivered: false, queued: true };
+  }
   const file = logToFile(`${mail.kind}-FAILED`, { ...mail, error: String(lastErr) });
   return { delivered: false, fileLogged: true, file, error: String(lastErr) };
 }
 
-module.exports = { studioSubject, studioText, clientText, confirmationText, buildTransporter, sendWithRetry };
+async function drainOutbox(smtp) {
+  const { db } = require('../db');
+  const transport = buildTransporter(smtp);
+  if (!transport) return;
+  await db.emailOutbox.updateMany({
+    where: { status: 'sending', updatedAt: { lt: new Date(Date.now() - 15 * 60000) } },
+    data: { status: 'pending' },
+  });
+  const rows = await db.emailOutbox.findMany({ where: { status: 'pending', attempts: { lt: 5 } }, orderBy: { createdAt: 'asc' }, take: 10 });
+  for (const row of rows) {
+    const claimed = await db.emailOutbox.updateMany({ where: { id: row.id, status: 'pending' }, data: { status: 'sending', attempts: { increment: 1 } } });
+    if (!claimed.count) continue;
+    const mail = row.payload;
+    try {
+      await transport.sendMail({
+        from: mail.from, to: mail.to, replyTo: mail.replyTo, subject: mail.subject, text: mail.text,
+        messageId: mail.bookingId ? `<${mail.bookingId}.${mail.kind.replace('studio-retry', 'studio')}@double-h-studio.com>` : undefined,
+      });
+      await db.emailOutbox.update({ where: { id: row.id }, data: { status: 'sent' } });
+      if (mail.bookingId) {
+        const field = mail.kind.startsWith('studio') ? 'studioEmailSent' : mail.kind === 'client' ? 'clientEmailSent' : 'confirmEmailSent';
+        await db.booking.updateMany({ where: { id: mail.bookingId }, data: { [field]: true } });
+      }
+    } catch {
+      await db.emailOutbox.update({ where: { id: row.id }, data: { status: row.attempts >= 4 ? 'failed' : 'pending' } });
+      console.error('Queued email delivery failed; a retry will follow if attempts remain.');
+    }
+  }
+}
+
+module.exports = { studioSubject, studioText, clientText, confirmationText, buildTransporter, sendWithRetry, drainOutbox };

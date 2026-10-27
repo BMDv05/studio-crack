@@ -32,7 +32,7 @@ const CONTACT_COLUMN = {
   heading: { key: 'footer.contact', text: 'Contact' },
   /* dir: 'ltr' on the Latin/number rows keeps them readable in Arabic (RTL) mode. */
   items: [
-    { text: 'studio@doubleh.example', href: 'mailto:studio@doubleh.example', dir: 'ltr' },
+    { text: 'info@double-h-studio.com', href: 'mailto:info@double-h-studio.com', dir: 'ltr' },
     { text: '+963 963 1020 26', href: 'tel:+963963102026', dir: 'ltr' },
     { key: 'footer.location', text: 'Amman, Jordan' },
     { key: 'footer.hours', text: 'Sun–Thu · 09:00–18:00 (GMT+3)' },

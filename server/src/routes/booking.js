@@ -38,7 +38,10 @@ const bookingSchema = z.object({
 // In-memory rate limit: 5 requests/hour/IP + idempotency keys.
 const hits = new Map();
 const seenKeys = new Set();
-function rateLimited(ip) {
+async function rateLimited(ip) {
+  if (process.env.WORKER_RUNTIME === 'true') {
+    return !(await require('../services/rateLimit').allowed(`booking:${crypto.createHash('sha256').update(ip).digest('hex')}`, config.rateLimit.max, config.rateLimit.windowMs));
+  }
   const now = Date.now();
   const arr = (hits.get(ip) || []).filter((t) => now - t < config.rateLimit.windowMs);
   arr.push(now);
@@ -54,7 +57,7 @@ router.post('/', asyncHandler(async (req, res) => {
   if (typeof body.website === 'string' && body.website.trim() !== '') {
     return res.status(201).json({ ok: true, reference: 'received' });
   }
-  if (rateLimited(ip)) {
+  if (await rateLimited(ip)) {
     res.setHeader('Retry-After', '3600');
     return res.status(429).json({ ok: false, error: 'Too many requests. Please try again later.' });
   }
@@ -62,7 +65,7 @@ router.post('/', asyncHandler(async (req, res) => {
   const key = typeof body.submissionKey === 'string' && body.submissionKey.length >= 8
     ? body.submissionKey.slice(0, 64) : null;
   if (key) {
-    if (seenKeys.has(key)) {
+    if (process.env.WORKER_RUNTIME === 'true' || seenKeys.has(key)) {
       const existing = await db.booking.findFirst({ where: { submissionKey: key } });
       if (existing) return res.status(201).json({ ok: true, reference: existing.id, deduped: true });
     }
@@ -129,14 +132,14 @@ router.post('/', asyncHandler(async (req, res) => {
   const receivedAt = new Date().toISOString();
   const api = toApi(saved);
   const studioResult = await sendWithRetry(transporter, {
-    kind: 'studio', from: config.studioFrom, to: e.studioEmail, replyTo: api.email,
+    kind: 'studio', bookingId: saved.id, from: config.studioFrom, to: e.studioEmail, replyTo: api.email,
     subject: studioSubject(api), text: studioText(api, api.id, receivedAt, e.timezone),
   }, 3);
   if (studioResult.delivered) await db.booking.update({ where: { id: saved.id }, data: { studioEmailSent: true } });
   // Client acknowledgment is optional (Settings → acknowledgment on/off).
   if (e.ackEnabled) {
     const clientResult = await sendWithRetry(transporter, {
-      kind: 'client', from: config.studioFrom, to: api.email,
+      kind: 'client', bookingId: saved.id, from: config.studioFrom, to: api.email,
       subject: 'We received your meeting request – Double H Studio',
       text: clientText(api, api.id, e.sla),
     }, 2);

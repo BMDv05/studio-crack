@@ -30,6 +30,10 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
+if (process.env.WORKER_RUNTIME === 'true') {
+  app.use('/api/admin/videos', require('./routes/cloudStorage').router);
+}
+
 app.use('/api', healthRouter);
 app.use('/api/booking', bookingRouter);
 app.use('/api/videos', videosRouter);
@@ -37,7 +41,9 @@ app.use('/api/admin/videos', adminVideosRouter);
 app.use('/api/admin', adminRouter);
 
 // Uploaded media (unguessable file names; drafts stay unpublished)
-app.use('/media', express.static(uploadRoot(), { maxAge: '7d' }));
+if (process.env.WORKER_RUNTIME !== 'true') {
+  app.use('/media', express.static(uploadRoot(), { maxAge: '7d' }));
+}
 
 app.use(notFound);
 app.use(errorHandler);

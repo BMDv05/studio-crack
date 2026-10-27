@@ -61,7 +61,7 @@ export default function Layout() {
       onToggle: (self) => header.classList.toggle(styles.scrolled, self.isActive),
     });
 
-    return () => { blurST.kill(); gsap.killTweensOf(header); };
+    return () => { blurST.kill(); };
   }, []);
 
   /* Footer slides up when it enters view. */

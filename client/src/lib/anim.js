@@ -33,8 +33,8 @@ export const EASE = {
 
 /* Durations (seconds) */
 export const DUR = {
-  preloaderMin: 3,     // counter can never finish before this
-  preloaderMax: 4.2,   // hard cap, exit begins no later than this
+  preloaderMin: 2.6,  // the build settles here; no artificial hold after it
+  preloaderMax: 3.8,  // hard cap, exit begins no later than this
   preloaderExit: 0.8,  // curtain slide
   reveal: 0.8,
   revealY: 40,

@@ -1,12 +1,29 @@
 /* Reusable scene primitives + the "Part" wrapper that tells the wireframe
    builder when a group of meshes should be drawn. */
 
-import { forwardRef, useMemo } from 'react';
+import { forwardRef, useEffect, useMemo } from 'react';
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { BOX, CYL, CYL12, CYL8, CYL6, TUBE20, TUBE8, DISC24, DISC8 } from './geometry.js';
 
 export function Box({ size = [1, 1, 1], ...rest }) {
   return <mesh geometry={BOX} scale={size} {...rest} />;
+}
+
+/* The same rounded box the camera bodies and table use, without pulling the
+   whole drei barrel into the initial bundle. */
+export function RoundedBox({
+  args = [1, 1, 1],
+  radius = 0.05,
+  smoothness = 2,
+  ...rest
+}) {
+  const geometry = useMemo(
+    () => new RoundedBoxGeometry(args[0], args[1], args[2], smoothness, radius),
+    [args[0], args[1], args[2], smoothness, radius],
+  );
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  return <mesh geometry={geometry} {...rest} />;
 }
 
 export function Cyl({ radius = 0.1, height = 0.1, segments = 20, ...rest }) {

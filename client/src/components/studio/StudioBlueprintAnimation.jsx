@@ -14,6 +14,8 @@
 
 import {
   Component,
+  Suspense,
+  lazy,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -23,8 +25,12 @@ import {
 import { ScrollTrigger, prefersReducedMotion } from "../../lib/anim.js";
 import { useAppReady } from "../../hooks/useAppReady.jsx";
 import { useLang } from "../../i18n/LanguageContext.jsx";
-import StudioScene from "./StudioScene.jsx";
 import FinalePlate from "./FinalePlate.jsx";
+
+/* The 3D scene is the heaviest part of the site. It lives in its own chunk so
+   the preloader, the header and the page shell paint first; the chunk starts
+   loading as soon as this component mounts, behind the preloader. */
+const StudioScene = lazy(() => import("./StudioScene.jsx"));
 import {
   activeScrollFraction,
   clamp01,
@@ -80,7 +86,7 @@ function canUseWebGL() {
   }
 }
 
-export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
+export default function StudioBlueprintAnimation({ onDone, finale }) {
   const { t } = useLang();
   const { ready } = useAppReady();
   const reduced = useMemo(() => prefersReducedMotion(), []);
@@ -92,17 +98,6 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
 
   const slotRef = useRef(null);
   const rootRef = useRef(null);
-  const mountedRef = useRef(true);
-  useEffect(() => {
-    /* StrictMode runs this effect, cleans it up, then runs it again. The
-       cleanup used to leave the ref false for the life of the dev session, so
-       the one-shot freeze was silently dropped and the hero never received
-       the held camera frame. Reset it on every mount pass. */
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
   const railRef = useRef(null);
   const hintRef = useRef(null);
   const chromeRef = useRef(null);
@@ -110,10 +105,6 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
 
   const doneRef = useRef(onDone);
   doneRef.current = onDone;
-  const freezeRef = useRef(onFreeze);
-  freezeRef.current = onFreeze;
-  const frozeRef = useRef(false);
-  const freezePendingRef = useRef(false);
 
   /* One mutable channel between the scroll trigger and the renderer. The scene
      installs its invalidate() here; progress is the only thing that changes.
@@ -141,43 +132,29 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
       slot.style.setProperty("--sba-header", `${Math.round(h)}px`);
     };
     apply();
-    /* The live pin owns the header while it runs. A static or fallback
-       opening is just a section: the header must stay usable immediately. */
+    /* The live pin owns the header while it runs: the opening must not show
+       the site bar until the aperture is full. A static or fallback opening is
+       just a still hero, and the header is its top bar, so it is there before
+       paint and the plate never flashes without it. */
+    if (settled) header?.removeAttribute("data-under-hero");
+    else header?.setAttribute("data-under-hero", "true");
     slot.toggleAttribute("data-above", !settled);
+    rootRef.current?.toggleAttribute("data-header", settled);
     window.addEventListener("resize", apply);
     return () => window.removeEventListener("resize", apply);
   }, [settled]);
 
-  /* A still scene has no build to finish: the site opens immediately, and the
-     header comes back if a live scene fails after mount. */
+  /* A still scene has no build to finish: the site opens immediately, with the
+     final plate as its first frame. */
   useEffect(() => {
     if (!settled) return undefined;
-    const stage = rootRef.current;
     const header = document.querySelector("header");
     slotRef.current?.removeAttribute("data-above");
     doneRef.current?.();
-
-    if (!stage || !header) return undefined;
-
-    /* The still plate is the whole opening: keep the header off it until the
-       stage's bottom has passed the top of the viewport. */
-    const sync = (hide) => {
-      if (hide) header.setAttribute("data-under-hero", "true");
-      else header.removeAttribute("data-under-hero");
-    };
-    const stageGone = () => stage.getBoundingClientRect().bottom <= 0;
-    const trigger = ScrollTrigger.create({
-      trigger: stage,
-      start: "bottom top",
-      end: "max",
-      onEnter: () => sync(false),
-      onLeaveBack: () => sync(true),
-    });
-    sync(!stageGone());
+    header?.removeAttribute("data-under-hero");
 
     return () => {
-      trigger.kill();
-      header.removeAttribute("data-under-hero");
+      header?.removeAttribute("data-under-hero");
     };
   }, [settled]);
 
@@ -186,6 +163,8 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
     if (!ready || reduced || !webgl || failed) return undefined;
     const root = rootRef.current;
     if (!root) return undefined;
+    const slot = slotRef.current;
+    const header = document.querySelector("header");
 
     let lastPct = "";
     let lastHint = "";
@@ -228,6 +207,23 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
       const lens = lensRef.current;
       const f = progress.finale;
 
+      /* The site header is the hero's top bar — the opening does not invent a
+         second one. It stays out of the shot while the glass is closed and
+         arrives with the last of the interface fade, once the aperture has
+         cleared the corners of the viewport. The stage drops below the sticky
+         bar on that same frame. */
+      const showHeader = f >= 0.97;
+      const hidden = !showHeader;
+      if (header && header.hasAttribute("data-under-hero") !== hidden) {
+        header.toggleAttribute("data-under-hero", hidden);
+      }
+      if (slot && slot.hasAttribute("data-above") !== hidden) {
+        slot.toggleAttribute("data-above", hidden);
+      }
+      if (root.hasAttribute("data-header") !== showHeader) {
+        root.toggleAttribute("data-header", showHeader);
+      }
+
       const entry =
         smoothstep(0.855, 0.95, f) * (1 - smoothstep(0.958, 0.992, f));
       const aperture = smoothstep(0.9, 0.99, f);
@@ -236,7 +232,8 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
         smoothstep(0.895, 0.955, f) * (1 - smoothstep(0.972, 0.998, f));
       const blur =
         2.2 * smoothstep(0.875, 0.952, f) * (1 - smoothstep(0.966, 0.996, f));
-      const veil = smoothstep(0.84, 0.95, f);
+      const veil =
+        smoothstep(0.84, 0.95, f) * (1 - smoothstep(0.985, 0.9995, f));
 
       /* The photograph emerges from the dark interior. The final frame is
          exactly 0 darkness, 0 blur and a fully opaque interface. */
@@ -276,8 +273,8 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
         root.toggleAttribute("data-aperture", open);
       }
 
-      /* The veil is the light that floods the glass while the camera crosses
-         it. Never a black frame: the portal opens inside this halo. */
+      /* The barrel darkens around the glass as the camera crosses; the
+         opening itself carries the light. */
       const veilKey = veil.toFixed(3);
       if (lens && veilKey !== lastVeil) {
         lastVeil = veilKey;
@@ -285,27 +282,6 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
         /* Keep the veil out of the compositor for the whole build. */
         lens.style.visibility = veil < 0.004 ? "hidden" : "visible";
         lens.style.setProperty("--wash", f.toFixed(3));
-      }
-
-      /* The held lens frame, kept for the transition path that wants a still.
-         Only captured when something is listening: it is an expensive read of
-         the whole drawing buffer. */
-      if (
-        freezeRef.current &&
-        !frozeRef.current &&
-        !freezePendingRef.current &&
-        veil > 0.995
-      ) {
-        freezePendingRef.current = true;
-        window.requestAnimationFrame(() => {
-          freezePendingRef.current = false;
-          if (!mountedRef.current) return;
-          const url = progress.freeze?.();
-          if (url) {
-            frozeRef.current = true;
-            freezeRef.current?.(url);
-          }
-        });
       }
     };
 
@@ -322,7 +298,13 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
       progress.p = p;
       progress.finale = finale;
       progress.total = active;
-      progress.invalidate?.();
+      /* From here on the camera is parked on the glass and the DOM crossing
+         (reflections, flare, aperture) carries the shot. Rendering the close-up
+         behind an opening portal is the most expensive frames of the whole
+         sequence; freezing the last approach frame keeps the reveal at 60fps.
+         At 0.97 the aperture covers the viewport and the canvas is removed
+         entirely (see the CSS). */
+      if (finale < 0.9) progress.invalidate?.();
 
       if (railRef.current)
         railRef.current.style.transform = `scaleX(${active})`;
@@ -353,7 +335,7 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
       }
 
       const pct = active.toFixed(3);
-      if (pct !== lastPct) {
+      if (import.meta.env.DEV && pct !== lastPct) {
         lastPct = pct;
         root.dataset.progress = pct;
         root.dataset.finale = finale.toFixed(3);
@@ -370,12 +352,6 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
       pinSpacing: true,
       anticipatePin: 1,
       invalidateOnRefresh: true,
-      onToggle: (self) => {
-        /* The opening owns the whole screen while the pin is running (header
-           included); once the finale is finished the header comes back. */
-        if (slotRef.current)
-          slotRef.current.toggleAttribute("data-above", self.progress < 1);
-      },
       onUpdate: (self) => render(self.progress),
       onLeave: (self) => {
         render(self.progress);
@@ -383,27 +359,6 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
       },
       onLeaveBack: (self) => render(self.progress),
     });
-
-    /* The plate is the page's hero. The global header stays out of its frame
-       until the stage's bottom has passed the top of the viewport; because the
-       stage is pinned, that is the pin end plus one stage height. */
-    const header = document.querySelector("header");
-    const headerTrigger = header
-      ? ScrollTrigger.create({
-          trigger: root,
-          start: () => trigger.end + root.offsetHeight,
-          end: "max",
-          onEnter: () => header.removeAttribute("data-under-hero"),
-          onLeaveBack: () =>
-            header.setAttribute("data-under-hero", "true"),
-        })
-      : null;
-    if (header) {
-      const stageGone =
-        window.scrollY >= trigger.end + root.offsetHeight;
-      if (stageGone) header.removeAttribute("data-under-hero");
-      else header.setAttribute("data-under-hero", "true");
-    }
 
     /* The pin's spacing was added after Lenis measured the document. Remeasure
        on the next frame so the new final scene and the sections below it are
@@ -416,15 +371,12 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
        browser restoring a deep scroll) instead of resetting the build. */
     render(trigger.progress);
     applyHandoff();
-    if (slotRef.current)
-      slotRef.current.toggleAttribute("data-above", trigger.progress < 1);
     if (trigger.progress >= 1) doneRef.current?.();
 
     return () => {
       window.cancelAnimationFrame(lenisResizeFrame);
-      headerTrigger?.kill();
-      header?.removeAttribute("data-under-hero");
       trigger.kill();
+      header?.removeAttribute("data-under-hero");
     };
   }, [ready, reduced, webgl, failed, progress]);
 
@@ -440,23 +392,23 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
       >
         {webgl && !failed ? (
           <SceneBoundary onFail={() => setFailed(true)}>
-            <StudioScene
-              progress={progress}
-              low={low}
-              onFail={() => setFailed(true)}
-            />
+            <Suspense fallback={null}>
+              <StudioScene
+                progress={progress}
+                low={low}
+                onFail={() => setFailed(true)}
+              />
+            </Suspense>
           </SceneBoundary>
         ) : (
           <StudioFallback />
         )}
 
-        {/* Reduced motion, no WebGL, or a scene failure: the final plate is
-            still the page's opening, shown as a still frame instead of a
-            build. */}
+        {/* Reduced motion, no WebGL, or a scene failure: the final hero
+            screen is still the page's opening, shown as a still frame
+            instead of a build. */}
         {settled && (
-          <div className={s.staticPlate}>
-            <FinalePlate />
-          </div>
+          <div className={s.staticPlate}>{finale ?? <FinalePlate />}</div>
         )}
 
         {!settled && (
@@ -473,15 +425,15 @@ export default function StudioBlueprintAnimation({ onDone, onFreeze }) {
         <div className={s.vignette} aria-hidden="true" />
 
         {/* The crossing: reflections on the glass, the smear of speed, the
-            hot core of the aperture, then the studio plate itself inside the
-            opening. The plate sits below the glass so the reflections pass
-            over the emerging photograph and fade before the final frame. All
-            of it reads the custom properties written by the scroll progress —
-            no extra timers, no extra renders. */}
+            hot core of the aperture, then the finished website screen inside
+            the opening. The screen sits below the glass so the reflections
+            pass over the emerging photograph and fade before the final frame.
+            All of it reads the custom properties written by the scroll
+            progress — no extra timers, no extra renders. */}
         {!settled && (
           <div className={s.crossing}>
             <div className={s.aperture}>
-              <FinalePlate />
+              <div className={s.finale}>{finale ?? <FinalePlate />}</div>
             </div>
             <div className={s.streaks} />
             <div className={s.glass} />

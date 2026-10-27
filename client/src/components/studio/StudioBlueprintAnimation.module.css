@@ -36,15 +36,30 @@
   filter: blur(var(--lens-blur, 0px));
 }
 
+/* The plate is opaque and covers every corner at this point. Hiding the
+   canvas takes the full-screen WebGL composite (and its blur filter) out of
+   the plate hold, which is otherwise a still image behind a fixed header. */
+.stage[data-header] canvas {
+  visibility: hidden;
+}
+
 
 .vignette {
   position: absolute;
   inset: 0;
   z-index: 2;
   pointer-events: none;
+  /* The vignette belongs to the shot, not to the finished screen: it leaves
+     with the lens as the hero interface arrives. */
+  opacity: calc(1 - var(--plate-ui, 0));
   background:
     radial-gradient(125% 92% at 50% 46%, rgba(2, 8, 7, 0) 44%, rgba(2, 8, 7, 0.52) 100%),
     linear-gradient(180deg, rgba(2, 8, 7, 0.28) 0%, rgba(2, 8, 7, 0) 18%, rgba(2, 8, 7, 0) 82%, rgba(2, 8, 7, 0.34) 100%);
+}
+
+.stage[data-studio="static"] .vignette,
+.stage[data-studio="fallback"] .vignette {
+  opacity: 0;
 }
 
 /* A still opening for reduced motion or a scene that cannot run: the exact
@@ -53,7 +68,7 @@
   position: absolute;
   inset: 0;
   z-index: 4;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 /* The optical close: the lens floods with light as the camera crosses the
@@ -126,8 +141,9 @@
     transparent 86%
   );
   transform: scale(calc(1 + 0.08 * var(--lens-entry, 0)));
-  filter: blur(1.2px);
-  mix-blend-mode: screen;
+  /* Static texture, opacity-only motion. The old screen blend forced the
+     compositor to re-blend a full-screen layer over the changing canvas every
+     frame; at this opacity the plain alpha is visually identical. */
   will-change: opacity, transform;
 }
 
@@ -158,7 +174,6 @@
       rgba(186, 255, 246, 0.085),
       transparent 72%
     );
-  mix-blend-mode: screen;
 }
 
 /* The hot core: the light behind the glass the instant before the camera
@@ -180,7 +195,6 @@
       rgba(96, 235, 220, 0.12),
       transparent 70%
     );
-  mix-blend-mode: screen;
   will-change: opacity;
 }
 
@@ -200,27 +214,38 @@
   visibility: visible;
 }
 
-/* The iris rim, drawn on the edge of the clip so the opening reads as glass
-   rather than as a cut. It is a gradient inside the frame — never an element
-   wider than the viewport, which is what a classic scrollbar turns into a
-   horizontal bar under the page. It is gone before the portal is full. */
-.rim {
+/* The screen revealed through the glass (the finished site hero). It stays
+   inert while the aperture is closed and becomes interactive once it opens. */
+.finale {
   position: absolute;
   inset: 0;
+  pointer-events: none;
+}
+
+.stage[data-aperture] .finale {
+  pointer-events: auto;
+}
+
+/* The iris rim, drawn on the edge of the clip so the opening reads as glass
+   rather than as a cut. It is a single circle scaled to the aperture radius —
+   a transform, not a repainted full-screen gradient. */
+.rim {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  width: 156vmax;
+  height: 156vmax;
+  margin: -78vmax 0 0 -78vmax;
   z-index: 4;
+  border: 1px solid rgba(198, 255, 247, 0.38);
+  border-radius: 50%;
+  box-shadow:
+    0 0 18px 6px rgba(126, 246, 232, 0.1),
+    inset 0 0 6px 2px rgba(0, 0, 0, 0.5);
   opacity: var(--lens-rim, 0);
-  /* A thin specular edge seated in a dark inner bevel. No thick neon halo:
-     the barrel itself supplies the surrounding darkness. */
-  background: radial-gradient(
-    circle at 50% 45%,
-    rgba(0, 0, 0, 0) 0 calc(var(--lens-aperture, 0) * 78vmax - 9px),
-    rgba(0, 0, 0, 0.42) calc(var(--lens-aperture, 0) * 78vmax - 6px),
-    rgba(0, 0, 0, 0) calc(var(--lens-aperture, 0) * 78vmax + 1px),
-    rgba(198, 255, 247, 0.38) calc(var(--lens-aperture, 0) * 78vmax + 2px),
-    rgba(126, 246, 232, 0.14) calc(var(--lens-aperture, 0) * 78vmax + 8px),
-    rgba(126, 246, 232, 0) calc(var(--lens-aperture, 0) * 78vmax + 24px)
-  );
-  will-change: opacity;
+  transform: scale(var(--lens-aperture, 0));
+  transform-origin: 50% 50%;
+  will-change: opacity, transform;
 }
 
 /* Once the scene is built the section simply ends: nothing overlays it. */

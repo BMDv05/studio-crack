@@ -6,12 +6,21 @@ function notFound(req, res, next) {
   next();
 }
 
+/* Parser and body errors describe internals ("Expected property name or '}' in
+ * JSON at position 1"); the client gets a fixed sentence for those instead. */
+const SAFE_MESSAGES = {
+  'entity.parse.failed': 'Invalid JSON body.',
+  'entity.too.large': 'Request body is too large.',
+  'encoding.unsupported': 'Unsupported content encoding.',
+};
+
 // eslint-disable-next-line no-unused-vars
 function errorHandler(err, req, res, next) {
   const status = err.status && Number.isInteger(err.status) ? err.status : 500;
   console.error(`[${req.method} ${req.originalUrl}]`, err && err.stack ? err.stack : err);
   if (req.path.startsWith('/api/')) {
-    return res.status(status).json({ ok: false, error: status === 500 ? 'Something went wrong.' : err.message });
+    const safe = status === 500 ? 'Something went wrong.' : SAFE_MESSAGES[err.type];
+    return res.status(status).json({ ok: false, error: safe || err.message });
   }
   next(err);
 }

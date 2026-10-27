@@ -12,6 +12,22 @@ npm run seed           # admin + default settings (idempotent)
 npm run dev            # http://localhost:3100
 ```
 
+## Admin account
+
+A deployment has no boot step, so nothing seeds its admin: a fresh database has
+zero admins and every sign-in answers `Invalid email or password`. Create or
+reset one against any database (the URL comes from the shell first, then from
+`.env`; the row is created if the email is unknown, otherwise its password is
+replaced and its sessions dropped):
+
+```bash
+DATABASE_URL='postgresql://...' npm run admin:set -- --list
+DATABASE_URL='postgresql://...' npm run admin:set -- info@double-h-studio.com 'new-password' 'Studio Admin'
+```
+
+Append `?sslmode=require` when the connection string does not carry it. Change
+the password under Settings → Change password afterwards.
+
 ## Layout
 
 - `src/index.js` — boot (seed admin, listen)
@@ -23,4 +39,5 @@ npm run dev            # http://localhost:3100
 - `src/routes/` — one file per resource (`health`, `booking`, `videos`, `admin`, …)
 - `src/services/` — `email`, `storage` (coming with booking/video stages)
 - `prisma/schema.prisma` — data model; `prisma/seed.cjs` — seed script
+- `scripts/set-admin.cjs` — list/create/reset an admin in any database
 - `scripts/import-legacy.cjs` — one-shot import from `../../legacy` (booking stage)

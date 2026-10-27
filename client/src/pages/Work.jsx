@@ -153,7 +153,7 @@ export default function Work() {
                   {(list.length ? list : []).map((v) => (
                     <article className={styles.work} key={v.id}>
                       <ParallaxImage className={styles.media} strength={0.06}>
-                        <button className={styles.playBtn} data-cursor="View" onClick={() => setOpenId(v.id)} aria-label={t('work.play', { title: v.title })}>
+                        <button className={styles.playBtn} onClick={() => setOpenId(v.id)} aria-label={t('work.play', { title: v.title })}>
                           <Preview video={v} />
                         </button>
                       </ParallaxImage>
@@ -177,7 +177,7 @@ export default function Work() {
                   {(list.length ? list : []).map((v) => (
                     <article className={styles.socialCard} key={v.id}>
                       <ParallaxImage className={styles.media} strength={0.06}>
-                        <button className={styles.play} data-cursor="View" onClick={() => setOpenId(v.id)} aria-label={t('work.play', { title: v.title })}>
+                        <button className={styles.play} onClick={() => setOpenId(v.id)} aria-label={t('work.play', { title: v.title })}>
                           <Preview video={v} />
                         </button>
                       </ParallaxImage>

@@ -64,9 +64,9 @@ export const PHASE = {
    the camera move: the build and the finale are mapped over their original
    scroll distance, and the extra distance simply keeps the last frame still
    before the opening lets go. */
-export const SCROLL_VH = { desktop: 400, tablet: 330, mobile: 260 };
-export const FINALE_SCROLL_VH = { desktop: 360, tablet: 300, mobile: 240 };
-export const PLATE_HOLD_VH = { desktop: 80, tablet: 65, mobile: 55 };
+export const SCROLL_VH = { desktop: 400, tablet: 330, mobile: 130 };
+export const FINALE_SCROLL_VH = { desktop: 360, tablet: 300, mobile: 110 };
+export const PLATE_HOLD_VH = { desktop: 80, tablet: 65, mobile: 30 };
 
 export function scrollLengthVh() {
   if (typeof window === 'undefined') return SCROLL_VH.desktop;

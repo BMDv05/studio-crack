@@ -41,3 +41,11 @@
   transition: inset-inline-start 300ms ease-out;
 }
 .pill[data-lang='ar'] { inset-inline-start: 50%; }
+
+
+@media (max-width: 760px) {
+  .switch button {
+    min-height: 38px;
+    padding: 8px 12px;
+  }
+}

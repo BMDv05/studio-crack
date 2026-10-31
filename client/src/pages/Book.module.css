@@ -51,7 +51,29 @@
 /* The card is the focal point, so the action sits on the centre line. */
 .actions { display: flex; justify-content: center; }
 .submit { min-width: 240px; padding-inline: 40px; }
+
+@media (max-width: 760px) {
+  .two, .cards {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 600px) {
-  .two, .cards { grid-template-columns: 1fr; }
-  .submit { width: 100%; }
+  .form {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+  .notice {
+    padding: 12px 14px;
+    margin: 18px 0 22px;
+    font-size: 14px;
+  }
+  .submit {
+    width: 100%;
+    min-height: 52px;
+    font-size: 16px;
+  }
+  .actions {
+    width: 100%;
+  }
 }

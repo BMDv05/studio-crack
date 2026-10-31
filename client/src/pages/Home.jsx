@@ -182,24 +182,48 @@ export default function Home() {
       return undefined;
     }
 
-    const ctx = gsap.context(() => {
+    const timelineWrap = line.parentElement;
+    const mm = gsap.matchMedia();
+
+    /* Mobile: speed up the line so it tracks the 5 steps directly, not the whole section which includes the slate below */
+    mm.add('(max-width: 999px)', () => {
       gsap.fromTo(
         line,
         { scaleY: 0 },
         {
           scaleY: 1,
-          ease: "none",
+          ease: 'none',
+          transformOrigin: 'top center',
+          scrollTrigger: {
+            trigger: timelineWrap || section,
+            start: 'top 75%',
+            end: 'bottom 55%',
+            scrub: 0.15,
+          },
+        },
+      );
+    });
+
+    /* Desktop: untouched original values */
+    mm.add('(min-width: 1000px)', () => {
+      gsap.fromTo(
+        line,
+        { scaleY: 0 },
+        {
+          scaleY: 1,
+          ease: 'none',
+          transformOrigin: 'top center',
           scrollTrigger: {
             trigger: section,
-            start: "top 74%",
-            end: "bottom 68%",
+            start: 'top 74%',
+            end: 'bottom 68%',
             scrub: 0.6,
           },
         },
       );
-    }, section);
+    });
 
-    return () => ctx.revert();
+    return () => mm.revert();
   }, [homeReady]);
 
   return (

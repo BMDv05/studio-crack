@@ -2,3 +2,16 @@
 .wrap h1 { font-size: clamp(32px, 5vw, 54px); line-height: 1.08; margin: 10px 0; animation: fadeUp 500ms ease-out both; }
 .lede { color: #c6d6d4; font-weight: 300; font-size: 17px; animation: fadeUp 500ms 120ms ease-out both; }
 .ctaRow { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 26px; animation: fadeUp 500ms 240ms ease-out both; }
+
+@media (max-width: 600px) {
+  .ctaRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ctaRow > a {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    min-height: 48px;
+  }
+}

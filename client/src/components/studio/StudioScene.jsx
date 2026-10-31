@@ -321,6 +321,11 @@ export default function StudioScene({ progress, low = false, onFail }) {
 
       const width = Math.max(1, host.clientWidth);
       const height = Math.max(1, host.clientHeight);
+      const aspect = width / height;
+      const initialFov = aspect < 0.6 ? 64 : aspect < 0.85 ? 52 : aspect < 1.35 ? 39 : 34;
+      const initialZ = aspect < 0.6 ? 13.8 : aspect < 0.85 ? 11.8 : 10;
+      const initialY = aspect < 0.6 ? 1.45 : aspect < 0.85 ? 1.48 : 1.5;
+      const initialX = aspect < 0.6 ? -0.05 : aspect < 0.85 ? -0.08 : aspect < 1.35 ? -0.1 : 0;
 
       try {
         root = createRoot(canvas);
@@ -332,7 +337,7 @@ export default function StudioScene({ progress, low = false, onFail }) {
             powerPreference: 'high-performance',
           },
           size: { width, height, top: 0, left: 0 },
-          camera: { fov: 34, near: 0.1, far: 170, position: [0, 1.5, 10] },
+          camera: { fov: initialFov, near: 0.1, far: 170, position: [initialX, initialY, initialZ] },
           shadows: 'soft',
           dpr: [1, low ? 1 : 1.25],
           frameloop: 'demand',

@@ -150,3 +150,20 @@
     width: 24px;
   }
 }
+
+@media (max-width: 520px) {
+  .card {
+    padding: 32px 18px;
+    border-radius: 20px;
+  }
+  .button {
+    width: 100%;
+    min-height: 52px;
+  }
+  .number {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

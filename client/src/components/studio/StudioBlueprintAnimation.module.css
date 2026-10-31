@@ -27,10 +27,12 @@
   overflow: hidden;
   background: #06100f;
   isolation: isolate;
+  touch-action: pan-y;
 }
 
 .stage :global(canvas) {
   display: block;
+  touch-action: pan-y;
   /* The optical blur of the crossing. It is written by scroll progress, so it
      costs nothing while the build is still (the scene renders on demand). */
   filter: blur(var(--lens-blur, 0px));
@@ -344,9 +346,18 @@
 }
 
 @media (max-width: 760px) {
+  .chrome {
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+
   .hint {
     font-size: 11px;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.18em;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(3, 14, 13, 0.65);
+    border: 1px solid rgba(112, 222, 208, 0.2);
+    backdrop-filter: blur(8px);
   }
 
   .fallbackGrid {

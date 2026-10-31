@@ -238,3 +238,22 @@
   .stage { width: min(100%, 345px); }
   .caption { font-size: 44px; }
 }
+
+
+@media (max-width: 480px) {
+  .board {
+    padding: 18px 14px 16px;
+  }
+  .info b {
+    font-size: 22px;
+  }
+  .caption {
+    font-size: 34px;
+  }
+  .bottomRow {
+    gap: 8px;
+  }
+  .barcode {
+    width: 64px;
+  }
+}

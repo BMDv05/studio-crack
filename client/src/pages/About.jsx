@@ -96,13 +96,37 @@ export default function About() {
       return undefined;
     }
 
-    const ctx = gsap.context(() => {
+    const stepsWrap = line.parentElement;
+    const mm = gsap.matchMedia();
+
+    /* Mobile: speed up line drawing to track steps directly */
+    mm.add('(max-width: 999px)', () => {
       gsap.fromTo(
         line,
         { scaleY: 0 },
         {
           scaleY: 1,
           ease: 'none',
+          transformOrigin: 'top center',
+          scrollTrigger: {
+            trigger: stepsWrap || section,
+            start: 'top 75%',
+            end: 'bottom 55%',
+            scrub: 0.15,
+          },
+        },
+      );
+    });
+
+    /* Desktop: untouched original values */
+    mm.add('(min-width: 1000px)', () => {
+      gsap.fromTo(
+        line,
+        { scaleY: 0 },
+        {
+          scaleY: 1,
+          ease: 'none',
+          transformOrigin: 'top center',
           scrollTrigger: {
             trigger: section,
             start: 'top 76%',
@@ -111,9 +135,9 @@ export default function About() {
           },
         },
       );
-    }, section);
+    });
 
-    return () => ctx.revert();
+    return () => mm.revert();
   }, []);
 
   return (

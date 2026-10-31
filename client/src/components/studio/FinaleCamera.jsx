@@ -41,13 +41,22 @@ function basePose(aspect) {
   let z = 10;
   let lookX = 0;
 
-  if (aspect < 0.8) {
-    fov = 50;
-    x = -0.25;
-    y = 1.55;
-    z = 10.2;
-    lookX = -0.25;
+  if (aspect < 0.6) {
+    // Tall portrait mobile screens (phones like Xiaomi/iPhone/Samsung, aspect ~ 9/20)
+    fov = 64;
+    x = -0.05;
+    y = 1.45;
+    z = 13.8;
+    lookX = -0.05;
+  } else if (aspect < 0.85) {
+    // Wider phone / portrait tablet
+    fov = 52;
+    x = -0.08;
+    y = 1.48;
+    z = 11.8;
+    lookX = -0.08;
   } else if (aspect < 1.35) {
+    // Square / small laptop
     fov = 39;
     x = -0.1;
     y = 1.52;

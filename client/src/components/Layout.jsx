@@ -20,6 +20,35 @@ export default function Layout() {
   const firstNav = useRef(true);
   const navPlayed = useRef(false);
 
+  /* Lock body scroll and pause smooth scroll while mobile menu is open. */
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+      window.__lenis?.stop();
+    } else {
+      document.body.style.overflow = '';
+      window.__lenis?.start();
+    }
+    return () => {
+      document.body.style.overflow = '';
+      window.__lenis?.start();
+    };
+  }, [open]);
+
+  /* Close drawer on route change. */
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  /* Close drawer on Escape key. */
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape' && open) setOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
   /* Route transition: a teal panel covers the new route before paint, then
      wipes away (600ms). No flash of unstyled content. */
   useLayoutEffect(() => {
@@ -48,9 +77,7 @@ export default function Layout() {
     gsap.fromTo(header, { yPercent: -100 }, { yPercent: 0, duration: 0.6, ease: EASE.out });
   }, [ready]);
 
-  /* Nav: blurred background past 80px of scroll. The strip itself stays on
-     screen the whole way down — it used to slide out on scroll-down and only
-     return on scroll-up, which made the bar under the header vanish mid-page. */
+  /* Nav: blurred background past 80px of scroll. */
   useEffect(() => {
     const header = headerRef.current;
     if (!header) return undefined;
@@ -91,21 +118,51 @@ export default function Layout() {
           </Link>
           <div className={styles.navRight}>
             <LanguageSwitcher />
-            <button className={styles.menuBtn} aria-expanded={open} aria-controls="primary-nav" onClick={() => setOpen((o) => !o)}>
-              {t('common.menu')}
+            <button
+              className={`${styles.menuBtn} ${open ? styles.menuBtnOpen : ''}`}
+              aria-expanded={open}
+              aria-controls="mobile-nav"
+              aria-label={open ? t('common.close') : t('common.menu')}
+              onClick={() => setOpen((o) => !o)}
+            >
+              {open ? (
+                <span className={styles.iconClose} aria-hidden="true">✕</span>
+              ) : (
+                <span className={styles.iconBurger} aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                </span>
+              )}
             </button>
-            <nav id="primary-nav" aria-label="Primary" className={`${styles.links} ${open ? styles.open : ''}`}>
-              <NavLink to="/work" onClick={() => setOpen(false)}>{t('common.work')}</NavLink>
-              <NavLink to="/about" onClick={() => setOpen(false)}>{t('common.about')}</NavLink>
-              <Link to="/book" className="btn btn-dark" onClick={() => setOpen(false)}>{t('common.book')}</Link>
+            <nav aria-label="Primary" className={styles.links}>
+              <NavLink to="/work">{t('common.work')}</NavLink>
+              <NavLink to="/about">{t('common.about')}</NavLink>
+              <Link to="/book" className="btn btn-dark">{t('common.book')}</Link>
             </nav>
           </div>
         </div>
       </header>
+
+      {/* Mobile Drawer: outside header so transform on header never traps or clips it */}
+      <nav
+        id="mobile-nav"
+        aria-label="Mobile Navigation"
+        className={`${styles.mobileDrawer} ${open ? styles.mobileDrawerOpen : ''}`}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) setOpen(false);
+        }}
+      >
+        <div className={styles.mobileDrawerInner}>
+          <NavLink to="/work" onClick={() => setOpen(false)}>{t('common.work')}</NavLink>
+          <NavLink to="/about" onClick={() => setOpen(false)}>{t('common.about')}</NavLink>
+          <Link to="/book" className="btn btn-dark" onClick={() => setOpen(false)}>{t('common.book')}</Link>
+        </div>
+      </nav>
+
       <main id="main">
         <Outlet />
       </main>
-      {/* ref keeps the layout's gsap scroll-triggered entrance on the real <footer> */}
       <Footer ref={footerRef} />
     </>
   );

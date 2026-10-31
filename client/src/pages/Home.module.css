@@ -1,4 +1,4 @@
-﻿/* Home â€” one cinematic studio frame, then the lens and the call sheet.
+/* Home â€” one cinematic studio frame, then the lens and the call sheet.
    The 3D opening dissolves into the fixed website plate; this file carries the
    hero interface and the editorial sections that follow. Motion is
    transform/opacity only, and every state is legible without it. */
@@ -836,8 +836,21 @@
 }
 
 @media (max-width: 760px) {
+  :global(header[data-under-hero]) {
+    pointer-events: auto !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  .hero {
+    min-height: auto;
+  }
   .heroShell {
-    padding: 20px 24px max(34px, env(safe-area-inset-bottom));
+    min-height: calc(100svh - 60px);
+    padding: 20px 20px max(24px, env(safe-area-inset-bottom));
+  }
+  .lock,
+  .heroSide {
+    display: none !important;
   }
   .hud {
     --hud-inset: 10px;
@@ -849,7 +862,7 @@
   .heroBody {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
-    padding-block: clamp(24px, 5vh, 48px) clamp(20px, 3.6vh, 36px);
+    padding-block: clamp(20px, 4vh, 40px) clamp(16px, 3vh, 32px);
   }
   .heroInner {
     max-width: none;
@@ -862,8 +875,8 @@
   .title {
     max-width: none;
     margin: 10px 0 14px;
-    font-size: clamp(34px, 9vw, 46px);
-    line-height: 1.03;
+    font-size: clamp(32px, 8.5vw, 44px);
+    line-height: 1.08;
   }
   .lede {
     font-size: 15px;
@@ -872,10 +885,13 @@
   .hero .ctaRow {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
     margin-top: 22px;
   }
   .hero .ctaRow > a {
     width: 100%;
+    text-align: center;
+    justify-content: center;
   }
   .heroRail {
     gap: 8px 12px;

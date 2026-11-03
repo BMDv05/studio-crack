@@ -42,6 +42,25 @@
 }
 .pill[data-lang='ar'] { inset-inline-start: 50%; }
 
+/* Light theme for admin topbar on white surface */
+.switch[data-theme='light'] {
+  border-color: var(--dh-field-border);
+  background: #f2f6f6;
+}
+.switch[data-theme='light'] button {
+  color: var(--dh-sage);
+}
+.switch[data-theme='light'] button:hover {
+  opacity: 1;
+  color: var(--dh-ink);
+}
+.switch[data-theme='light'] button.active {
+  color: var(--dh-green);
+}
+.switch[data-theme='light'] .pill {
+  background: var(--dh-white);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
 
 @media (max-width: 760px) {
   .switch button {

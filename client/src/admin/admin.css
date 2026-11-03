@@ -148,7 +148,7 @@
 
 @media (max-width: 900px) {
   .a-shell { grid-template-columns: 1fr; }
-  .a-side { display: none; position: fixed; inset: 0 auto 0 0; width: 240px; z-index: 120; }
+  .a-side { display: none; position: fixed; inset-block: 0; inset-inline-start: 0; inset-inline-end: auto; width: 240px; z-index: 120; }
   .a-side.open { display: flex; }
   .a-menubtn { display: inline-flex; }
   .a-grid2, .a-grid3 { grid-template-columns: 1fr; }

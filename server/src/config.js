@@ -34,7 +34,7 @@ const config = {
   secureCookies: String(process.env.SECURE_COOKIES || '').toLowerCase() === 'true',
   studioEmail: process.env.STUDIO_EMAIL || 'studio@doubleh.example',
   studioFrom: process.env.STUDIO_REPLY_FROM || 'Double H Studio <no-reply@doubleh.example>',
-  studioTimezone: process.env.STUDIO_TIMEZONE || 'Asia/Amman',
+  studioTimezone: process.env.STUDIO_TIMEZONE || 'Asia/Damascus',
   services: parseList(process.env.STUDIO_SERVICES, DEFAULT_SERVICES),
   responseSLA: process.env.STUDIO_RESPONSE_SLA || 'within 2 working days',
   smtp: {

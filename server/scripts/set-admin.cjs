@@ -19,7 +19,7 @@ const path = require('node:path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const bcrypt = require('bcryptjs');
-const { PrismaClient } = require('@prisma/client');
+const { createDb } = require('../src/db');
 
 const COST = 12; // must match hashPassword() in src/middleware/auth.js
 const MIN_PASSWORD = 10; // must match the rule seedAdmin() enforces
@@ -43,7 +43,7 @@ async function main() {
   }
 
   const [emailArg, password, nameArg] = process.argv.slice(2);
-  const db = new PrismaClient({ datasources: { db: { url } } });
+  const db = createDb(url);
   try {
     const admins = await db.admin.findMany({
       orderBy: { createdAt: 'asc' },
@@ -96,3 +96,4 @@ main().catch((err) => {
   }
   process.exit(1);
 });
+

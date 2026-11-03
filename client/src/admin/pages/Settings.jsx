@@ -3,9 +3,11 @@ import PageMeta from '../../components/PageMeta.jsx';
 import { useApi } from '../../hooks/useApi.js';
 import { get, patch, post, ApiError } from '../../api/client.js';
 import { toast } from '../toast.js';
+import { useLang } from '../../i18n/LanguageContext.jsx';
 
 export default function Settings() {
-  const { data, reload } = useApi(() => get('/api/admin/settings'));
+  const { data, reload, error } = useApi(() => get('/api/admin/settings'));
+  const { t } = useLang();
   const s = data?.settings;
 
   const [profile, setProfile] = useState(null);
@@ -25,7 +27,15 @@ export default function Settings() {
     });
   }, [s]);
 
-  if (!s || !profile || !uploads) return <div className="a-loading" role="status">Loading settings…</div>;
+  if (error) {
+    return (
+      <div className="a-empty" style={{ margin: '40px auto', maxWidth: 460 }}>
+        <p style={{ color: 'var(--dh-error)', fontWeight: 600, marginBottom: 12 }}>{error}</p>
+        <button className="a-btn small" onClick={reload}>Retry</button>
+      </div>
+    );
+  }
+  if (!s || !profile || !uploads) return <div className="a-loading" role="status">{t('admin.loading')}</div>;
 
   const save = async (path, body, okMsg) => {
     if (busy) return false;
@@ -85,77 +95,77 @@ export default function Settings() {
       <PageMeta title="Settings — Double H Studio admin" description="" noindex />
       <div className="a-pagehead">
         <div>
-          <h1>Settings</h1>
-          <p>Studio preferences. Changes apply immediately.</p>
+          <h1>{t('admin.settings.title')}</h1>
+          <p>{t('admin.settings.subtitle')}</p>
         </div>
       </div>
 
       <div className="a-grid2">
         <div className="a-stack">
           <div className="a-card">
-            <h2>Studio profile</h2>
+            <h2>{t('admin.settings.studioProfile')}</h2>
             <div className="a-f">
-              <label htmlFor="s-tz">Studio time zone</label>
-              <input id="s-tz" placeholder="Asia/Amman" value={profile.timezone} onChange={(e) => setProfile((p) => ({ ...p, timezone: e.target.value }))} />
+              <label htmlFor="s-tz">{t('admin.settings.timezone')}</label>
+              <input id="s-tz" placeholder="Asia/Damascus" value={profile.timezone} onChange={(e) => setProfile((p) => ({ ...p, timezone: e.target.value }))} />
               <span className="a-err">{errors.timezone || ''}</span>
             </div>
             <div className="a-f">
-              <label htmlFor="s-sla">Response promise (shown to clients)</label>
+              <label htmlFor="s-sla">{t('admin.settings.sla')}</label>
               <input id="s-sla" maxLength={120} placeholder="within 2 working days" value={profile.sla} onChange={(e) => setProfile((p) => ({ ...p, sla: e.target.value }))} />
               <span className="a-err">{errors.sla || ''}</span>
             </div>
             <div className="a-f">
-              <label htmlFor="s-inbox">Notification email (booking inbox)</label>
+              <label htmlFor="s-inbox">{t('admin.settings.studioEmail')}</label>
               <input id="s-inbox" type="email" value={profile.studioEmail} onChange={(e) => setProfile((p) => ({ ...p, studioEmail: e.target.value }))} />
               <span className="a-err">{errors.studioEmail || ''}</span>
             </div>
             <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 14, marginBottom: 12 }}>
               <input type="checkbox" checked={profile.ackEnabled} onChange={(e) => setProfile((p) => ({ ...p, ackEnabled: e.target.checked }))} />
-              Send automatic acknowledgment email to the client
+              {t('admin.settings.autoConfirm')}
             </label>
             <div className="a-f">
-              <label htmlFor="s-services">Services (one per line — booking dropdown)</label>
+              <label htmlFor="s-services">{t('admin.settings.services')}</label>
               <textarea id="s-services" rows={5} value={profile.services} onChange={(e) => setProfile((p) => ({ ...p, services: e.target.value }))} />
               <span className="a-err">{errors.services || ''}</span>
             </div>
-            <button className="a-btn small" disabled={busy} onClick={saveProfile}>Save profile</button>
+            <button className="a-btn small" disabled={busy} onClick={saveProfile}>{t('admin.settings.saveProfile')}</button>
           </div>
 
           <div className="a-card">
-            <h2>Change password</h2>
+            <h2>{t('admin.settings.changePassword')}</h2>
             <div className="a-f">
-              <label htmlFor="p-cur">Current password</label>
+              <label htmlFor="p-cur">{t('admin.settings.currentPassword')}</label>
               <input id="p-cur" type="password" autoComplete="current-password" value={pw.current} onChange={(e) => setPw((p) => ({ ...p, current: e.target.value }))} />
               <span className="a-err">{errors.current || ''}</span>
             </div>
             <div className="a-f">
-              <label htmlFor="p-next">New password (min 10 characters)</label>
+              <label htmlFor="p-next">{t('admin.settings.newPassword')}</label>
               <input id="p-next" type="password" autoComplete="new-password" value={pw.next} onChange={(e) => setPw((p) => ({ ...p, next: e.target.value }))} />
               <span className="a-err">{errors.next || ''}</span>
             </div>
-            <button className="a-btn small" disabled={busy || !pw.current || !pw.next} onClick={changePassword}>Change password</button>
+            <button className="a-btn small" disabled={busy || !pw.current || !pw.next} onClick={changePassword}>{t('admin.settings.updatePassword')}</button>
           </div>
         </div>
 
         <div className="a-card">
-          <h2>Uploads &amp; storage</h2>
+          <h2>{t('admin.settings.videoUploads')}</h2>
           <div className="a-f">
-            <label htmlFor="s-max-prod">Max Production video size (MB, 1–4000)</label>
+            <label htmlFor="s-max-prod">{t('admin.settings.maxMbProduction')}</label>
             <input id="s-max-prod" type="number" min={1} max={4000} step={1} value={uploads.maxUploadMbProduction} onChange={(e) => setUploads((p) => ({ ...p, maxUploadMbProduction: e.target.value }))} />
             <span className="a-err">{errors.maxUploadMbProduction || ''}</span>
           </div>
           <div className="a-f">
-            <label htmlFor="s-max-social">Max Social video size (MB, 1–4000)</label>
+            <label htmlFor="s-max-social">{t('admin.settings.maxMbSocial')}</label>
             <input id="s-max-social" type="number" min={1} max={4000} step={1} value={uploads.maxUploadMbSocial} onChange={(e) => setUploads((p) => ({ ...p, maxUploadMbSocial: e.target.value }))} />
             <span className="a-err">{errors.maxUploadMbSocial || ''}</span>
           </div>
           <div className="a-f">
-            <label htmlFor="s-max-sec">Max Social duration (seconds, 15–600)</label>
+            <label htmlFor="s-max-sec">{t('admin.settings.maxSocialSec')}</label>
             <input id="s-max-sec" type="number" min={15} max={600} step={1} value={uploads.maxSocialSec} onChange={(e) => setUploads((p) => ({ ...p, maxSocialSec: e.target.value }))} />
             <span className="a-err">{errors.maxSocialSec || ''}</span>
           </div>
           <div className="a-f">
-            <label htmlFor="s-driver">Storage driver</label>
+            <label htmlFor="s-driver">{t('admin.settings.storageDriver')}</label>
             <select id="s-driver" value={uploads.storageDriver} disabled={s.storageDriver === 'supabase'} onChange={(e) => setUploads((p) => ({ ...p, storageDriver: e.target.value }))}>
               <option value="supabase">Supabase Storage</option>
               <option value="local">Local disk (dev)</option>
@@ -169,7 +179,7 @@ export default function Settings() {
               : 'Local disk: files are streamed to server/uploads and served from /media.'}
           </p>
           <p className="a-hint">Sessions expire after {s.sessionMinutes} minutes of inactivity.</p>
-          <button className="a-btn small" disabled={busy} onClick={saveUploads}>Save uploads</button>
+          <button className="a-btn small" disabled={busy} onClick={saveUploads}>{t('admin.settings.saveUploads')}</button>
         </div>
       </div>
     </>

@@ -53,7 +53,7 @@ function Preview({ video }) {
 
 function Player({ video, onClose }) {
   const boxRef = useRef(null);
-  const { t } = useLang();
+  const { t, lang } = useLang();
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
@@ -66,7 +66,10 @@ function Player({ video, onClose }) {
     };
   }, [onClose]);
   if (!video) return null;
-  const meta = [video.description, video.client_name ? t('work.client', { name: video.client_name }) : '', (video.platforms || []).join(' · ')]
+  const isAr = lang === 'ar';
+  const displayTitle = (isAr && video.title_ar) ? video.title_ar : video.title;
+  const displayDesc = (isAr && video.description_ar) ? video.description_ar : video.description;
+  const meta = [displayDesc, video.client_name ? t('work.client', { name: video.client_name }) : '', (video.platforms || []).join(' · ')]
     .filter(Boolean).join('\n');
   return (
     <div className={styles.player}>
@@ -75,7 +78,7 @@ function Player({ video, onClose }) {
         <button className={styles.playerX} onClick={onClose} aria-label={t('work.close')}>✕</button>
         <video src={video.video_url} poster={video.thumbnail_url || undefined} controls playsInline autoPlay />
         <div className={styles.playerMeta}>
-          <h2>{video.title}</h2>
+          <h2>{displayTitle}</h2>
           <p style={{ whiteSpace: 'pre-line' }}>{meta}</p>
         </div>
       </div>
@@ -88,7 +91,8 @@ export default function Work() {
   const view = params.get('type') === 'social' ? 'social' : 'production';
   const [lists, setLists] = useState({ production: null, social: null });
   const [openId, setOpenId] = useState(null);
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const isAr = lang === 'ar';
 
   const load = useCallback(async (cat) => {
     try {
@@ -110,8 +114,8 @@ export default function Work() {
           ld.textContent = JSON.stringify({
             '@context': 'https://schema.org', '@type': 'ItemList', name: 'Double H Studio portfolio',
             itemListElement: videos.map((v, i) => ({
-              '@type': 'VideoObject', position: i + 1, name: v.title,
-              description: v.description || v.title,
+              '@type': 'VideoObject', position: i + 1, name: (isAr && v.title_ar) ? v.title_ar : v.title,
+              description: ((isAr && v.description_ar) ? v.description_ar : v.description) || v.title,
               ...(v.thumbnail_url ? { thumbnailUrl: v.thumbnail_url } : {}),
               contentUrl: v.video_url,
               ...((v.created_at || '').slice ? { uploadDate: String(v.created_at).slice(0, 10) } : {}),
@@ -150,20 +154,24 @@ export default function Work() {
                 <div className={styles.empty}>{t('work.emptyProduction')}</div>
               ) : (
                 <Reveal className={styles.grid} stagger>
-                  {(list.length ? list : []).map((v) => (
-                    <article className={styles.work} key={v.id}>
-                      <ParallaxImage className={styles.media} strength={0.06}>
-                        <button className={styles.playBtn} onClick={() => setOpenId(v.id)} aria-label={t('work.play', { title: v.title })}>
-                          <Preview video={v} />
-                        </button>
-                      </ParallaxImage>
-                      <div className={styles.meta}>
-                        <h3>{v.title}</h3>
-                        {v.description ? <p>{v.description}</p> : null}
-                        <p className={styles.sub}>{[v.client_name ? t('work.client', { name: v.client_name }) : '', fmtDur(v.duration_sec)].filter(Boolean).join(' · ')}</p>
-                      </div>
-                    </article>
-                  ))}
+                  {(list.length ? list : []).map((v) => {
+                    const title = (isAr && v.title_ar) ? v.title_ar : v.title;
+                    const desc = (isAr && v.description_ar) ? v.description_ar : v.description;
+                    return (
+                      <article className={styles.work} key={v.id}>
+                        <ParallaxImage className={styles.media} strength={0.06}>
+                          <button className={styles.playBtn} onClick={() => setOpenId(v.id)} aria-label={t('work.play', { title })}>
+                            <Preview video={v} />
+                          </button>
+                        </ParallaxImage>
+                        <div className={styles.meta}>
+                          <h3>{title}</h3>
+                          {desc ? <p>{desc}</p> : null}
+                          <p className={styles.sub}>{[v.client_name ? t('work.client', { name: v.client_name }) : '', fmtDur(v.duration_sec)].filter(Boolean).join(' · ')}</p>
+                        </div>
+                      </article>
+                    );
+                  })}
                   {lists.production === null && <div className={styles.empty}>{t('work.loadingFilms')}</div>}
                 </Reveal>
               )}
@@ -174,22 +182,26 @@ export default function Work() {
                 <div className={styles.empty}>{t('work.emptySocial')}</div>
               ) : (
                 <Reveal className={styles.socialGrid} stagger>
-                  {(list.length ? list : []).map((v) => (
-                    <article className={styles.socialCard} key={v.id}>
-                      <ParallaxImage className={styles.media} strength={0.06}>
-                        <button className={styles.play} onClick={() => setOpenId(v.id)} aria-label={t('work.play', { title: v.title })}>
-                          <Preview video={v} />
-                        </button>
-                      </ParallaxImage>
-                      <div className={styles.meta}>
-                        <h3>{v.title}</h3>
-                        {v.description ? <p>{v.description}</p> : null}
-                        {(v.platforms || []).length ? (
-                          <div className={styles.chips}>{v.platforms.map((p) => <span className={styles.chip} key={p}>{p}</span>)}</div>
-                        ) : null}
-                      </div>
-                    </article>
-                  ))}
+                  {(list.length ? list : []).map((v) => {
+                    const title = (isAr && v.title_ar) ? v.title_ar : v.title;
+                    const desc = (isAr && v.description_ar) ? v.description_ar : v.description;
+                    return (
+                      <article className={styles.socialCard} key={v.id}>
+                        <ParallaxImage className={styles.media} strength={0.06}>
+                          <button className={styles.play} onClick={() => setOpenId(v.id)} aria-label={t('work.play', { title })}>
+                            <Preview video={v} />
+                          </button>
+                        </ParallaxImage>
+                        <div className={styles.meta}>
+                          <h3>{title}</h3>
+                          {desc ? <p>{desc}</p> : null}
+                          {(v.platforms || []).length ? (
+                            <div className={styles.chips}>{v.platforms.map((p) => <span className={styles.chip} key={p}>{p}</span>)}</div>
+                          ) : null}
+                        </div>
+                      </article>
+                    );
+                  })}
                   {lists.social === null && <div className={styles.empty}>{t('work.loadingVideos')}</div>}
                 </Reveal>
               )}

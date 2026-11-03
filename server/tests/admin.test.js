@@ -103,7 +103,7 @@ describe('admin dashboard', () => {
 
   it('settings: read, validate, persist + password change + logout', async () => {
     const s0 = await (await fetch(base + '/api/admin/settings', { headers: { Cookie: cookie } })).json();
-    assert.equal(s0.settings.timezone, 'Asia/Amman');
+    assert.equal(s0.settings.timezone, 'Asia/Damascus');
     const bad = await fetch(base + '/api/admin/settings', {
       method: 'PATCH', headers: H(J), body: JSON.stringify({ timezone: 'Mars/Olympus' }),
     });

@@ -24,7 +24,7 @@ function cleanPlatforms(v) {
 }
 function toAdminVideo(v) {
   return {
-    id: v.id, title: v.title, description: v.description, category: v.category,
+    id: v.id, title: v.title, title_ar: v.titleAr || '', description: v.description, description_ar: v.descriptionAr || '', category: v.category,
     status: v.status, processing: v.processing,
     video_url: v.videoUrl, thumbnail_url: v.thumbnailUrl,
     duration_sec: v.durationSec, size_bytes: Number(v.sizeBytes),
@@ -52,6 +52,9 @@ router.get('/', asyncHandler(async (req, res) => {
 
 router.post('/', auth.requireCsrf, asyncHandler(async (req, res) => {
   const title = String(req.body?.title || '').trim().slice(0, 120);
+  const titleAr = String(req.body?.title_ar || req.body?.titleAr || '').trim().slice(0, 120);
+  const description = String(req.body?.description || '').trim().slice(0, 2000);
+  const descriptionAr = String(req.body?.description_ar || req.body?.descriptionAr || '').trim().slice(0, 2000);
   const category = String(req.body?.category || '');
   const errors = {};
   if (title.length < 2) errors.title = 'Title is required.';
@@ -63,7 +66,9 @@ router.post('/', auth.requireCsrf, asyncHandler(async (req, res) => {
     data: {
       id: randomId() + Date.now().toString(36),
       title,
-      description: String(req.body?.description || '').trim().slice(0, 2000),
+      titleAr,
+      description,
+      descriptionAr,
       category,
       status: req.body?.published ? 'published' : 'draft',
       processing: 'uploading',
@@ -216,7 +221,9 @@ router.patch('/:id', auth.requireCsrf, asyncHandler(async (req, res) => {
   if (Object.keys(errors).length) return res.status(422).json({ ok: false, errors });
   const patch = {};
   if (b.title !== undefined) patch.title = String(b.title).trim().slice(0, 120);
+  if (b.title_ar !== undefined || b.titleAr !== undefined) patch.titleAr = String(b.title_ar !== undefined ? b.title_ar : b.titleAr).trim().slice(0, 120);
   if (b.description !== undefined) patch.description = String(b.description).trim().slice(0, 2000);
+  if (b.description_ar !== undefined || b.descriptionAr !== undefined) patch.descriptionAr = String(b.description_ar !== undefined ? b.description_ar : b.descriptionAr).trim().slice(0, 2000);
   if (b.status !== undefined) patch.status = b.status;
   if (b.client_name !== undefined) patch.clientName = String(b.client_name).trim().slice(0, 120);
   if (b.platforms !== undefined) patch.platforms = cleanPlatforms(b.platforms);

@@ -116,7 +116,9 @@ model BookingEvent {
 model Video {
   id           String          @id
   title        String
+  titleAr      String          @default("")
   description  String          @default("")
+  descriptionAr String         @default("")
   category     VideoCategory   @default(production)
   videoUrl     String          @default("")
   thumbnailUrl String          @default("")
@@ -150,3 +152,4 @@ model EmailOutbox {
   @@index([status, createdAt], map: "email_outbox_status_created_idx")
   @@map("email_outbox")
 }
+

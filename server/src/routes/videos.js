@@ -9,7 +9,7 @@ const router = express.Router();
 
 function toPublicVideo(v) {
   return {
-    id: v.id, title: v.title, description: v.description, category: v.category,
+    id: v.id, title: v.title, title_ar: v.titleAr || '', description: v.description, description_ar: v.descriptionAr || '', category: v.category,
     status: v.status, processing: v.processing,
     video_url: v.videoUrl, thumbnail_url: v.thumbnailUrl,
     duration_sec: v.durationSec, size_bytes: Number(v.sizeBytes),
@@ -34,3 +34,4 @@ router.get('/', asyncHandler(async (req, res) => {
 }));
 
 module.exports = { videosRouter: router, toPublicVideo };
+

@@ -205,7 +205,9 @@ async function uploadFile(id, file, duration, csrf) {
 function AddVideo({ cat, capMb, maxSocialSec, platforms, onAdded, csrf }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
+  const [titleAr, setTitleAr] = useState('');
   const [description, setDescription] = useState('');
+  const [descriptionAr, setDescriptionAr] = useState('');
   const [client, setClient] = useState('');
   const [plats, setPlats] = useState([]);
   const [published, setPublished] = useState(false);
@@ -248,7 +250,8 @@ function AddVideo({ cat, capMb, maxSocialSec, platforms, onAdded, csrf }) {
     setProgress(0);
     try {
       const created = await post('/api/admin/videos', {
-        title, description, category: cat, client_name: client,
+        title, title_ar: titleAr, description, description_ar: descriptionAr,
+        category: cat, client_name: client,
         platforms: plats, published,
       });
       let video = created.video;
@@ -260,7 +263,7 @@ function AddVideo({ cat, capMb, maxSocialSec, platforms, onAdded, csrf }) {
       }
       onAdded(video);
       toast(file ? 'Video uploaded — processing will finish shortly.' : 'Video added.');
-      setTitle(''); setDescription(''); setClient(''); setPlats([]); setPublished(false); setFile(null); setDuration(null);
+      setTitle(''); setTitleAr(''); setDescription(''); setDescriptionAr(''); setClient(''); setPlats([]); setPublished(false); setFile(null); setDuration(null);
       setOpen(false); setProgress(-1);
     } catch (err) {
       toast(err instanceof ApiError ? err.message : 'Upload failed.', 'err');
@@ -279,13 +282,21 @@ function AddVideo({ cat, capMb, maxSocialSec, platforms, onAdded, csrf }) {
       <div className="a-grid2">
         <div>
           <div className="a-f">
-            <label htmlFor="v-title">Title *</label>
-            <input id="v-title" value={title} maxLength={120} onChange={(e) => setTitle(e.target.value)} />
+            <label htmlFor="v-title">Title (English) *</label>
+            <input id="v-title" value={title} maxLength={120} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Desert Horizon" />
             <span className="a-err">{errors.title || ''}</span>
           </div>
           <div className="a-f">
-            <label htmlFor="v-desc">Description</label>
-            <textarea id="v-desc" rows={3} value={description} maxLength={2000} onChange={(e) => setDescription(e.target.value)} />
+            <label htmlFor="v-title-ar">Title (Arabic / بالعربية)</label>
+            <input id="v-title-ar" dir="rtl" className="arabic" value={titleAr} maxLength={120} onChange={(e) => setTitleAr(e.target.value)} placeholder="مثال: أفق الصحراء…" />
+          </div>
+          <div className="a-f">
+            <label htmlFor="v-desc">Description (English)</label>
+            <textarea id="v-desc" rows={2} value={description} maxLength={2000} onChange={(e) => setDescription(e.target.value)} placeholder="English description…" />
+          </div>
+          <div className="a-f">
+            <label htmlFor="v-desc-ar">Description (Arabic / بالعربية)</label>
+            <textarea id="v-desc-ar" dir="rtl" className="arabic" rows={2} value={descriptionAr} maxLength={2000} onChange={(e) => setDescriptionAr(e.target.value)} placeholder="الوصف بالعربية…" />
           </div>
           <div className="a-f">
             <label htmlFor="v-client">Client / Brand</label>
@@ -341,7 +352,9 @@ function AddVideo({ cat, capMb, maxSocialSec, platforms, onAdded, csrf }) {
 function VideoRow({ v, cat, capMb, maxSocialSec, platforms, onPatch, onDelete, onReplace, ...drag }) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(v.title);
+  const [titleAr, setTitleAr] = useState(v.title_ar || '');
   const [description, setDescription] = useState(v.description || '');
+  const [descriptionAr, setDescriptionAr] = useState(v.description_ar || '');
   const [client, setClient] = useState(v.client_name || '');
   const [plats, setPlats] = useState(v.platforms || []);
   const fileRef = useRef(null);
@@ -367,11 +380,13 @@ function VideoRow({ v, cat, capMb, maxSocialSec, platforms, onPatch, onDelete, o
         <div style={{ flex: '1 1 260px', minWidth: 220 }}>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             <strong style={{ fontSize: 16 }}>{v.title}</strong>
+            {v.title_ar ? <span className="arabic" style={{ fontSize: 14, color: 'var(--dh-green)', fontWeight: 600 }} dir="rtl">({v.title_ar})</span> : null}
             <span className={`a-pill ${v.status}`}>{v.status}</span>
             <span className={`a-pill ${v.processing}`}>{v.processing}</span>
             <span className="a-hint" style={{ margin: 0 }}>#{v.sort_order + 1} in {cat === 'social' ? 'Social' : 'Production'} · {fmtSize(v.size_bytes)}{v.duration_sec ? ` · ${Math.round(v.duration_sec)}s` : ''}</span>
           </div>
-          {v.description ? <p className="a-hint" style={{ margin: '6px 0' }}>{v.description}</p> : null}
+          {v.description ? <p className="a-hint" style={{ margin: '6px 0 2px' }}>{v.description}</p> : null}
+          {v.description_ar ? <p className="a-hint arabic" dir="rtl" style={{ margin: '0 0 6px', color: 'var(--dh-sage)' }}>{v.description_ar}</p> : null}
           {(v.platforms || []).length ? (
             <p className="a-hint" style={{ margin: '0 0 6px' }}>{v.platforms.join(' · ')}</p>
           ) : null}
@@ -414,12 +429,11 @@ function VideoRow({ v, cat, capMb, maxSocialSec, platforms, onPatch, onDelete, o
           </div>
           {editing ? (
             <div className="a-grid2" style={{ marginTop: 14 }}>
-              <div className="a-f"><label>Title</label><input value={title} maxLength={120} onChange={(e) => setTitle(e.target.value)} /></div>
-              <div className="a-f"><label>Client / Brand</label><input value={client} maxLength={120} onChange={(e) => setClient(e.target.value)} /></div>
-              <div className="a-f" style={{ gridColumn: '1 / -1' }}>
-                <label>Description</label>
-                <textarea rows={2} value={description} maxLength={2000} onChange={(e) => setDescription(e.target.value)} />
-              </div>
+              <div className="a-f"><label>Title (English)</label><input value={title} maxLength={120} onChange={(e) => setTitle(e.target.value)} /></div>
+              <div className="a-f"><label>Title (Arabic / بالعربية)</label><input dir="rtl" className="arabic" value={titleAr} maxLength={120} onChange={(e) => setTitleAr(e.target.value)} placeholder="العنوان بالعربية…" /></div>
+              <div className="a-f" style={{ gridColumn: '1 / -1' }}><label>Client / Brand</label><input value={client} maxLength={120} onChange={(e) => setClient(e.target.value)} /></div>
+              <div className="a-f"><label>Description (English)</label><textarea rows={2} value={description} maxLength={2000} onChange={(e) => setDescription(e.target.value)} /></div>
+              <div className="a-f"><label>Description (Arabic / بالعربية)</label><textarea dir="rtl" className="arabic" rows={2} value={descriptionAr} maxLength={2000} onChange={(e) => setDescriptionAr(e.target.value)} placeholder="الوصف بالعربية…" /></div>
               {cat === 'social' ? (
                 <fieldset className="a-f" style={{ gridColumn: '1 / -1', border: 0, padding: 0, margin: 0 }}>
                   <legend style={{ fontSize: 14, fontWeight: 600, padding: 0 }}>Platforms</legend>
@@ -435,7 +449,7 @@ function VideoRow({ v, cat, capMb, maxSocialSec, platforms, onPatch, onDelete, o
               ) : null}
               <div>
                 <button className="a-btn small" onClick={async () => {
-                  await onPatch(v.id, { title, description, client_name: client, platforms: plats }, 'Saved.');
+                  await onPatch(v.id, { title, title_ar: titleAr, description, description_ar: descriptionAr, client_name: client, platforms: plats }, 'Saved.');
                   setEditing(false);
                 }}>Save changes</button>
               </div>

@@ -45,7 +45,7 @@ export default function CallSlate({ className = '' }) {
           <span className={s.tape} />
           <div className={s.topRow}>
             <span>PROD. 001</span>
-            <span>AMMAN / JO</span>
+            <span>DAMASCUS / SY</span>
           </div>
 
           <div className={s.brand}>

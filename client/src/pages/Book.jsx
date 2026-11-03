@@ -54,7 +54,7 @@ export default function Book() {
   const { t, lang } = useLang();
   const loadedAt = useMemo(() => Date.now(), []);
   const submissionKey = useMemo(() => 'bk-' + Math.random().toString(36).slice(2, 12) + Date.now().toString(36), []);
-  const [meta, setMeta] = useState({ services: DEFAULT_SERVICES, timezone: 'Asia/Amman', sla: '' });
+  const [meta, setMeta] = useState({ services: DEFAULT_SERVICES, timezone: 'Asia/Damascus', sla: '' });
   const [v, setV] = useState({
     full_name: '', email: '', phone: '', company: '', service: '', description: '',
     preferred_date: '', preferred_time: '', meeting_type: 'online', consent: false, website: '',

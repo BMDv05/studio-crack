@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import PageMeta from '../../components/PageMeta.jsx';
 import { useApi } from '../../hooks/useApi.js';
 import { get } from '../../api/client.js';
+import { useLang } from '../../i18n/LanguageContext.jsx';
 
 function fmt(v, tz) {
   if (!v) return '—';
@@ -13,28 +14,42 @@ function fmt(v, tz) {
 }
 
 export default function Overview() {
-  const { data, loading } = useApi(() => get('/api/admin/stats'));
+  const { data, loading, error, reload } = useApi(() => get('/api/admin/stats'));
   const { data: s } = useApi(() => get('/api/admin/settings'));
+  const { t, lang } = useLang();
   const tz = s?.settings?.timezone || 'UTC';
 
-  if (loading || !data) return <div className="a-loading" role="status">Loading overview…</div>;
+  if (loading && !data) {
+    return <div className="a-loading" role="status">{t('admin.overview.loading') || 'Loading overview…'}</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="a-empty" style={{ margin: '40px auto', maxWidth: 460 }}>
+        <p style={{ color: 'var(--dh-error)', fontWeight: 600, marginBottom: 12 }}>{error}</p>
+        <button className="a-btn small" onClick={reload}>Retry</button>
+      </div>
+    );
+  }
+
+  if (!data) return null;
 
   const stats = [
-    { n: data.unread, label: 'Unread requests', hot: data.unread > 0, to: '/admin/requests?status=new' },
-    { n: data.thisWeek, label: 'This week', to: '/admin/requests' },
-    { n: data.confirmed, label: 'Confirmed', to: '/admin/requests?status=confirmed' },
-    { n: data.publishedVideos, label: 'Published videos', to: '/admin/videos' },
+    { n: data.unread, label: t('admin.overview.unreadRequests'), hot: data.unread > 0, to: '/admin/requests?status=new' },
+    { n: data.thisWeek, label: t('admin.overview.thisWeek'), to: '/admin/requests' },
+    { n: data.confirmed, label: t('admin.overview.confirmed'), to: '/admin/requests?status=confirmed' },
+    { n: data.publishedVideos, label: t('admin.overview.publishedVideos'), to: '/admin/videos' },
   ];
 
   return (
     <>
-      <PageMeta title="Overview — Double H Studio admin" description="" noindex />
+      <PageMeta title={`${t('admin.overview.title')} — Double H Studio admin`} description="" noindex />
       <div className="a-pagehead">
         <div>
-          <h1>Overview</h1>
-          <p>Studio inbox at a glance — times shown in {tz}.</p>
+          <h1>{t('admin.overview.title')}</h1>
+          <p>{t('admin.overview.subtitle', { tz })}</p>
         </div>
-        <Link className="a-btn" to="/admin/requests">Open meeting requests</Link>
+        <Link className="a-btn" to="/admin/requests">{t('admin.overview.openRequests')}</Link>
       </div>
 
       <div className="a-grid3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', marginBottom: 20 }}>
@@ -49,13 +64,13 @@ export default function Overview() {
 
       <div className="a-grid2">
         <div className="a-card">
-          <h2>Latest meeting requests</h2>
+          <h2>{t('admin.overview.latestRequests')}</h2>
           {data.latest.length === 0 ? (
-            <div className="a-empty">No requests yet.</div>
+            <div className="a-empty">{t('admin.overview.noRequests')}</div>
           ) : (
             <div className="a-tablewrap">
               <table className="a-table">
-                <thead><tr><th>Client</th><th>Service</th><th>Preferred</th><th>Status</th></tr></thead>
+                <thead><tr><th>{t('admin.requests.client')}</th><th>{t('admin.requests.service')}</th><th>{t('admin.requests.date')}</th><th>{t('admin.requests.status')}</th></tr></thead>
                 <tbody>
                   {data.latest.map((r) => (
                     <tr key={r.id} className={r.unread ? 'unread' : ''}>
@@ -71,9 +86,9 @@ export default function Overview() {
           )}
         </div>
         <div className="a-card">
-          <h2>Recent videos</h2>
+          <h2>{t('admin.overview.recentUploads')}</h2>
           {data.recentVideos.length === 0 ? (
-            <div className="a-empty">No videos yet.</div>
+            <div className="a-empty">{t('admin.overview.noVideos')}</div>
           ) : (
             <div className="a-tablewrap">
               <table className="a-table">
@@ -81,7 +96,7 @@ export default function Overview() {
                 <tbody>
                   {data.recentVideos.map((v) => (
                     <tr key={v.id}>
-                      <td><Link to="/admin/videos">{v.title}</Link></td>
+                      <td><Link to="/admin/videos">{(lang === 'ar' && v.title_ar) ? v.title_ar : v.title}</Link></td>
                       <td>{v.category === 'social' ? 'Social' : 'Production'}</td>
                       <td><span className={`a-pill ${v.status}`}>{v.status}</span></td>
                       <td><span className={`a-pill ${v.processing}`}>{v.processing}</span></td>

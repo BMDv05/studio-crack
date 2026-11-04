@@ -13,7 +13,6 @@ import Reveal from "../components/Reveal.jsx";
 import StudioBlueprintAnimation from "../components/studio/StudioBlueprintAnimation.jsx";
 import StudioLens from "../components/studio/StudioLens.jsx";
 import CallSlate from "../components/studio/CallSlate.jsx";
-import WhatsAppCta from "../components/WhatsAppCta.jsx";
 import { useLang } from "../i18n/LanguageContext.jsx";
 import {
   gsap,
@@ -332,7 +331,6 @@ export default function Home() {
         </section>
       </Fragment>
 
-      <WhatsAppCta />
     </>
   );
 }

@@ -71,13 +71,21 @@ function applyScene(p, u, scene, mats) {
      materialises, not after it. */
   const light = smoothstep(PHASE.lightsIn, PHASE.lightsFull, p);
 
-  if (scene.fog) scene.fog.density = 0.022 - 0.016 * light;
-  scene.environmentIntensity = 0.45 * light;
+  if (scene.fog) scene.fog.density = 0.016 - 0.012 * light;
+  scene.environmentIntensity = 0.95 * light;
 
-  mats.glowWarm.opacity = 0.2 * light;
+  mats.glowWarm.opacity = 0.35 * light;
   mats.glowWarm.visible = light > 0.005;
-  mats.glowCool.opacity = 0.14 * light;
+  mats.glowCool.opacity = 0.25 * light;
   mats.glowCool.visible = light > 0.005;
+  if (mats.contactShadow) {
+    mats.contactShadow.opacity = 0.75 * light;
+    mats.contactShadow.visible = light > 0.005;
+  }
+  if (mats.contactShadowSoft) {
+    mats.contactShadowSoft.opacity = 0.38 * light;
+    mats.contactShadowSoft.visible = light > 0.005;
+  }
 }
 
 /* The last stretch of the opening is a close-up: the camera body and lens fill
@@ -195,16 +203,18 @@ function World({ progress, low }) {
     root.traverse((o) => {
       if (!o.isMesh) return;
       o.receiveShadow = true;
-      let node = o;
-      let cast = false;
-      while (node) {
-        if (node.userData && node.userData.cast) {
-          cast = true;
-          break;
-        }
-        node = node.parent;
+      if (o.userData?.noCast) {
+        o.castShadow = false;
+        return;
       }
-      o.castShadow = cast;
+      const isFloor = o.material === mats.floor || o.material === mats.mat;
+      const isBackdrop = o.material === mats.backdrop;
+      const isDecal =
+        o.material === mats.glowWarm ||
+        o.material === mats.glowCool ||
+        o.material === mats.contactShadow ||
+        o.material === mats.contactShadowSoft;
+      o.castShadow = !isFloor && !isBackdrop && !isDecal;
     });
 
     const geometry = buildStudioLines(root);
@@ -243,6 +253,9 @@ function World({ progress, low }) {
        studio of discarded fragments behind the lens close-up. */
     if (linePassRef.current) linePassRef.current.visible = uniforms.lineFade.value > 0.001;
     if (gridRef.current) gridRef.current.visible = uniforms.gridOpacity.value > 0.001;
+    if (progress.p > 0.72 && progress.p <= 1.0) {
+      gl.shadowMap.needsUpdate = true;
+    }
   });
 
   return (
@@ -331,7 +344,7 @@ export default function StudioScene({ progress, low = false, onFail }) {
         root = createRoot(canvas);
         root.configure({
           gl: {
-            antialias: false,
+            antialias: true,
             alpha: false,
             stencil: false,
             powerPreference: 'high-performance',
@@ -339,11 +352,13 @@ export default function StudioScene({ progress, low = false, onFail }) {
           size: { width, height, top: 0, left: 0 },
           camera: { fov: initialFov, near: 0.1, far: 170, position: [initialX, initialY, initialZ] },
           shadows: 'soft',
-          dpr: [1, low ? 1 : 1.25],
+          dpr: [1, low ? 1.25 : 1.75],
           frameloop: 'demand',
           onCreated: ({ gl }) => {
             gl.toneMapping = THREE.ACESFilmicToneMapping;
-            gl.toneMappingExposure = 0.95;
+            gl.toneMappingExposure = 1.06;
+            gl.shadowMap.enabled = true;
+            gl.shadowMap.type = THREE.PCFSoftShadowMap;
           },
         });
 

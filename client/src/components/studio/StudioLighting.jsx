@@ -20,46 +20,50 @@ export default function StudioLighting({ progress, low = false }) {
   const cycR = useRef(null);
   const panelL = useRef(null);
   const panelR = useRef(null);
+  const softboxL = useRef(null);
+  const softboxR = useRef(null);
 
   const start = smoothstep(PHASE.lightsIn, PHASE.lightsFull, progress.p);
 
   useFrame(() => {
     const m = smoothstep(PHASE.lightsIn, PHASE.lightsFull, progress.p);
-    if (hemi.current) hemi.current.intensity = 0.34 * m;
-    if (key.current) key.current.intensity = 1.35 * m;
-    if (fill.current) fill.current.intensity = 0.38 * m;
-    if (cyc.current) cyc.current.intensity = 7.5 * m;
-    if (cycL.current) cycL.current.intensity = 3.2 * m;
-    if (cycR.current) cycR.current.intensity = 3.2 * m;
-    if (panelL.current) panelL.current.intensity = 6 * m;
-    if (panelR.current) panelR.current.intensity = 5.5 * m;
+    if (hemi.current) hemi.current.intensity = 0.42 * m;
+    if (key.current) key.current.intensity = 1.75 * m;
+    if (fill.current) fill.current.intensity = 0.45 * m;
+    if (cyc.current) cyc.current.intensity = 8.5 * m;
+    if (cycL.current) cycL.current.intensity = 3.6 * m;
+    if (cycR.current) cycR.current.intensity = 3.6 * m;
+    if (panelL.current) panelL.current.intensity = 7 * m;
+    if (panelR.current) panelR.current.intensity = 6.5 * m;
+    if (softboxL.current) softboxL.current.intensity = 4.5 * m;
+    if (softboxR.current) softboxR.current.intensity = 3.8 * m;
   });
 
   return (
     <>
       <hemisphereLight
         ref={hemi}
-        color="#a9c4bb"
-        groundColor="#131615"
-        intensity={0.34 * start}
+        color="#b8ded4"
+        groundColor="#141c19"
+        intensity={0.42 * start}
       />
 
       <directionalLight
         ref={key}
-        position={[3.6, 7, 8.5]}
-        color="#fff0db"
-        intensity={1.35 * start}
+        position={[3.2, 7.5, 8.0]}
+        color="#fff4e8"
+        intensity={1.75 * start}
         castShadow
-        shadow-mapSize-width={low ? 512 : 1024}
-        shadow-mapSize-height={low ? 512 : 1024}
+        shadow-mapSize-width={low ? 1024 : 2048}
+        shadow-mapSize-height={low ? 1024 : 2048}
         shadow-camera-left={-7}
         shadow-camera-right={7}
         shadow-camera-top={8}
         shadow-camera-bottom={-5}
         shadow-camera-near={0.5}
-        shadow-camera-far={30}
-        shadow-bias={-0.0006}
-        shadow-normalBias={0.025}
+        shadow-camera-far={28}
+        shadow-bias={-0.0003}
+        shadow-normalBias={0.035}
       />
 
       <directionalLight
@@ -111,6 +115,24 @@ export default function StudioLighting({ progress, low = false }) {
         intensity={5.5 * start}
         distance={8}
         decay={2}
+      />
+
+      {/* directional softbox illumination */}
+      <pointLight
+        ref={softboxL}
+        position={[-2.3, 2.7, 0.9]}
+        color="#fff2dd"
+        intensity={4.5 * start}
+        distance={10}
+        decay={1.8}
+      />
+      <pointLight
+        ref={softboxR}
+        position={[2.1, 2.7, -0.4]}
+        color="#fff0d8"
+        intensity={3.8 * start}
+        distance={10}
+        decay={1.8}
       />
     </>
   );

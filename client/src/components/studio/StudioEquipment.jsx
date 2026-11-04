@@ -11,7 +11,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import { Box, Bar, Cyl, Disc, Part, RoundedBox, lookQuat } from './primitives.jsx';
-import { TUBE20, TUBE64, OCTA, DISH, TORUS64, DISC256, DISC128 } from './geometry.js';
+import { PLANE, TUBE20, TUBE64, OCTA, DISH, TORUS64, DISC256, DISC128 } from './geometry.js';
 import StudioLogoReveal from './StudioLogoReveal.jsx';
 import { smoothstep } from './studioMath.js';
 
@@ -36,8 +36,29 @@ function Tripod({ mats, head = 1.55, casters = false, spread = 0.62 }) {
 
   return (
     <group>
+      {/* ambient contact shadow beneath tripod base */}
+      {mats.contactShadowSoft && (
+        <mesh
+          geometry={PLANE}
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, 0.002, 0]}
+          scale={[spread * 1.5, spread * 1.5, 1]}
+          material={mats.contactShadowSoft}
+          userData={{ noEdges: true, noCast: true }}
+        />
+      )}
       {feet.map((f, i) => (
         <group key={i}>
+          {mats.contactShadow && (
+            <mesh
+              geometry={PLANE}
+              rotation={[-Math.PI / 2, 0, 0]}
+              position={[f[0], 0.003, f[2]]}
+              scale={[casters ? 0.32 : 0.24, casters ? 0.32 : 0.24, 1]}
+              material={mats.contactShadow}
+              userData={{ noEdges: true, noCast: true }}
+            />
+          )}
           <Bar a={top} b={joints[i]} radius={0.023} segments={8} material={mats.metal} />
           <Bar a={joints[i]} b={[f[0], f[1], f[2]]} radius={0.017} segments={8} material={mats.metal} />
           <Box position={joints[i]} size={[0.05, 0.09, 0.05]} material={mats.metal} />
@@ -376,7 +397,29 @@ function LightStand({ mats, x, z, height = 2.2, seed, spread = 0.42, silver = fa
   ]);
 
   return (
-    <Part seed={seed} spread={0.018} tint={0.8} cast={cast}>
+    <group>
+      {mats.contactShadowSoft && (
+        <mesh
+          geometry={PLANE}
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[x, 0.002, z]}
+          scale={[spread * 1.6, spread * 1.6, 1]}
+          material={mats.contactShadowSoft}
+          userData={{ noEdges: true, noCast: true }}
+        />
+      )}
+      {legs.map((leg, i) => mats.contactShadow && (
+        <mesh
+          key={i}
+          geometry={PLANE}
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[leg[0], 0.003, leg[2]]}
+          scale={[0.22, 0.22, 1]}
+          material={mats.contactShadow}
+          userData={{ noEdges: true, noCast: true }}
+        />
+      ))}
+      <Part seed={seed} spread={0.018} tint={0.8} cast={cast}>
       <Bar a={[x, 0.11, z]} b={[x, height, z]} radius={0.017} segments={8} material={material} />
       <Cyl position={[x, Math.min(0.95, height * 0.45), z]} radius={0.032} height={0.07} material={material} />
       <Cyl position={[x, 0.115, z]} radius={0.045} height={0.05} material={material} />
@@ -388,6 +431,7 @@ function LightStand({ mats, x, z, height = 2.2, seed, spread = 0.42, silver = fa
       ))}
       <Box position={[x, 0.56, z]} size={[0.05, 0.08, 0.05]} material={material} />
     </Part>
+    </group>
   );
 }
 
@@ -461,6 +505,16 @@ function Laptop({ mats }) {
 function Table({ mats }) {
   return (
     <group position={[3.25, 0, -2.4]} rotation={[0, 0.28, 0]}>
+      {mats.contactShadowSoft && (
+        <mesh
+          geometry={PLANE}
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, 0.002, 0]}
+          scale={[1.1, 0.75, 1]}
+          material={mats.contactShadowSoft}
+          userData={{ noEdges: true, noCast: true }}
+        />
+      )}
       <Part seed={0.63} spread={0.02} tint={0.85} cast>
         <Box position={[0, 0.735, 0]} size={[0.86, 0.036, 0.56]} material={mats.tableTop} />
         <Box position={[0, 0.26, 0]} size={[0.72, 0.022, 0.44]} material={mats.metal} />
@@ -485,6 +539,16 @@ function Table({ mats }) {
 function Stool({ mats }) {
   return (
     <group position={[-2.72, 0, 0.95]}>
+      {mats.contactShadowSoft && (
+        <mesh
+          geometry={PLANE}
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, 0.002, 0]}
+          scale={[0.55, 0.55, 1]}
+          material={mats.contactShadowSoft}
+          userData={{ noEdges: true, noCast: true }}
+        />
+      )}
       <Part seed={0.605} spread={0.02} tint={0.88} cast>
         <Cyl position={[0, 0.455, 0]} radius={0.175} height={0.04} segments={20} material={mats.cameraSoft} />
         {[

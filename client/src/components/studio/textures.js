@@ -92,3 +92,39 @@ export function makeRadialTexture(size = 256) {
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
 }
+
+
+/* Soft contact shadow pool for realistic ground ambient occlusion */
+export function makeShadowTexture(size = 256) {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  g.addColorStop(0, 'rgba(2, 6, 5, 0.88)');
+  g.addColorStop(0.22, 'rgba(2, 6, 5, 0.65)');
+  g.addColorStop(0.52, 'rgba(2, 6, 5, 0.25)');
+  g.addColorStop(0.8, 'rgba(2, 6, 5, 0.06)');
+  g.addColorStop(1, 'rgba(2, 6, 5, 0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+/* Broad soft ambient shadow pool */
+export function makeSoftShadowTexture(size = 256) {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  g.addColorStop(0, 'rgba(2, 6, 5, 0.45)');
+  g.addColorStop(0.4, 'rgba(2, 6, 5, 0.2)');
+  g.addColorStop(0.75, 'rgba(2, 6, 5, 0.05)');
+  g.addColorStop(1, 'rgba(2, 6, 5, 0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}

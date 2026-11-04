@@ -18,7 +18,7 @@
    which are written once per rendered frame from scroll progress. */
 
 import * as THREE from 'three';
-import { makeCanvasTexture, makeGrainTexture, makeRadialTexture } from './textures.js';
+import { makeCanvasTexture, makeGrainTexture, makeRadialTexture, makeShadowTexture, makeSoftShadowTexture } from './textures.js';
 
 function addReveal(material, uniforms, reveal, edgeColor) {
   material.defines = reveal === 'floor' ? { STUDIO_FLOOR: 1 } : {};
@@ -96,6 +96,8 @@ export function createStudioMaterials(uniforms) {
   const paperGrain = makeGrainTexture({ base: 248, variance: 9, repeat: [2, 3], seed: 19 });
   const canvasMap = makeCanvasTexture();
   const radial = makeRadialTexture();
+  const shadowTexture = makeShadowTexture();
+  const softShadowTexture = makeSoftShadowTexture();
 
   const mats = {
     /* Surfaces that roll in from the back of the room. */
@@ -210,9 +212,25 @@ export function createStudioMaterials(uniforms) {
       toneMapped: false,
       side: THREE.DoubleSide,
     }),
+    contactShadow: new THREE.MeshBasicMaterial({
+      map: shadowTexture,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      toneMapped: false,
+      side: THREE.DoubleSide,
+    }),
+    contactShadowSoft: new THREE.MeshBasicMaterial({
+      map: softShadowTexture,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      toneMapped: false,
+      side: THREE.DoubleSide,
+    }),
   };
 
-  const textures = [floorGrain, paperGrain, canvasMap, radial];
+  const textures = [floorGrain, paperGrain, canvasMap, radial, shadowTexture, softShadowTexture];
 
   const dispose = () => {
     Object.values(mats).forEach((m) => m.dispose());

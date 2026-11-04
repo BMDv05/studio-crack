@@ -195,7 +195,7 @@ export default function ArchitecturalStructure({ mats }) {
         position={[0, 0, ROOM.centerZ]}
         scale={[10, ROOM.depth, 1]}
         material={mats.floor}
-        userData={{ noEdges: true }}
+        userData={{ noEdges: true, noCast: true }}
       />
       <mesh
         geometry={PLANE}
@@ -203,7 +203,7 @@ export default function ArchitecturalStructure({ mats }) {
         position={[0, 0.012, -5.56]}
         scale={[5.0, 3.12, 1]}
         material={mats.mat}
-        userData={{ noEdges: true }}
+        userData={{ noEdges: true, noCast: true }}
       />
 
       {/* structural shell */}
@@ -272,7 +272,7 @@ export default function ArchitecturalStructure({ mats }) {
         position={[-1.5, 0.016, 1.0]}
         scale={[2.8, 2.1, 1]}
         material={mats.glowWarm}
-        userData={{ noEdges: true }}
+        userData={{ noEdges: true, noCast: true }}
       />
       <mesh
         geometry={PLANE}
@@ -280,7 +280,7 @@ export default function ArchitecturalStructure({ mats }) {
         position={[1.9, 0.016, 0.2]}
         scale={[2.6, 2.0, 1]}
         material={mats.glowWarm}
-        userData={{ noEdges: true }}
+        userData={{ noEdges: true, noCast: true }}
       />
       <mesh
         geometry={PLANE}
@@ -288,7 +288,7 @@ export default function ArchitecturalStructure({ mats }) {
         position={[0, 0.016, -4.7]}
         scale={[4.2, 2.6, 1]}
         material={mats.glowCool}
-        userData={{ noEdges: true }}
+        userData={{ noEdges: true, noCast: true }}
       />
       <mesh
         geometry={PLANE}
@@ -296,7 +296,7 @@ export default function ArchitecturalStructure({ mats }) {
         position={[0, 0.016, 3.4]}
         scale={[6.2, 4.4, 1]}
         material={mats.glowCool}
-        userData={{ noEdges: true }}
+        userData={{ noEdges: true, noCast: true }}
       />
     </>
   );

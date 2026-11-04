@@ -13,6 +13,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob: https:; font-src 'self' data:; connect-src 'self' https://nxtxhaddmhypzqaobrqc.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests
 
 # The dashboard is private to the studio; keep it out of search results even
 # before the client-side meta tag is parsed.
@@ -32,4 +33,8 @@
   Cache-Control: public, max-age=86400
 
 /hero/*
+  Cache-Control: public, max-age=86400
+
+# The studio's scanned surface textures; replaced only with the scene itself.
+/textures/*
   Cache-Control: public, max-age=86400

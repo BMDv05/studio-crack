@@ -94,6 +94,40 @@ export function makeRadialTexture(size = 256) {
 }
 
 
+/* The face of an LED panel: a grid of hot diodes on a dimmer warm board,
+   falling off a little toward the frame. Used as an emissive map. */
+export function makeLedTexture({ cols = 30, rows = 22, cell = 12 } = {}) {
+  const canvas = document.createElement('canvas');
+  canvas.width = cols * cell;
+  canvas.height = rows * cell;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = 'rgb(150,132,112)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  for (let y = 0; y < rows; y += 1) {
+    for (let x = 0; x < cols; x += 1) {
+      const cx = (x + 0.5) * cell;
+      const cy = (y + 0.5) * cell;
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, cell * 0.5);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.55, 'rgba(255,250,240,0.8)');
+      g.addColorStop(1, 'rgba(255,240,220,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(cx - cell / 2, cy - cell / 2, cell, cell);
+    }
+  }
+  const w = canvas.width;
+  const h = canvas.height;
+  const edge = ctx.createRadialGradient(w / 2, h / 2, h * 0.3, w / 2, h / 2, w * 0.68);
+  edge.addColorStop(0, 'rgba(120,60,10,0)');
+  edge.addColorStop(1, 'rgba(120,60,10,0.6)');
+  ctx.fillStyle = edge;
+  ctx.fillRect(0, 0, w, h);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  return tex;
+}
+
 /* Soft contact shadow pool for realistic ground ambient occlusion */
 export function makeShadowTexture(size = 256) {
   const canvas = document.createElement('canvas');

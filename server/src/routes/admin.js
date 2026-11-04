@@ -138,8 +138,17 @@ router.get('/requests/export', asyncHandler(async (req, res) => {
   const q = listQuery(req.query);
   const rows = await db.booking.findMany({ where: q.where, orderBy: q.orderBy, take: 2000 });
   const cols = ['id', 'created_at', 'full_name', 'email', 'phone', 'company', 'service', 'description', 'preferred_date', 'preferred_time', 'meeting_type', 'status', 'read_at', 'consent_at'];
-  const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  const csv = [cols.join(',')].concat(rows.map((r) => cols.map((c) => cell(toAdminBooking(r)[c])).join(','))).join('\n');
+  /* Booking fields come from the public form. A cell starting with = + - @
+     (or a tab/CR that Excel strips first) is run as a formula when the export
+     is opened in a spreadsheet, so prefix those with ' to keep them as text.
+     Phone numbers are exempt: validation limits them to digits, spaces and
+     + ( ) . - so they cannot hold a formula, and "+963…" must stay readable. */
+  const cell = (v, col) => {
+    let s = String(v ?? '');
+    if (col !== 'phone' && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+    return `"${s.replace(/"/g, '""')}"`;
+  };
+  const csv = [cols.join(',')].concat(rows.map((r) => cols.map((c) => cell(toAdminBooking(r)[c], c)).join(','))).join('\n');
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
   res.setHeader('Content-Disposition', 'attachment; filename="meeting-requests.csv"');
   res.send('﻿' + csv);

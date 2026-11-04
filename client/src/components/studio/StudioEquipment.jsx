@@ -11,7 +11,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import { Box, Bar, Cyl, Disc, Part, RoundedBox, lookQuat } from './primitives.jsx';
-import { PLANE, TUBE20, TUBE64, OCTA, DISH, TORUS64, DISC256, DISC128 } from './geometry.js';
+import { PLANE, TUBE20, TUBE64, UMBRELLA, UMBRELLA_RIBS, TORUS64, DISC256, DISC128, KNURL } from './geometry.js';
 import StudioLogoReveal from './StudioLogoReveal.jsx';
 import { smoothstep } from './studioMath.js';
 
@@ -180,6 +180,90 @@ function HeroLensDetail({ mats, progress, front }) {
   );
 }
 
+/* Small hardware: present in the solid studio, absent from the blueprint. */
+function Fine({ children }) {
+  return <group userData={{ noEdges: true }}>{children}</group>;
+}
+
+/* Ribbed ring or dial. Axis is local Y unless rotated. */
+function Knob({ material, r = 0.012, l = 0.018, ...rest }) {
+  return <mesh geometry={KNURL} scale={[r, l, r]} material={material} {...rest} />;
+}
+
+const PI = Math.PI;
+
+/* Cinema rig accessories, as a real production camera is dressed: 15 mm rods
+   on a baseplate, follow focus on the lens gear, matte box with flags,
+   V-mount battery, side handle, side info screen. */
+function CinemaRig({ mats, lensFront }) {
+  const mbZ = lensFront - 0.05;
+  const mbW = 0.24;
+  const mbH = 0.18;
+  return (
+    <>
+      <Box position={[0, -0.122, -0.02]} size={[0.11, 0.022, 0.06]} material={mats.metal} />
+      <Bar a={[-0.032, -0.122, 0.04]} b={[-0.032, -0.122, mbZ + 0.03]} radius={0.0075} segments={8} material={mats.metalSilver} />
+      <Bar a={[0.032, -0.122, 0.04]} b={[0.032, -0.122, mbZ + 0.03]} radius={0.0075} segments={8} material={mats.metalSilver} />
+
+      {/* follow focus driving the lens gear */}
+      <Box position={[0.075, -0.075, -0.15]} size={[0.035, 0.07, 0.045]} material={mats.cameraTrim} />
+      <Cyl position={[0.11, -0.065, -0.15]} rotation={[0, 0, PI / 2]} radius={0.032} height={0.022} segments={20} material={mats.cameraTrim} />
+      <Fine>
+        <Cyl position={[0.122, -0.065, -0.15]} rotation={[0, 0, PI / 2]} radius={0.028} height={0.003} segments={20} material={mats.whiteGear} />
+        <Knob material={mats.metal} position={[0.075, -0.04, -0.15]} r={0.012} l={0.01} />
+      </Fine>
+
+      {/* matte box: hollow frame, bellows, French flag and side wings */}
+      <group position={[0, 0.004, mbZ]}>
+        <Box position={[0, mbH / 2, 0]} size={[mbW, 0.016, 0.1]} material={mats.cameraTrim} />
+        <Box position={[0, -mbH / 2, 0]} size={[mbW, 0.016, 0.1]} material={mats.cameraTrim} />
+        <Box position={[mbW / 2, 0, 0]} size={[0.016, mbH, 0.1]} material={mats.cameraTrim} />
+        <Box position={[-mbW / 2, 0, 0]} size={[0.016, mbH, 0.1]} material={mats.cameraTrim} />
+        <Box position={[0, 0, 0.055]} size={[mbW * 0.7, mbH * 0.7, 0.012]} material={mats.rubber} />
+        <group position={[0, mbH / 2 + 0.008, -0.05]} rotation={[-0.35, 0, 0]}>
+          <Box position={[0, 0, -0.065]} size={[mbW + 0.01, 0.004, 0.13]} material={mats.cameraTrim} />
+        </group>
+        <group position={[mbW / 2 + 0.008, 0, -0.05]} rotation={[0, 0.35, 0]}>
+          <Box position={[0, 0, -0.05]} size={[0.004, mbH, 0.1]} material={mats.cameraTrim} />
+        </group>
+        <group position={[-mbW / 2 - 0.008, 0, -0.05]} rotation={[0, -0.35, 0]}>
+          <Box position={[0, 0, -0.05]} size={[0.004, mbH, 0.1]} material={mats.cameraTrim} />
+        </group>
+        <Fine>
+          <Box position={[0, mbH / 2 + 0.012, 0.02]} size={[0.12, 0.012, 0.018]} material={mats.metal} />
+          <Box position={[0, mbH / 2 + 0.012, 0.0]} size={[0.12, 0.012, 0.018]} material={mats.metal} />
+        </Fine>
+        <Box position={[0, -mbH / 2 - 0.03, 0.03]} size={[0.06, 0.05, 0.03]} material={mats.metal} />
+      </group>
+
+      {/* V-mount battery on the back plate */}
+      <Box position={[0.02, -0.035, 0.119]} size={[0.12, 0.13, 0.012]} material={mats.metal} />
+      <RoundedBox args={[0.1, 0.1, 0.05]} radius={0.008} smoothness={2} position={[0.02, -0.035, 0.15]} material={mats.cameraTrim} />
+      <Fine>
+        <Box position={[0.02, 0.008, 0.176]} size={[0.05, 0.006, 0.003]} material={mats.screen} />
+      </Fine>
+
+      {/* side handle on a rosette */}
+      <Cyl position={[0.148, 0.01, -0.03]} rotation={[0, 0, PI / 2]} radius={0.026} height={0.012} segments={12} material={mats.metal} />
+      <RoundedBox args={[0.035, 0.13, 0.05]} radius={0.014} smoothness={2} position={[0.175, -0.01, -0.04]} rotation={[0.25, 0, 0]} material={mats.rubber} />
+
+      {/* side info screen, buttons, vents */}
+      <Box position={[-0.139, 0.015, 0.03]} size={[0.004, 0.045, 0.075]} material={mats.screen} />
+      <Fine>
+        {[-0.03, -0.015, 0, 0.015].map((dz, i) => (
+          <Cyl key={i} position={[-0.139, -0.03, 0.03 + dz * 1.3]} rotation={[0, 0, PI / 2]} radius={0.006} height={0.006} segments={8} material={mats.rubber} />
+        ))}
+        {[0, 1, 2, 3, 4].map((i) => (
+          <Box key={i} position={[0.1385, -0.055 + i * 0.022, -0.04]} size={[0.003, 0.009, 0.11]} material={mats.rubber} />
+        ))}
+        {[-0.1, -0.06, -0.02, 0.02, 0.06, 0.1].map((x) => (
+          <Cyl key={x} position={[x, 0.1395, 0.015]} radius={0.0045} height={0.002} segments={8} material={mats.rubber} />
+        ))}
+      </Fine>
+    </>
+  );
+}
+
 function CameraBody({ mats, cinema, hero = false, screenRef, lensRef, progress }) {
   const body = cinema ? [0.275, 0.185, 0.225] : [0.245, 0.17, 0.205];
   const lensLength = cinema ? 0.24 : 0.2;
@@ -205,41 +289,40 @@ function CameraBody({ mats, cinema, hero = false, screenRef, lensRef, progress }
         userData={{ edgeAngle: 54 }}
       />
       <Box position={[0, -0.105, 0.012]} size={[0.135, 0.028, 0.105]} material={mats.metal} />
-      <Box position={[0.142, 0, 0.01]} size={[0.014, 0.145, 0.18]} material={mats.metal} />
 
-      {/* lens barrel, focus ring, hood, glass */}
+      {/* lens: bayonet mount, barrel, ribbed zoom and focus rings, scale
+          marks, hood (stills-style) or front housing (cine prime), glass */}
+      <Cyl position={[0, 0.004, -0.1]} rotation={[PI / 2, 0, 0]} radius={lensRadius + 0.012} height={0.03} segments={20} material={mats.metalSilver} />
       <Cyl
         position={[0, 0.004, -0.085 - lensLength / 2]}
-        rotation={[Math.PI / 2, 0, 0]}
+        rotation={[PI / 2, 0, 0]}
         radius={lensRadius}
         height={lensLength}
         material={mats.lens}
       />
-      <Cyl
-        position={[0, 0.004, -0.125]}
-        rotation={[Math.PI / 2, 0, 0]}
-        radius={lensRadius + 0.008}
-        height={0.034}
-        material={mats.lens}
-      />
-      <Cyl
-        position={[0, 0.004, -0.2]}
-        rotation={[Math.PI / 2, 0, 0]}
-        radius={lensRadius + 0.006}
-        height={0.026}
-        material={mats.metal}
-      />
-      <mesh
-        geometry={TUBE20}
-        position={[0, 0.004, -0.085 - lensLength - 0.028]}
-        rotation={[Math.PI / 2, 0, 0]}
-        scale={[lensRadius + 0.018, 0.07, lensRadius + 0.018]}
-        material={mats.lens}
-      />
+      <Knob material={cinema ? mats.lens : mats.rubber} position={[0, 0.004, -0.15]} rotation={[PI / 2, 0, 0]} r={lensRadius + 0.011} l={cinema ? 0.036 : 0.048} />
+      <Knob material={mats.lens} position={[0, 0.004, -0.212]} rotation={[PI / 2, 0, 0]} r={lensRadius + 0.007} l={0.022} />
+      <Fine>
+        <Box position={[0, 0.004 + lensRadius + 0.004, -0.118]} size={[0.004, 0.003, 0.012]} material={mats.whiteGear} />
+        <Box position={[0, 0.004 + lensRadius + 0.004, -0.188]} size={[0.003, 0.003, 0.006]} material={mats.whiteGear} />
+        <Cyl position={[0, 0.004, -0.245]} rotation={[PI / 2, 0, 0]} radius={lensRadius + 0.002} height={0.004} segments={20} material={mats.record} />
+      </Fine>
+      {!cinema && (
+        <mesh
+          geometry={TUBE20}
+          position={[0, 0.004, -0.085 - lensLength - 0.028]}
+          rotation={[PI / 2, 0, 0]}
+          scale={[lensRadius + 0.018, 0.07, lensRadius + 0.018]}
+          material={mats.lens}
+        />
+      )}
+      {cinema && (
+        <Cyl position={[0, 0.004, -0.085 - lensLength - 0.03]} rotation={[PI / 2, 0, 0]} radius={lensRadius + 0.016} height={0.06} material={mats.lens} />
+      )}
       <Disc
         ref={wideGlass}
         position={[0, 0.004, lensFront]}
-        rotation={[0, Math.PI, 0]}
+        rotation={[0, PI, 0]}
         radius={lensRadius - 0.002}
         material={mats.glass}
       />
@@ -250,38 +333,59 @@ function CameraBody({ mats, cinema, hero = false, screenRef, lensRef, progress }
         </>
       )}
 
-      {/* top handle + cage rails */}
-      <Box position={[0, 0.115, 0.02]} size={[0.165, 0.026, 0.052]} material={mats.cameraSoft} />
+      {/* top handle + posts */}
+      <Box position={[0, 0.115, 0.02]} size={[0.165, 0.026, 0.052]} material={mats.cameraTrim} />
       <Box position={[-0.062, 0.088, 0.02]} size={[0.022, 0.048, 0.022]} material={mats.metal} />
       <Box position={[0.062, 0.088, 0.02]} size={[0.022, 0.048, 0.022]} material={mats.metal} />
-      {cinema && (
+
+      {cinema ? (
         <>
           <Box position={[0, 0.133, 0.015]} size={[0.27, 0.012, 0.018]} material={mats.metal} />
           <Box position={[0, 0.133, -0.08]} size={[0.012, 0.012, 0.16]} material={mats.metal} />
+          {/* top monitor with sunhood */}
+          <group position={[0, 0.105, 0.135]} rotation={[0.42, 0, 0]}>
+            <RoundedBox args={[0.135, 0.095, 0.02]} radius={0.006} smoothness={1} material={mats.camera} />
+            <Box position={[0, 0, 0.011]} size={[0.118, 0.078, 0.004]} material={mats.screen} />
+            <Box position={[0, -0.055, -0.01]} size={[0.05, 0.02, 0.03]} material={mats.metal} />
+            <Box position={[0, 0.05, 0.035]} size={[0.135, 0.003, 0.05]} material={mats.cameraTrim} />
+            <Box position={[0.067, 0, 0.035]} size={[0.003, 0.095, 0.05]} material={mats.cameraTrim} />
+            <Box position={[-0.067, 0, 0.035]} size={[0.003, 0.095, 0.05]} material={mats.cameraTrim} />
+          </group>
+          <CinemaRig mats={mats} lensFront={lensFront} />
         </>
-      )}
-
-      {/* top monitor (cinema) */}
-      {cinema ? (
-        <group position={[0, 0.105, 0.135]} rotation={[0.42, 0, 0]}>
-          <RoundedBox args={[0.135, 0.095, 0.02]} radius={0.006} smoothness={1} material={mats.camera} />
-          <Box position={[0, 0, 0.011]} size={[0.118, 0.078, 0.004]} material={mats.screen} />
-          <Box position={[0, -0.055, -0.01]} size={[0.05, 0.02, 0.03]} material={mats.metal} />
-        </group>
       ) : (
         <>
           <Box position={[0, 0.005, 0.104]} size={[0.14, 0.095, 0.004]} material={mats.screen} />
-          <Box position={[0, 0.005, 0.101]} size={[0.152, 0.106, 0.003]} material={mats.cameraSoft} />
+          <Box position={[0, 0.005, 0.101]} size={[0.152, 0.106, 0.003]} material={mats.cameraTrim} />
           {hero && (
             <group ref={screenRef} position={[0, 0.005, 0.1066]}>
               <StudioLogoReveal progress={progress} />
             </group>
           )}
+          {/* hand grip with shutter, mode dial, back buttons and joystick,
+              audio inputs on the handle, left-side dials and vents */}
+          <RoundedBox args={[0.045, 0.15, 0.11]} radius={0.018} smoothness={2} position={[0.138, -0.005, -0.02]} material={mats.cameraTrim} />
+          <Fine>
+            <Cyl position={[0.135, 0.075, -0.06]} radius={0.009} height={0.008} segments={12} material={mats.metalSilver} />
+            <Knob material={mats.metal} position={[0.07, 0.092, -0.05]} r={0.017} l={0.012} />
+            {[0.035, 0.012, -0.011, -0.034].map((y, i) => (
+              <Cyl key={i} position={[0.096, y, 0.104]} rotation={[PI / 2, 0, 0]} radius={0.0065} height={0.006} segments={8} material={mats.rubber} />
+            ))}
+            <Knob material={mats.rubber} position={[0.096, -0.055, 0.104]} rotation={[PI / 2, 0, 0]} r={0.013} l={0.006} />
+            <Cyl position={[-0.03, 0.115, -0.008]} rotation={[PI / 2, 0, 0]} radius={0.009} height={0.006} segments={12} material={mats.metal} />
+            <Cyl position={[0.03, 0.115, -0.008]} rotation={[PI / 2, 0, 0]} radius={0.009} height={0.006} segments={12} material={mats.metal} />
+            <Knob material={mats.rubber} position={[-0.124, 0.03, -0.04]} rotation={[0, 0, PI / 2]} r={0.012} l={0.006} />
+            <Knob material={mats.rubber} position={[-0.124, 0.03, 0.0]} rotation={[0, 0, PI / 2]} r={0.012} l={0.006} />
+            {[0, 1, 2, 3].map((i) => (
+              <Box key={i} position={[-0.1235, -0.045 + i * 0.016, -0.02]} size={[0.003, 0.007, 0.09]} material={mats.rubber} />
+            ))}
+          </Fine>
         </>
       )}
 
-      {/* EVF, ports, tally light */}
-      <Box position={[-0.086, 0.052, 0.115]} size={[0.062, 0.054, 0.062]} material={mats.cameraSoft} />
+      {/* EVF with rubber eyecup, ports, tally light */}
+      <Box position={[-0.086, 0.052, 0.115]} size={[0.062, 0.054, 0.062]} material={mats.cameraTrim} />
+      <RoundedBox args={[0.058, 0.05, 0.03]} radius={0.012} smoothness={2} position={[-0.086, 0.052, 0.158]} material={mats.rubber} />
       <Box position={[0.075, 0.045, 0.113]} size={[0.055, 0.03, 0.02]} material={mats.metal} />
       <Box position={[0.09, 0.072, -0.114]} size={[0.015, 0.01, 0.008]} material={mats.record} />
       <Box position={[-0.11, 0.06, -0.114]} size={[0.022, 0.022, 0.006]} material={mats.metal} />
@@ -316,59 +420,22 @@ function CameraRig({ mats, spec, hero = false, screenRef, lensRef, progress }) {
    Light modifiers
    -------------------------------------------------------------------------- */
 
-function Octabox({ mats, size = 0.64 }) {
-  const depth = size * 0.44;
-  const front = depth / 2;
+/* Deep parabolic softbox. Seen from the doorway it is all black ribbed shell:
+   the lit face looks at the set. The apex stays at the mount the stand expects;
+   the bowl grows forward from it. */
+function Softbox({ mats, size = 0.64 }) {
+  const depth = size * 0.8;
+  const back = size * 0.22;
+  const front = depth - back;
+  const shell = { scale: [size, depth, size], rotation: [Math.PI / 2, 0, 0], position: [0, 0, depth / 2 - back] };
 
   return (
     <group>
-      <mesh
-        geometry={OCTA}
-        scale={[size, depth, size]}
-        rotation={[Math.PI / 2, 0, 0]}
-        position={[0, 0, -0.01]}
-        material={mats.fabric}
-      />
-      <mesh
-        geometry={TUBE20}
-        position={[0, 0, front - 0.01]}
-        rotation={[Math.PI / 2, 0, 0]}
-        scale={[size * 1.005, 0.018, size * 1.005]}
-        material={mats.metalSilver}
-      />
-      <Disc position={[0, 0, front - 0.018]} radius={size * 0.98} segments={8} material={mats.diffusion} />
-      <Disc position={[0, 0, -front - 0.012]} rotation={[0, Math.PI, 0]} radius={size * 0.16} segments={8} material={mats.fabric} />
-      <Box position={[0, 0, -front - 0.11]} size={[0.085, 0.13, 0.18]} material={mats.metal} />
-      <Cyl position={[0, 0, -front - 0.21]} rotation={[Math.PI / 2, 0, 0]} radius={0.018} height={0.06} material={mats.metalSilver} />
-    </group>
-  );
-}
-
-/* Beauty dish: open bowl, bright rim, centre deflector. */
-function BeautyDish({ mats, size = 0.6 }) {
-  const depth = size * 0.32;
-  const front = depth / 2;
-
-  return (
-    <group>
-      <mesh
-        geometry={DISH}
-        scale={[size, depth, size]}
-        rotation={[Math.PI / 2, 0, 0]}
-        material={mats.fabric}
-      />
-      <mesh
-        geometry={TUBE20}
-        position={[0, 0, front]}
-        rotation={[Math.PI / 2, 0, 0]}
-        scale={[size * 1.002, 0.018, size * 1.002]}
-        material={mats.metalSilver}
-      />
-      <Disc position={[0, 0, front + 0.06]} radius={size * 0.26} segments={24} material={mats.cameraSoft} />
-      <Cyl position={[0, 0, front + 0.08]} rotation={[Math.PI / 2, 0, 0]} radius={0.013} height={0.14} material={mats.metal} />
-      <Disc position={[0, 0, -front]} rotation={[0, Math.PI, 0]} radius={size * 0.3} segments={24} material={mats.fabric} />
-      <Box position={[0, 0, -front - 0.1]} size={[0.08, 0.12, 0.16]} material={mats.metal} />
-      <Cyl position={[0, 0, -front - 0.19]} rotation={[Math.PI / 2, 0, 0]} radius={0.018} height={0.06} material={mats.metalSilver} />
+      <mesh geometry={UMBRELLA} {...shell} material={mats.fabric} userData={{ edgeAngle: 42 }} />
+      <mesh geometry={UMBRELLA_RIBS} {...shell} material={mats.metal} userData={{ noEdges: true }} />
+      <Disc position={[0, 0, front - 0.03]} radius={size * 0.9} segments={24} material={mats.diffusion} />
+      <Box position={[0, 0, -back - 0.11]} size={[0.085, 0.13, 0.18]} material={mats.metal} />
+      <Cyl position={[0, 0, -back - 0.21]} rotation={[Math.PI / 2, 0, 0]} radius={0.018} height={0.06} material={mats.metalSilver} />
     </group>
   );
 }
@@ -475,8 +542,7 @@ function ModifierRig({ mats, spec }) {
       />
       <Part seed={seed} spread={0.022} tint={0.72} cast>
         <group position={pos} quaternion={quat}>
-          {kind === 'octa' && <Octabox mats={mats} size={size} />}
-          {kind === 'dish' && <BeautyDish mats={mats} size={size} />}
+          {kind !== 'panel' && <Softbox mats={mats} size={size} />}
           {kind === 'panel' && <LedPanel mats={mats} w={w} h={h} />}
         </group>
       </Part>
@@ -593,7 +659,7 @@ function CStand({ mats }) {
       <Box position={[x, 0.74, z]} size={[0.06, 0.1, 0.06]} material={mats.metalSilver} />
       <Box position={[x, 2.4, z]} size={[0.09, 0.16, 0.09]} rotation={[0, 0.4, 0]} material={mats.metal} />
       <Bar a={[x, 2.33, z]} b={[x + 0.95, 2.56, z - 0.42]} radius={0.016} segments={6} material={mats.metalSilver} />
-      <Box position={[x + 0.955, 2.56, z - 0.42]} rotation={[0, 0, -0.2]} size={[0.36, 0.3, 0.012]} material={mats.black} />
+      <Box position={[x + 0.955, 2.56, z - 0.42]} rotation={[0, 0, -0.2]} size={[0.36, 0.3, 0.012]} material={mats.blackGear} />
     </Part>
   );
 }
@@ -607,7 +673,7 @@ function Case({ mats, x, z, rotation = 0.35, scale = 1 }) {
           radius={0.028}
           smoothness={2}
           position={[0, 0.17 * scale, 0]}
-          material={mats.black}
+          material={mats.blackGear}
         />
         <Box position={[0, 0.19 * scale, 0.213 * scale]} size={[0.46 * scale, 0.014, 0.012]} material={mats.metal} />
         <Box position={[0, 0.19 * scale, -0.213 * scale]} size={[0.46 * scale, 0.014, 0.012]} material={mats.metal} />
@@ -645,7 +711,9 @@ const CAMERAS = [
   { x: 0.85, z: 4.05, yaw: 0.22, head: 1.5, casters: true, cinema: false, seed: 0.515 },
 ];
 
-const MODIFIERS = [
+/* Exported so the lighting and the reflection bake put their sources exactly
+   on the modifier faces. */
+export const MODIFIERS = [
   { pos: [-2.25, 2.55, 0.55], target: [0.3, 1.2, -5.4], kind: 'octa', size: 0.64, seed: 0.57 },
   { pos: [-2.88, 2.16, 1.5], target: [1.3, 1.0, -3.8], kind: 'dish', size: 0.6, seed: 0.575 },
   { pos: [2.36, 2.55, -0.35], target: [-0.3, 1.2, -4.6], kind: 'octa', size: 0.61, seed: 0.585 },

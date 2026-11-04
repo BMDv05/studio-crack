@@ -18,7 +18,13 @@ const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
 
-app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
+/* The API only returns JSON, CSV and media files, never pages: nothing in a
+ * response may run, load or be framed. (The site's own policy for the HTML
+ * and its assets lives in client/public/_headers.) */
+app.use(helmet({
+  contentSecurityPolicy: { useDefaults: false, directives: { defaultSrc: ["'none'"], frameAncestors: ["'none'"] } },
+  crossOriginEmbedderPolicy: false,
+}));
 app.use(cors({ origin: config.clientOrigin, credentials: true }));
 app.use(express.json({ limit: '64kb' }));
 

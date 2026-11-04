@@ -36,14 +36,13 @@
 .backdropImage {
   position: absolute;
   inset: 0;
-  background-image: url("/video/studio-build-still.webp");
+  background-image: url("/hero/studio-final.webp");
   background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
-  /* Lighter than the old plate: the wall should be readable across the frame,
-     with the reveal blur the only softening on the opening's final frame. */
-  filter: brightness(1.16) saturate(0.94) contrast(1.1)
-    blur(var(--plate-blur, 0px));
+  /* The photograph keeps its own colour; the reveal blur is the only softening
+     on the opening's final frame. */
+  filter: blur(var(--plate-blur, 0px));
 }
 
 /* Teal colour grade, then a directional scrim so the left-hand copy keeps

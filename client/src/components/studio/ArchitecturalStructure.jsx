@@ -7,7 +7,7 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { Box, Cyl, Disc, Part, lookQuat } from './primitives.jsx';
-import { PLANE } from './geometry.js';
+import { PLANE, SWEEP } from './geometry.js';
 
 export const ROOM = {
   halfW: 5,
@@ -69,22 +69,32 @@ function Doorway({ mats, side, z, seed }) {
    Ceiling rig
    -------------------------------------------------------------------------- */
 
-const SPOTS = [
-  { p: [-2.6, -4.65], target: [0.3, 1.6, -6.9], barn: true },
-  { p: [-2.6, -1.65], target: [0.9, 1.3, -2.0], barn: true },
-  { p: [-2.6, 1.2], target: [1.7, 1.25, 0.5], barn: false },
-  { p: [2.6, -3.9], target: [-0.2, 1.7, -6.9], barn: true },
-  { p: [2.6, -0.9], target: [-0.9, 1.3, -2.0], barn: true },
-  { p: [2.6, 1.9], target: [-1.5, 1.25, 0.7], barn: false },
-  { p: [0, -6.05], target: [0, 1.7, -7.1], barn: true },
-  { p: [-4.4, -3.15], target: [1.0, 1.55, -5.0], barn: false },
-  { p: [4.4, -5.0], target: [-1.0, 1.6, -6.0], barn: true },
+/* Barn-doored spots face the set and pool on the backdrop. The open ones turn
+   back toward the lens: they wash the green walls and the front of the floor,
+   and their hot faces are what reads from the doorway. */
+export const SPOTS = [
+  { p: [-2.6, -4.65], target: [-0.3, 1.5, -7.0], barn: true, power: 13 },
+  { p: [2.6, -3.9], target: [0.3, 1.5, -7.0], barn: true, power: 13 },
+  { p: [0, -6.05], target: [0, 1.75, -7.1], barn: true, power: 30 },
+  { p: [-2.6, -1.65], target: [-5, 2.2, 0.5], power: 34, angle: 0.55 },
+  { p: [2.6, -0.9], target: [5, 2.2, 1.2], power: 34, angle: 0.55 },
+  { p: [-2.6, 1.2], target: [-3.5, 0, 4.4], power: 26 },
+  { p: [2.6, 1.9], target: [3.5, 0, 5.0], power: 26 },
+  { p: [-4.4, -3.15], target: [-5, 2.0, -1.3], power: 15, angle: 0.72 },
+  { p: [4.4, -5.0], target: [5, 2.0, -3.1], power: 15, angle: 0.72 },
+  { p: [-4.4, -5.7], target: [-5, 2.0, -3.9], power: 15, angle: 0.72 },
+  { p: [4.4, -2.0], target: [5, 2.0, -0.2], power: 15, angle: 0.72 },
 ];
+
+export function spotOrigin(spot) {
+  const [x, z] = spot.p;
+  return [x, (Math.abs(x) > 4 ? 4.14 : 4.02) - 0.15, z];
+}
 
 function RigSpot({ mats, spot, index }) {
   const [x, z] = spot.p;
-  const baseY = Math.abs(x) > 4 ? 4.14 : 4.02;
-  const origin = [x, baseY - 0.15, z];
+  const origin = spotOrigin(spot);
+  const baseY = origin[1] + 0.15;
 
   const quat = useMemo(
     () => lookQuat(origin, spot.target, [0, 1, 0]),
@@ -98,10 +108,12 @@ function RigSpot({ mats, spot, index }) {
       <Cyl position={[x, baseY - 0.075, z]} radius={0.011} height={0.15} material={mats.metal} />
       <Box position={[x, baseY - 0.045, z]} size={[0.075, 0.06, 0.06]} material={mats.metal} />
 
-      <group position={origin} quaternion={quat}>
+      {/* lookQuat aims local +Z; the can is modelled along -Y */}
+      <group position={origin} quaternion={quat} scale={1.3}>
+        <group rotation={[-Math.PI / 2, 0, 0]}>
         {/* body */}
         <Cyl position={[0, -0.085, 0]} radius={0.072} height={0.17} material={mats.metal} />
-        <Disc position={[0, -0.173, 0]} rotation={[Math.PI / 2, 0, 0]} radius={0.057} material={mats.lamp} />
+        <Disc position={[0, -0.187, 0]} rotation={[Math.PI / 2, 0, 0]} radius={0.064} material={mats.lamp} />
         <Cyl position={[0, -0.176, 0]} radius={0.074} height={0.018} material={mats.metal} />
 
         {/* yoke */}
@@ -139,6 +151,7 @@ function RigSpot({ mats, spot, index }) {
             />
           </>
         )}
+        </group>
       </group>
     </Part>
   );
@@ -200,8 +213,8 @@ export default function ArchitecturalStructure({ mats }) {
       <mesh
         geometry={PLANE}
         rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, 0.012, -5.56]}
-        scale={[5.0, 3.12, 1]}
+        position={[0, 0.012, -5.2]}
+        scale={[4.6, 2.55, 1]}
         material={mats.mat}
         userData={{ noEdges: true, noCast: true }}
       />
@@ -231,11 +244,12 @@ export default function ArchitecturalStructure({ mats }) {
       <SlattedPanel mats={mats} side={1} z={-4.85} seed={0.255} />
       <Doorway mats={mats} side={1} z={-3.55} seed={0.26} />
 
-      {/* grey photographic backdrop + white roll bar + weight bar */}
+      {/* dark seamless paper + its roll: it leaves the wall in a sweep and runs
+          out across the floor as one sheet */}
       <Part seed={0.285} spread={0.03} tint={0.5}>
-        <Box position={[0, 2.07, -7.11]} size={[4.6, 3.92, 0.03]} material={mats.backdrop} />
+        <Box position={[0, 2.325, -7.11]} size={[4.6, 3.41, 0.03]} material={mats.backdrop} />
+        <mesh geometry={SWEEP} position={[0, 0.012, -7.095]} scale={[4.6, 0.62, 0.62]} material={mats.backdrop} />
         <Cyl position={[0, 4.06, -7.05]} rotation={[0, 0, Math.PI / 2]} radius={0.055} height={4.78} material={mats.white} />
-        <Cyl position={[0, 0.13, -7.03]} rotation={[0, 0, Math.PI / 2]} radius={0.022} height={4.56} material={mats.metal} />
         <Box position={[-2.36, 4.06, -7.06]} size={[0.08, 0.24, 0.1]} material={mats.metalSilver} />
         <Box position={[2.36, 4.06, -7.06]} size={[0.08, 0.24, 0.1]} material={mats.metalSilver} />
       </Part>
@@ -265,20 +279,20 @@ export default function ArchitecturalStructure({ mats }) {
 
       <LightRig mats={mats} />
 
-      {/* soft reflections of the practicals on the pale floor */}
+      {/* the polished floor's long warm sheen under the practicals */}
       <mesh
         geometry={PLANE}
         rotation={[-Math.PI / 2, 0, 0]}
-        position={[-1.5, 0.016, 1.0]}
-        scale={[2.8, 2.1, 1]}
+        position={[-1.3, 0.016, 1.6]}
+        scale={[2.6, 7.0, 1]}
         material={mats.glowWarm}
         userData={{ noEdges: true, noCast: true }}
       />
       <mesh
         geometry={PLANE}
         rotation={[-Math.PI / 2, 0, 0]}
-        position={[1.9, 0.016, 0.2]}
-        scale={[2.6, 2.0, 1]}
+        position={[1.5, 0.016, 1.2]}
+        scale={[2.4, 6.4, 1]}
         material={mats.glowWarm}
         userData={{ noEdges: true, noCast: true }}
       />

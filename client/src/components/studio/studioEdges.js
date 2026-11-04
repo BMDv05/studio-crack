@@ -91,6 +91,11 @@ export function buildStudioLines(root) {
 
   root.traverse((object) => {
     if (!object.isMesh || object.userData.noEdges) return;
+    /* Small camera hardware (buttons, dials, marks) is grouped under noEdges
+       so the blueprint stays a clean drawing of the camera. */
+    for (let n = object.parent; n && n !== root; n = n.parent) {
+      if (n.userData?.noEdges) return;
+    }
     const geometry = object.geometry;
     if (!geometry || !geometry.attributes || !geometry.attributes.position) return;
     const angle = object.userData.edgeAngle ?? 32;

@@ -179,6 +179,7 @@ export default function StudioBlueprintAnimation({ onDone, finale }) {
       plateDark: "",
       plateUi: "",
       plateBlur: "",
+      realScale: "",
     };
 
     /* The plate is the final scene now, so the stage must never switch itself
@@ -212,7 +213,7 @@ export default function StudioBlueprintAnimation({ onDone, finale }) {
          arrives with the last of the interface fade, once the aperture has
          cleared the corners of the viewport. The stage drops below the sticky
          bar on that same frame. */
-      const showHeader = f >= 0.97;
+      const showHeader = f >= 0.88;
       const hidden = !showHeader;
       if (header && header.hasAttribute("data-under-hero") !== hidden) {
         header.toggleAttribute("data-under-hero", hidden);
@@ -224,23 +225,20 @@ export default function StudioBlueprintAnimation({ onDone, finale }) {
         root.toggleAttribute("data-header", showHeader);
       }
 
-      const entry =
-        smoothstep(0.855, 0.95, f) * (1 - smoothstep(0.958, 0.992, f));
-      const aperture = smoothstep(0.9, 0.99, f);
-      const rim = smoothstep(0.9, 0.942, f) * (1 - smoothstep(0.962, 0.992, f));
-      const flare =
-        smoothstep(0.895, 0.955, f) * (1 - smoothstep(0.972, 0.998, f));
-      const blur =
-        2.2 * smoothstep(0.875, 0.952, f) * (1 - smoothstep(0.966, 0.996, f));
-      const veil =
-        smoothstep(0.84, 0.95, f) * (1 - smoothstep(0.985, 0.9995, f));
+      const aperture = smoothstep(0.01, 0.20, f);
+      const realBloom =
+        smoothstep(0.02, 0.10, f) * (1 - smoothstep(0.10, 0.20, f));
+      const entry = realBloom;
+      const flare = realBloom;
+      const rim = 0;
+      const blur = 0;
+      const veil = 0;
 
-      /* The photograph emerges from the dark interior. The final frame is
-         exactly 0 darkness, 0 blur and a fully opaque interface. */
-      const plateDark = 1 - smoothstep(0.905, 0.988, f);
-      const plateUi = smoothstep(0.925, 0.988, f);
-      const plateBlur =
-        2.4 * smoothstep(0.9, 0.95, f) * (1 - smoothstep(0.965, 0.992, f));
+      /* The interface emerges smoothly over the real studio */
+      const plateDark = 0;
+      const plateUi = smoothstep(0.30, 0.70, f);
+      const plateBlur = 0;
+      const realScale = 1.0 + 0.04 * smoothstep(0.20, 0.75, f);
 
       const write = (slot, name, value) => {
         const next = value.toFixed(3);
@@ -255,6 +253,7 @@ export default function StudioBlueprintAnimation({ onDone, finale }) {
       write("flare", "--lens-flare", flare);
       write("plateDark", "--plate-dark", plateDark);
       write("plateUi", "--plate-ui", plateUi);
+      write("realScale", "--real-studio-scale", realScale);
 
       const blurPx = blur.toFixed(2);
       if (lastVars.blur !== blurPx) {
@@ -322,7 +321,7 @@ export default function StudioBlueprintAnimation({ onDone, finale }) {
         );
       }
 
-      const chromeOpacity = (1 - smoothstep(0.9, 0.97, finale)).toFixed(3);
+      const chromeOpacity = (1 - smoothstep(0.35, 0.65, finale)).toFixed(3);
       if (chromeRef.current && chromeOpacity !== lastChrome) {
         lastChrome = chromeOpacity;
         chromeRef.current.style.opacity = chromeOpacity;
@@ -330,7 +329,7 @@ export default function StudioBlueprintAnimation({ onDone, finale }) {
            them out of the accessibility tree while the home page takes over. */
         chromeRef.current.setAttribute(
           "aria-hidden",
-          finale > 0.97 ? "true" : "false",
+          finale > 0.65 ? "true" : "false",
         );
       }
 

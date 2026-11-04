@@ -131,7 +131,7 @@ export default function FinaleCamera({ progress, screenRef, lensRef }) {
         }
       };
 
-      if (f <= 0 || !screenRef.current || !lensRef.current) {
+      if (f <= 0 || !screenRef.current || !lensRef.current || f >= 0) {
         camera.position.copy(base.pos);
         camera.up.set(0, 1, 0);
         camera.lookAt(base.look);

@@ -100,10 +100,10 @@ export function createStudioMaterials(uniforms) {
   const mats = {
     /* Surfaces that roll in from the back of the room. */
     floor: solid(uniforms, {
-      color: '#b4b3aa',
-      roughness: 0.34,
-      metalness: 0.14,
-      envMapIntensity: 1.25,
+      color: '#b8b7ae',
+      roughness: 0.22,
+      metalness: 0.2,
+      envMapIntensity: 1.6,
       map: floorGrain,
       reveal: 'floor',
       edge: '#9df7ec',
@@ -118,18 +118,18 @@ export function createStudioMaterials(uniforms) {
     }),
 
     /* Architecture. */
-    wall: solid(uniforms, { color: '#26483b', roughness: 0.74, metalness: 0.02, envMapIntensity: 0.7 }),
-    wallDark: solid(uniforms, { color: '#1b3329', roughness: 0.8, metalness: 0.02, envMapIntensity: 0.6 }),
-    panel: solid(uniforms, { color: '#161917', roughness: 0.68, metalness: 0.05 }),
+    wall: solid(uniforms, { color: '#183428', roughness: 0.68, metalness: 0.04, envMapIntensity: 0.85 }),
+    wallDark: solid(uniforms, { color: '#13281f', roughness: 0.72, metalness: 0.04, envMapIntensity: 0.75 }),
+    panel: solid(uniforms, { color: '#131514', roughness: 0.85, metalness: 0.02 }),
     white: solid(uniforms, { color: '#cdccc3', roughness: 0.88, metalness: 0.01 }),
     paper: solid(uniforms, { color: '#e4e1d6', roughness: 0.92, metalness: 0.01, map: paperGrain }),
-    backdrop: solid(uniforms, { color: '#8e938f', roughness: 0.94, metalness: 0, map: canvasMap, edge: '#bdf7ee' }),
+    backdrop: solid(uniforms, { color: '#727674', roughness: 0.92, metalness: 0, map: canvasMap, edge: '#bdf7ee' }),
     black: solid(uniforms, { color: '#0e1010', roughness: 0.92, metalness: 0.02 }),
     ceiling: solid(uniforms, { color: '#080a09', roughness: 0.96, metalness: 0 }),
 
     /* Rig + stands. */
-    metal: solid(uniforms, { color: '#191b1c', roughness: 0.42, metalness: 0.72, envMapIntensity: 1.1 }),
-    metalSilver: solid(uniforms, { color: '#8c9390', roughness: 0.32, metalness: 0.9, envMapIntensity: 1.3 }),
+    metal: solid(uniforms, { color: '#131516', roughness: 0.3, metalness: 0.88, envMapIntensity: 1.4 }),
+    metalSilver: solid(uniforms, { color: '#a0a8a6', roughness: 0.22, metalness: 0.95, envMapIntensity: 1.5 }),
     gold: solid(uniforms, { color: '#96743c', roughness: 0.34, metalness: 0.92, envMapIntensity: 1.3 }),
 
     /* Cameras + glass. */
@@ -147,11 +147,11 @@ export function createStudioMaterials(uniforms) {
     /* Light modifiers. */
     fabric: solid(uniforms, { color: '#141615', roughness: 0.96, metalness: 0, side: THREE.DoubleSide }),
     diffusion: solid(uniforms, {
-      color: '#f2e8d7',
-      roughness: 0.9,
+      color: '#fff8eb',
+      roughness: 0.85,
       metalness: 0,
-      emissive: '#ffe9c9',
-      emissiveIntensity: 0.5,
+      emissive: '#fff2db',
+      emissiveIntensity: 1.1,
       side: THREE.DoubleSide,
     }),
     led: solid(uniforms, {

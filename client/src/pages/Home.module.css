@@ -36,8 +36,8 @@
 .backdropImage {
   position: absolute;
   inset: 0;
-  background-image: url("/hero/studio-wall.jpg");
-  background-position: center 44%;
+  background-image: url("/video/studio-build-still.webp");
+  background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
   /* Lighter than the old plate: the wall should be readable across the frame,

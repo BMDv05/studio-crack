@@ -1,0 +1,276 @@
+/* Photographic plates of the studio opening. Every layer is positioned by a
+   transform written from scroll progress (see StudioPlates.jsx); the stage's
+   overlays (vignette, crossing, chrome) stay above this stack. */
+
+.root {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  isolation: isolate;
+}
+
+/* The drawing becoming the room (see roomMorph.js). It is not the 3D scene, so the
+   rules that blur and hide that canvas do not apply. */
+.morph {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  visibility: visible !important;
+  filter: none !important;
+}
+
+.root img {
+  display: block;
+  max-width: none;
+  user-select: none;
+}
+
+.room,
+.camera,
+.lens {
+  position: absolute;
+  left: 0;
+  top: 0;
+  visibility: hidden;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.room {
+  transform-origin: 0 0;
+}
+
+/* A phone keeps the width of the room, so the photograph does not reach the
+   top and bottom of the screen: those edges fade into the stage. */
+@media (max-aspect-ratio: 85/100) {
+  .room {
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 7%, #000 88%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, #000 7%, #000 88%, transparent 100%);
+  }
+}
+
+.dim,
+.black {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  opacity: 0;
+  background: #020606;
+}
+
+.black {
+  background: #000;
+}
+
+.fill {
+  width: 100%;
+  height: 100%;
+}
+
+.lens {
+  transform-origin: 50% 50%;
+}
+
+/* The close-up of the lens lies exactly on it, from its own corner. */
+.lensClose {
+  position: absolute;
+  left: 0;
+  top: 0;
+  visibility: hidden;
+  opacity: 0;
+  transform-origin: 0 0;
+  will-change: transform, opacity;
+}
+
+/* What is left of the screen once the camera has gone past the frame. */
+.plane {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  opacity: 0;
+  background: radial-gradient(ellipse at 50% 45%, #0e3b37 0%, #082423 55%, #031111 100%);
+}
+
+/* The way through the O of the mark: the lens is in here, and the mark drawn on
+   top gives this opening its exact shape. */
+.through {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  visibility: hidden;
+  opacity: 0;
+  background: #000;
+}
+
+/* The mark stays a drawing while the camera flies through it: sharp at any size.
+   This canvas is not the 3D scene, so the stage's rules that blur and hide that
+   canvas do not apply. */
+.mark {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  visibility: visible !important;
+  filter: none !important;
+}
+
+/* ---- the camera's own screen --------------------------------------------- */
+
+.screen {
+  position: absolute;
+  overflow: hidden;
+  border-radius: calc(var(--cam-w) * 0.003);
+  color: #d9f7f1;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: calc(var(--cam-w) * 0.0118);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  /* The picture on the screen changes every frame while the mark draws. On its
+     own layer that repaints the screen, never the photograph of the camera. */
+  will-change: transform;
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  /* The dive fades it: on its own layer that never repaints these gradients. */
+  will-change: opacity;
+  background:
+    linear-gradient(90deg, transparent calc(33.33% - 0.5px), #bff5ec calc(33.33% - 0.5px), #bff5ec calc(33.33% + 0.5px), transparent calc(33.33% + 0.5px)),
+    linear-gradient(90deg, transparent calc(66.66% - 0.5px), #bff5ec calc(66.66% - 0.5px), #bff5ec calc(66.66% + 0.5px), transparent calc(66.66% + 0.5px)),
+    linear-gradient(180deg, transparent calc(33.33% - 0.5px), #bff5ec calc(33.33% - 0.5px), #bff5ec calc(33.33% + 0.5px), transparent calc(33.33% + 0.5px)),
+    linear-gradient(180deg, transparent calc(66.66% - 0.5px), #bff5ec calc(66.66% - 0.5px), #bff5ec calc(66.66% + 0.5px), transparent calc(66.66% + 0.5px));
+}
+
+.hud {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.hudTL,
+.hudTR,
+.hudBL,
+.hudBR {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  white-space: nowrap;
+  opacity: 0.86;
+}
+
+.hudTL {
+  left: 4%;
+  top: 6%;
+}
+
+.hudTL b {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.hudTR {
+  right: 4%;
+  top: 6%;
+}
+
+.hudBL {
+  left: 4%;
+  bottom: 6%;
+}
+
+.hudBR {
+  right: 4%;
+  bottom: 6%;
+}
+
+.rec {
+  width: 0.72em;
+  height: 0.72em;
+  border-radius: 50%;
+  background: #ff4438;
+  box-shadow: 0 0 0.7em rgba(255, 68, 56, 0.7);
+}
+
+.bracket {
+  position: absolute;
+  width: 5.5%;
+  height: 9.5%;
+  border: 0 solid rgba(217, 247, 241, 0.72);
+}
+
+.bTL {
+  left: 11%;
+  top: 22%;
+  border-width: 1.5px 0 0 1.5px;
+}
+
+.bTR {
+  right: 11%;
+  top: 22%;
+  border-width: 1.5px 1.5px 0 0;
+}
+
+.bBL {
+  left: 11%;
+  bottom: 22%;
+  border-width: 0 0 1.5px 1.5px;
+}
+
+.bBR {
+  right: 11%;
+  bottom: 22%;
+  border-width: 0 1.5px 1.5px 0;
+}
+
+.logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 62%;
+  color: #e9fbf7;
+  transform: translate(-50%, -50%);
+}
+
+/* The screen's glow, without a filter that would re-run on every drawn stroke. */
+.screen::before {
+  content: "";
+  position: absolute;
+  inset: 22% 12%;
+  background: radial-gradient(closest-side, rgba(120, 240, 224, 0.16), transparent);
+  opacity: var(--screen-glow, 0);
+}
+
+.logo svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Outlines draw on from the scroll value; the letterforms fill in after them. */
+.logo svg path,
+.logo svg rect {
+  fill: currentColor;
+  fill-opacity: var(--logo-fill, 0);
+  stroke: #9df3e6;
+  stroke-width: 0.45;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+/* The glass in front of the picture. */
+.sheen {
+  position: absolute;
+  inset: 0;
+  will-change: opacity;
+  background:
+    linear-gradient(112deg, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.018) 26%, transparent 42%),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.09) 0 1px, transparent 1px 3px);
+}

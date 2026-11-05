@@ -70,15 +70,27 @@ Maintenance helpers in `server/scripts/`:
   `--dh-black` `#161919`, white). Poppins/Cairo self-hosted via `@fontsource`. Eyebrow motif
   (line — label — line), radii 20/12/999px, 56px inputs, one focus style (2px sage outline,
   offset 2px), logical CSS properties, motion 300–600ms ease-out with `prefers-reduced-motion`.
-- **Opening (public home):** the hero slot is a single pinned, scroll-driven R3F studio
-  build — the object on screen is the scene, not a video or image sequence. After the
-  build (400vh desktop / 330vh tablet / 260vh mobile), a 360/300/240vh finale moves the
-  real camera to the hero camera's rear screen, draws the official Double H + STUDIO
-  wordmark in the blueprint line style, orbits to the lens, pushes down the actual lens
-  axis and closes to black before the real home page is released. Scroll is the only
-  controller and
-  forward/backward resolve from the same progress value. Reduced motion and no-WebGL /
-  scene failures keep a static studio plate and open the site immediately.
+- **Opening (public home):** the hero slot is a single pinned, scroll-driven timeline. Over
+  the first 442vh desktop / 358vh tablet / 168vh mobile the real room is built from an empty
+  stage (`roomMorph.js`): a measured vector line drawing growing stroke by stroke (floor,
+  structure, gear), the room itself rising unlit out of the dark back to front, its
+  materials, then the lights coming on one at a time, all lying exactly on the photograph.
+  Then
+  `StudioPlates` runs the 440/360/150vh finale with a
+  photographic composite from `client/public/hero/plates/`: it pushes into the room photo,
+  racks focus to the camera, draws the official Double H + STUDIO wordmark on its screen,
+  and dives through the O of that wordmark: a real lens sits in its counter, the letters fly
+  out of frame around it as the screen goes dark, and the push carries on down the lens axis,
+  with no cut anywhere in the move. One camera runs through all of it:
+  `plates/camera.webp` is baked onto both tripods of `plates/room.webp`. The lens's own iris
+  (`lensIris.js`: seven blades cut from the photograph, each turning on its own pivot) then
+  opens onto the finished home hero, whose background is its own picture,
+  `client/public/hero/hero-stage.webp`, at its final look from the first open pixel. That
+  picture is a graded Pexels photo (pexels.com/photo/photo-of-a-studio-set-up-7865064/)
+  with the camera makers' marks retouched out.
+  Scroll is the only controller and forward/backward resolve from the same progress value.
+  Reduced motion, no WebGL or a plate that fails to load keep a static studio plate and open
+  the site immediately.
 - **Two video types (Part C):** `videos.category` is required (`production` | `social`),
   independent `sort_order` per category, `/work?type=` pill switch synced to the URL
   (default `production`, back button works), 16:9 grid vs 9:16 grid with muted looping

@@ -627,6 +627,7 @@ export default function StudioScene({ progress, low = false, onFail }) {
     >
       <canvas
         ref={canvasRef}
+        data-scene=""
         aria-hidden="true"
         style={{ display: 'block', width: '100%', height: '100%', touchAction: 'pan-y' }}
       />

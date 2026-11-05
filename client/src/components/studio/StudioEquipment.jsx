@@ -265,7 +265,9 @@ function CinemaRig({ mats, lensFront }) {
 }
 
 function CameraBody({ mats, cinema, hero = false, screenRef, lensRef, progress }) {
-  const body = cinema ? [0.275, 0.185, 0.225] : [0.245, 0.17, 0.205];
+  /* Non-cinema is the mirrorless body of the photographs: wide and flat-topped,
+     a large eyecup at the top left, the screen left of centre, no top handle. */
+  const body = cinema ? [0.275, 0.185, 0.225] : [0.29, 0.17, 0.205];
   const lensLength = cinema ? 0.24 : 0.2;
   const lensRadius = cinema ? 0.057 : 0.052;
   const lensFront = -0.085 - lensLength - 0.062;
@@ -291,7 +293,10 @@ function CameraBody({ mats, cinema, hero = false, screenRef, lensRef, progress }
       <Box position={[0, -0.105, 0.012]} size={[0.135, 0.028, 0.105]} material={mats.metal} />
 
       {/* lens: bayonet mount, barrel, ribbed zoom and focus rings, scale
-          marks, hood (stills-style) or front housing (cine prime), glass */}
+          marks, hood (stills-style) or front housing (cine prime), glass.
+          Out of the drawing: seen from behind, a wireframe would show the lens
+          through the body, where the photograph it turns into shows the back. */}
+      <Fine>
       <Cyl position={[0, 0.004, -0.1]} rotation={[PI / 2, 0, 0]} radius={lensRadius + 0.012} height={0.03} segments={20} material={mats.metalSilver} />
       <Cyl
         position={[0, 0.004, -0.085 - lensLength / 2]}
@@ -326,6 +331,7 @@ function CameraBody({ mats, cinema, hero = false, screenRef, lensRef, progress }
         radius={lensRadius - 0.002}
         material={mats.glass}
       />
+      </Fine>
       {hero && (
         <>
           <group ref={lensRef} position={[0, 0.004, lensFront]} />
@@ -333,13 +339,12 @@ function CameraBody({ mats, cinema, hero = false, screenRef, lensRef, progress }
         </>
       )}
 
-      {/* top handle + posts */}
-      <Box position={[0, 0.115, 0.02]} size={[0.165, 0.026, 0.052]} material={mats.cameraTrim} />
-      <Box position={[-0.062, 0.088, 0.02]} size={[0.022, 0.048, 0.022]} material={mats.metal} />
-      <Box position={[0.062, 0.088, 0.02]} size={[0.022, 0.048, 0.022]} material={mats.metal} />
-
       {cinema ? (
         <>
+          {/* top handle + posts */}
+          <Box position={[0, 0.115, 0.02]} size={[0.165, 0.026, 0.052]} material={mats.cameraTrim} />
+          <Box position={[-0.062, 0.088, 0.02]} size={[0.022, 0.048, 0.022]} material={mats.metal} />
+          <Box position={[0.062, 0.088, 0.02]} size={[0.022, 0.048, 0.022]} material={mats.metal} />
           <Box position={[0, 0.133, 0.015]} size={[0.27, 0.012, 0.018]} material={mats.metal} />
           <Box position={[0, 0.133, -0.08]} size={[0.012, 0.012, 0.16]} material={mats.metal} />
           {/* top monitor with sunhood */}
@@ -355,10 +360,13 @@ function CameraBody({ mats, cinema, hero = false, screenRef, lensRef, progress }
         </>
       ) : (
         <>
-          <Box position={[0, 0.005, 0.104]} size={[0.14, 0.095, 0.004]} material={mats.screen} />
-          <Box position={[0, 0.005, 0.101]} size={[0.152, 0.106, 0.003]} material={mats.cameraTrim} />
+          <Box position={[-0.03, -0.018, 0.104]} size={[0.14, 0.095, 0.004]} material={mats.screen} />
+          <Box position={[-0.03, -0.018, 0.101]} size={[0.152, 0.106, 0.003]} material={mats.cameraTrim} />
+          {/* eyecup and the two top dials */}
+          <RoundedBox args={[0.092, 0.062, 0.034]} radius={0.014} smoothness={2} position={[-0.092, 0.07, 0.116]} material={mats.rubber} />
+          <Knob material={mats.metal} position={[0.112, 0.092, -0.01]} r={0.017} l={0.012} />
           {hero && (
-            <group ref={screenRef} position={[0, 0.005, 0.1066]}>
+            <group ref={screenRef} position={[-0.03, -0.018, 0.1066]}>
               <StudioLogoReveal progress={progress} />
             </group>
           )}
@@ -384,9 +392,13 @@ function CameraBody({ mats, cinema, hero = false, screenRef, lensRef, progress }
       )}
 
       {/* EVF with rubber eyecup, ports, tally light */}
-      <Box position={[-0.086, 0.052, 0.115]} size={[0.062, 0.054, 0.062]} material={mats.cameraTrim} />
-      <RoundedBox args={[0.058, 0.05, 0.03]} radius={0.012} smoothness={2} position={[-0.086, 0.052, 0.158]} material={mats.rubber} />
-      <Box position={[0.075, 0.045, 0.113]} size={[0.055, 0.03, 0.02]} material={mats.metal} />
+      {cinema && (
+        <>
+          <Box position={[-0.086, 0.052, 0.115]} size={[0.062, 0.054, 0.062]} material={mats.cameraTrim} />
+          <RoundedBox args={[0.058, 0.05, 0.03]} radius={0.012} smoothness={2} position={[-0.086, 0.052, 0.158]} material={mats.rubber} />
+          <Box position={[0.075, 0.045, 0.113]} size={[0.055, 0.03, 0.02]} material={mats.metal} />
+        </>
+      )}
       <Box position={[0.09, 0.072, -0.114]} size={[0.015, 0.01, 0.008]} material={mats.record} />
       <Box position={[-0.11, 0.06, -0.114]} size={[0.022, 0.022, 0.006]} material={mats.metal} />
     </group>
@@ -707,8 +719,10 @@ const CABLE_RUNS = [
    -------------------------------------------------------------------------- */
 
 const CAMERAS = [
-  { x: -1.75, z: 2.3, yaw: -0.3, head: 1.63, casters: false, cinema: true, seed: 0.5 },
-  { x: 0.85, z: 4.05, yaw: 0.22, head: 1.5, casters: true, cinema: false, seed: 0.515 },
+  /* The same camera on both tripods, backs to the viewer, as in the photograph
+     the drawing turns into. */
+  { x: -1.75, z: 2.3, yaw: 0.3, head: 1.63, casters: false, cinema: false, seed: 0.5 },
+  { x: 0.85, z: 4.05, yaw: -0.2, head: 1.5, casters: true, cinema: false, seed: 0.515 },
 ];
 
 /* Exported so the lighting and the reflection bake put their sources exactly

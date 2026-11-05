@@ -36,8 +36,9 @@
 .backdropImage {
   position: absolute;
   inset: 0;
-  background-image: url("/hero/studio-final.webp");
-  background-position: center center;
+  background-image: url("/hero/hero-stage.webp");
+  /* From the top, so the lighting rig clears the header. */
+  background-position: center top;
   background-size: cover;
   background-repeat: no-repeat;
   /* The photograph keeps its own colour; the reveal blur is the only softening
@@ -337,11 +338,14 @@
   border-inline-end: 1px solid;
 }
 
-/* AF lock: a faint focus mark in the open right-hand side of the shot. */
+/* AF lock: a faint focus mark on the lens of whichever camera in the backdrop is clear
+   of the copy. Placed as shares of the picture's size: under the cover its width is the
+   larger of 100vw and 16/9 of the height, and its height the larger of 9/16 of the
+   width and 100vh, measured down from the top. */
 .lock {
   position: absolute;
-  top: calc(37% - 23px);
-  inset-inline-end: clamp(86px, 17vw, 260px);
+  top: calc(max(24.98vw, 44.4vh) - 23px);
+  left: calc(50% + max(17vw, 30.2vh) - 23px);
   width: 46px;
   height: 46px;
   z-index: 3;
@@ -350,6 +354,11 @@
   opacity: calc(var(--plate-ui, 1) * 0.58);
   transform-origin: 50% 50%;
   will-change: transform, opacity;
+}
+
+:global([dir="rtl"]) .lock {
+  top: calc(max(23.2vw, 41.3vh) - 23px);
+  left: calc(50% - max(9.3vw, 16.5vh) - 23px);
 }
 
 .lockCorner {
@@ -401,9 +410,9 @@
 
 .lockLabel {
   position: absolute;
-  left: 50%;
-  top: calc(100% + 12px);
-  transform: translateX(-50%);
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
   color: rgba(230, 236, 236, 0.56);
   font-family: var(--dh-font-mono);
   font-size: 8px;
@@ -591,9 +600,20 @@
   margin: 0;
   color: var(--dh-text-on-dark);
 }
+.lensPicture {
+  margin-top: clamp(24px, 2.6vw, 34px);
+  border: 1px solid rgba(230, 236, 236, 0.16);
+}
+.lensPicture img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
 .focusList {
   list-style: none;
-  margin: 30px 0 0;
+  margin: 0;
   padding: 0;
   border-top: 1px solid rgba(230, 236, 236, 0.16);
 }
@@ -813,12 +833,10 @@
   .lensCol {
     position: relative;
     top: auto;
-    width: min(100%, 450px);
-    margin-inline: auto;
     padding-top: 0;
   }
   .lensCopy {
-    padding-top: 8px;
+    padding-top: 0;
   }
   .slateCol {
     position: relative;
@@ -968,6 +986,16 @@
   }
   .heroRail {
     padding-block: 11px 0;
+  }
+}
+
+/* On a phone the copy fills the middle of the frame, so the picture is enlarged and
+   lifted to put the camera in the open wall above the title. */
+@media (max-width: 760px) {
+  .backdropImage {
+    background-color: #020a0a;
+    background-position: 31.5% 115%;
+    background-size: auto 120%;
   }
 }
 

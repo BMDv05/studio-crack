@@ -41,7 +41,8 @@
 /* The plate is opaque and covers every corner at this point. Hiding the
    canvas takes the full-screen WebGL composite (and its blur filter) out of
    the plate hold, which is otherwise a still image behind a fixed header. */
-.stage[data-header] canvas {
+.stage[data-header] canvas,
+.stage[data-plates-full] canvas {
   visibility: hidden;
 }
 
@@ -216,6 +217,12 @@
   visibility: visible;
 }
 
+/* The blades cover what is not yet open, so the hero needs no clip of its own. */
+.stage[data-iris] .aperture {
+  clip-path: none;
+  will-change: auto;
+}
+
 /* The screen revealed through the glass (the finished site hero). It stays
    inert while the aperture is closed and becomes interactive once it opens. */
 .finale {
@@ -226,6 +233,27 @@
 
 .stage[data-aperture] .finale {
   pointer-events: auto;
+}
+
+/* The picture always reaches the bottom of the frame, even where the hero's
+   content is shorter than a tall phone screen. */
+.stage .finale > * {
+  min-height: 100%;
+}
+
+/* The blades of the photographed lens, above the hero they open onto. This
+   canvas is not the 3D scene, so the rules that blur and hide that canvas do
+   not apply. StudioPlates shows it only while the iris is on screen. */
+.iris {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: none;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  visibility: visible !important;
+  filter: none !important;
 }
 
 /* The iris rim, drawn on the edge of the clip so the opening reads as glass

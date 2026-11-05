@@ -64,9 +64,12 @@ export const PHASE = {
    the camera move: the build and the finale are mapped over their original
    scroll distance, and the extra distance simply keeps the last frame still
    before the opening lets go. */
-export const SCROLL_VH = { desktop: 400, tablet: 330, mobile: 130 };
-export const FINALE_SCROLL_VH = { desktop: 360, tablet: 300, mobile: 110 };
+export const SCROLL_VH = { desktop: 320, tablet: 264, mobile: 104 };
+export const FINALE_SCROLL_VH = { desktop: 440, tablet: 360, mobile: 150 };
 export const PLATE_HOLD_VH = { desktop: 80, tablet: 65, mobile: 30 };
+/* The drawing becoming the room, between the build and the finale. Without the
+   plates this distance goes to the build instead. */
+export const MORPH_SCROLL_VH = { desktop: 442, tablet: 358, mobile: 168 };
 
 export function scrollLengthVh() {
   if (typeof window === 'undefined') return SCROLL_VH.desktop;
@@ -92,17 +95,25 @@ export function plateHoldVh() {
   return PLATE_HOLD_VH.desktop;
 }
 
+export function morphLengthVh() {
+  if (typeof window === 'undefined') return MORPH_SCROLL_VH.desktop;
+  const w = window.innerWidth;
+  if (w < 760) return MORPH_SCROLL_VH.mobile;
+  if (w < 1100) return MORPH_SCROLL_VH.tablet;
+  return MORPH_SCROLL_VH.desktop;
+}
+
 export function activeScrollLengthVh() {
-  return scrollLengthVh() + finaleLengthVh();
+  return morphLengthVh() + finaleLengthVh();
 }
 
 export function totalScrollLengthVh() {
   return activeScrollLengthVh() + plateHoldVh();
 }
 
-/* Where the build ends inside the moving (non-hold) part of the pin. */
-export function scrollSplit() {
-  return scrollLengthVh() / activeScrollLengthVh();
+/* Where the finale starts inside it. */
+export function finaleSplit() {
+  return morphLengthVh() / activeScrollLengthVh();
 }
 
 /* How much of the pin is the build + lens move, before the plate hold. */

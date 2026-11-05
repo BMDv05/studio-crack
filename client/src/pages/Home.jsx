@@ -11,7 +11,6 @@ import PageMeta from "../components/PageMeta.jsx";
 import SplitText from "../components/SplitText.jsx";
 import Reveal from "../components/Reveal.jsx";
 import StudioBlueprintAnimation from "../components/studio/StudioBlueprintAnimation.jsx";
-import StudioLens from "../components/studio/StudioLens.jsx";
 import CallSlate from "../components/studio/CallSlate.jsx";
 import { useLang } from "../i18n/LanguageContext.jsx";
 import {
@@ -24,7 +23,7 @@ import styles from "./Home.module.css";
 
 const HERO_SERVICE_KEYS = ["brand", "arch", "video", "social", "digital"];
 
-/* The studio-wall plate. Fixed for the page, inline for the hero inside the
+/* The stage picture. Fixed for the page, inline for the hero inside the
    opening. Both use the same light: the wall stays visible across the frame,
    with only the left-hand scrim kept for copy contrast. */
 function HomeBackdrop({ inline = false }) {
@@ -244,9 +243,6 @@ export default function Home() {
         >
           <div className={`wrap ${styles.lensGrid}`}>
             <div className={styles.lensCol}>
-              <StudioLens />
-            </div>
-            <div className={styles.lensCopy}>
               <p className="eyebrow">{t("home.what.eyebrow")}</p>
               <SplitText
                 id="studio-lens-title"
@@ -261,6 +257,18 @@ export default function Home() {
               >
                 {t("home.what.lede")}
               </Reveal>
+              <Reveal className={styles.lensPicture} delay={0.25}>
+                <img
+                  src="/hero/craft-lens.webp"
+                  alt=""
+                  width="1200"
+                  height="800"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </Reveal>
+            </div>
+            <div className={styles.lensCopy}>
               <Reveal as="ul" className={styles.focusList} stagger>
                 {CRAFT_KEYS.map((key, i) => (
                   <li className={styles.focusItem} key={key}>

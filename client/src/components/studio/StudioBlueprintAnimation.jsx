@@ -1,21 +1,17 @@
-/* The studio opening — a real-time 3D build, driven by scroll.
+/* The studio opening — the real room built from nothing, landing on real
+   photographs, driven by scroll.
 
    The section takes the exact slot the old studio film used (first in the page,
    full-screen after the preloader). Its pin is one deterministic timeline: the
-   ScrollTrigger writes a single number, and the scene resolves every pixel from
-   that number. Pausing the wheel freezes the build; scrolling back un-builds it
-   in exactly the same order.
+   ScrollTrigger writes a single number, and every pixel resolves from that
+   number. Pausing the wheel freezes the shot; scrolling back plays it in exactly
+   the same order.
 
-   The canvas is only rendered when that number changes (frameloop="demand"),
-   so an idle pinned section costs nothing.
-
-   No video, no frames, no sprites: the object on screen is the object in the
-   scene graph. */
+   StudioPlates draws the room from an empty stage and carries it on into a
+   photographic composite, only when that number changes, so an idle pinned section
+   costs nothing. If a photograph fails to load, the opening is the still hero. */
 
 import {
-  Component,
-  Suspense,
-  lazy,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -26,15 +22,11 @@ import { ScrollTrigger, prefersReducedMotion } from "../../lib/anim.js";
 import { useAppReady } from "../../hooks/useAppReady.jsx";
 import { useLang } from "../../i18n/LanguageContext.jsx";
 import FinalePlate from "./FinalePlate.jsx";
-
-/* The 3D scene is the heaviest part of the site. It lives in its own chunk so
-   the preloader, the header and the page shell paint first; the chunk starts
-   loading as soon as this component mounts, behind the preloader. */
-const StudioScene = lazy(() => import("./StudioScene.jsx"));
+import StudioPlates from "./StudioPlates.jsx";
 import {
   activeScrollFraction,
   clamp01,
-  scrollSplit,
+  finaleSplit,
   smoothstep,
   totalScrollLengthVh,
 } from "./studioMath.js";
@@ -50,26 +42,6 @@ function StudioFallback() {
       <div className={s.fallbackHorizon} />
     </div>
   );
-}
-
-class SceneBoundary extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { failed: false };
-  }
-
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-
-  componentDidCatch() {
-    this.props.onFail?.();
-  }
-
-  render() {
-    if (this.state.failed) return <StudioFallback />;
-    return this.props.children;
-  }
 }
 
 function canUseWebGL() {
@@ -92,9 +64,6 @@ export default function StudioBlueprintAnimation({ onDone, finale }) {
   const reduced = useMemo(() => prefersReducedMotion(), []);
   const [webgl] = useState(canUseWebGL);
   const [failed, setFailed] = useState(false);
-  const [low] = useState(() =>
-    typeof window !== "undefined" ? window.innerWidth < 760 : false,
-  );
 
   const slotRef = useRef(null);
   const rootRef = useRef(null);
@@ -102,22 +71,15 @@ export default function StudioBlueprintAnimation({ onDone, finale }) {
   const hintRef = useRef(null);
   const chromeRef = useRef(null);
   const lensRef = useRef(null);
+  const platesRef = useRef(null);
+  const irisRef = useRef(null);
 
   const doneRef = useRef(onDone);
   doneRef.current = onDone;
 
-  /* One mutable channel between the scroll trigger and the renderer. The scene
-     installs its invalidate() here; progress is the only thing that changes.
-     `p` is the original build; `finale` is the appended logo/lens sequence. */
-  const progress = useMemo(
-    () => ({
-      p: reduced || !webgl ? 1 : 0,
-      finale: 0,
-      total: 0,
-      invalidate: null,
-    }),
-    [reduced, webgl],
-  );
+  /* One mutable channel between the scroll trigger and the plates. `morph` is the
+     room's build; `finale` is the appended logo/lens sequence. */
+  const progress = useMemo(() => ({ morph: 0, finale: 0, total: 0 }), []);
 
   const settled = reduced || !webgl || failed;
 
@@ -242,6 +204,15 @@ export default function StudioBlueprintAnimation({ onDone, finale }) {
       const plateBlur =
         2.4 * smoothstep(0.9, 0.95, f) * (1 - smoothstep(0.965, 0.992, f));
 
+      /* With the photographs on screen the blades of the iris do the reveal,
+         and StudioPlates says when they have closed off the frame. Behind them
+         the hero is already its final picture: never dark, never blurred, so the
+         first thing seen through the hole is the same image the page ends on. */
+      const photo = root.hasAttribute("data-plates-full");
+      const iris = root.hasAttribute("data-iris");
+      const shot = (crossingValue, irisValue = 0) =>
+        photo ? irisValue : crossingValue;
+
       const write = (slot, name, value) => {
         const next = value.toFixed(3);
         if (lastVars[slot] === next) return;
@@ -249,38 +220,40 @@ export default function StudioBlueprintAnimation({ onDone, finale }) {
         root.style.setProperty(name, next);
       };
 
-      write("entry", "--lens-entry", entry);
-      write("aperture", "--lens-aperture", aperture);
-      write("rim", "--lens-rim", rim);
-      write("flare", "--lens-flare", flare);
-      write("plateDark", "--plate-dark", plateDark);
-      write("plateUi", "--plate-ui", plateUi);
+      const openness = shot(aperture, iris ? 1 : 0);
+      write("entry", "--lens-entry", shot(entry));
+      write("aperture", "--lens-aperture", openness);
+      write("rim", "--lens-rim", shot(rim));
+      write("flare", "--lens-flare", shot(flare));
+      write("plateDark", "--plate-dark", shot(plateDark));
+      write("plateUi", "--plate-ui", shot(plateUi, iris ? 1 : 0));
 
-      const blurPx = blur.toFixed(2);
+      const blurPx = shot(blur).toFixed(2);
       if (lastVars.blur !== blurPx) {
         lastVars.blur = blurPx;
         root.style.setProperty("--lens-blur", `${blurPx}px`);
       }
 
-      const plateBlurPx = plateBlur.toFixed(2);
+      const plateBlurPx = shot(plateBlur).toFixed(2);
       if (lastVars.plateBlur !== plateBlurPx) {
         lastVars.plateBlur = plateBlurPx;
         root.style.setProperty("--plate-blur", `${plateBlurPx}px`);
       }
 
-      const open = aperture > 0.001;
+      const open = openness > 0.001;
       if (root.hasAttribute("data-aperture") !== open) {
         root.toggleAttribute("data-aperture", open);
       }
 
       /* The barrel darkens around the glass as the camera crosses; the
          opening itself carries the light. */
-      const veilKey = veil.toFixed(3);
+      const veilValue = shot(veil);
+      const veilKey = veilValue.toFixed(3);
       if (lens && veilKey !== lastVeil) {
         lastVeil = veilKey;
         lens.style.opacity = veilKey;
         /* Keep the veil out of the compositor for the whole build. */
-        lens.style.visibility = veil < 0.004 ? "hidden" : "visible";
+        lens.style.visibility = veilValue < 0.004 ? "hidden" : "visible";
         lens.style.setProperty("--wash", f.toFixed(3));
       }
     };
@@ -291,20 +264,14 @@ export default function StudioBlueprintAnimation({ onDone, finale }) {
          camera path and its speed do not change. */
       const activeFraction = activeScrollFraction();
       const active = clamp01(total / Math.max(activeFraction, 1e-6));
-      const split = scrollSplit();
-      const p = clamp01(active / Math.max(split, 1e-6));
-      const finale = clamp01((active - split) / Math.max(1 - split, 1e-6));
+      const finaleAt = finaleSplit();
+      const morph = clamp01(active / Math.max(finaleAt, 1e-6));
+      const finale = clamp01((active - finaleAt) / Math.max(1 - finaleAt, 1e-6));
 
-      progress.p = p;
+      progress.morph = morph;
       progress.finale = finale;
       progress.total = active;
-      /* From here on the camera is parked on the glass and the DOM crossing
-         (reflections, flare, aperture) carries the shot. Rendering the close-up
-         behind an opening portal is the most expensive frames of the whole
-         sequence; freezing the last approach frame keeps the reveal at 60fps.
-         At 0.97 the aperture covers the viewport and the canvas is removed
-         entirely (see the CSS). */
-      if (finale < 0.9) progress.invalidate?.();
+      platesRef.current?.update(finale, morph);
 
       if (railRef.current)
         railRef.current.style.transform = `scaleX(${active})`;
@@ -390,18 +357,16 @@ export default function StudioBlueprintAnimation({ onDone, finale }) {
         }
         aria-label={t("studio.aria")}
       >
-        {webgl && !failed ? (
-          <SceneBoundary onFail={() => setFailed(true)}>
-            <Suspense fallback={null}>
-              <StudioScene
-                progress={progress}
-                low={low}
-                onFail={() => setFailed(true)}
-              />
-            </Suspense>
-          </SceneBoundary>
-        ) : (
-          <StudioFallback />
+        {settled && <StudioFallback />}
+
+        {!settled && (
+          <StudioPlates
+            ref={platesRef}
+            stageRef={rootRef}
+            irisRef={irisRef}
+            progress={progress}
+            onFail={() => setFailed(true)}
+          />
         )}
 
         {/* Reduced motion, no WebGL, or a scene failure: the final hero
@@ -439,6 +404,7 @@ export default function StudioBlueprintAnimation({ onDone, finale }) {
             <div className={s.glass} />
             <div className={s.flare} />
             <div className={s.rim} />
+            <canvas ref={irisRef} className={s.iris} aria-hidden="true" />
           </div>
         )}
 
